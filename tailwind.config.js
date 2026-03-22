@@ -4,7 +4,7 @@ module.exports = {
   presets: [require("nativewind/preset")],
   theme: {
     extend: {
-      // 🎨 SEMANTIC COLORS (Mapped directly to your CSS primitives)
+      // Semantic Colors (Mapped from global.css)
       colors: {
         text: {
           default: "var(--color-black-500)",
