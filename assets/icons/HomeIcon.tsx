@@ -1,0 +1,18 @@
+import * as React from "react";
+import Svg from "react-native-svg";
+
+// HomeIcon
+export default function HomeIcon({ color = "", size = 24 }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <path
+        d="M1 9L2.77778 7.22222M2.77778 7.22222L9 1L15.2222 7.22222M2.77778 7.22222V16.1111C2.77778 16.602 3.17575 17 3.66667 17H6.33333M15.2222 7.22222L17 9M15.2222 7.22222V16.1111C15.2222 16.602 14.8243 17 14.3333 17H11.6667M6.33333 17C6.82425 17 7.22222 16.602 7.22222 16.1111V12.5556C7.22222 12.0646 7.62019 11.6667 8.11111 11.6667H9.88889C10.3798 11.6667 10.7778 12.0646 10.7778 12.5556V16.1111C10.7778 16.602 11.1757 17 11.6667 17M6.33333 17H11.6667"
+        stroke={color}
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+      ;
+    </Svg>
+  );
+}
