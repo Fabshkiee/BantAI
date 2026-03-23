@@ -97,6 +97,13 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <HistoryIcon color={color} size={32} />,
         }}
       />
+      <Tabs.Screen
+        name="landscapeOrientation"
+        options={{
+          tabBarStyle: { display: "none" },
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }
