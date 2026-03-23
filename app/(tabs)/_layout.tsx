@@ -65,7 +65,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="startScan"
+        name="photoInstructions"
         options={{
           title: "",
           tabBarIconStyle: {
