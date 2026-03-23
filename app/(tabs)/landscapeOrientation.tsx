@@ -16,7 +16,9 @@ export default function LandscapeOrientationScreen() {
     >
       <View className="items-center">
         {/* Robot */}
-        <View className={`items-center justify-center ${isLandscape ? "mb-2" : "mb-8"}`}>
+        <View
+          className={`items-center justify-center ${isLandscape ? "mb-2" : "mb-8"}`}
+        >
           <Image
             source={require("@/assets/mascot/MascotPhone.png")}
             style={
@@ -50,7 +52,7 @@ export default function LandscapeOrientationScreen() {
           className={isLandscape ? "w-80" : "w-full"}
           disabled={!isLandscape}
           onPress={() => {
-            router.push("/");
+            router.push("/camera");
           }}
           icon={<ArrowIcon color="white" size={20} />}
           iconPosition="right"
