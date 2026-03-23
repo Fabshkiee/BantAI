@@ -3,7 +3,7 @@
     "name": "BantAI",
     "slug": "BantAI",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/images/icon.png",
     "scheme": "bantai",
     "userInterfaceStyle": "automatic",
