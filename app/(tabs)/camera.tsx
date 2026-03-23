@@ -1,5 +1,7 @@
 import Button from "@/components/Button";
 import { CameraView, useCameraPermissions } from "expo-camera";
+import { useFocusEffect } from "expo-router";
+import * as ScreenOrientation from "expo-screen-orientation";
 import * as React from "react";
 import { useEffect, useState } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
@@ -7,6 +9,20 @@ import { Image, Text, TouchableOpacity, View } from "react-native";
 export default function CameraScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const [showNotification, setShowNotification] = useState(true);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      ScreenOrientation.lockAsync(
+        ScreenOrientation.OrientationLock.LANDSCAPE_RIGHT,
+      );
+
+      return () => {
+        ScreenOrientation.lockAsync(
+          ScreenOrientation.OrientationLock.PORTRAIT_UP,
+        );
+      };
+    }, []),
+  );
 
   useEffect(() => {
     if (showNotification) {
