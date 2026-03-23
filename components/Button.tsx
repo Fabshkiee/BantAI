@@ -9,6 +9,7 @@ type ButtonProps = {
   className?: string;
   iconPosition?: "left" | "right";
   loading?: boolean;
+  disabled?: boolean;
 };
 
 export default function Button({
@@ -19,6 +20,7 @@ export default function Button({
   className = "",
   iconPosition = "left",
   loading = false,
+  disabled = false,
 }: ButtonProps) {
   const variants = {
     primary: "bg-surface-primary border-transparent",
@@ -33,11 +35,11 @@ export default function Button({
   return (
     <Pressable
       onPress={onPress}
-      disabled={loading}
+      disabled={disabled || loading}
       className={`
     flex-row items-center justify-center p-4 rounded-[56px] transition-all
     ${variants[variant]} 
-    ${!loading ? " active:bg-surface-focus active:scale-[0.96]" : ""} 
+    ${!(disabled || loading) ? " active:bg-surface-focus active:scale-[0.96]" : "opacity-50"} 
     ${className}
   `}
     >
