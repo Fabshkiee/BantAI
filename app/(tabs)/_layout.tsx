@@ -67,6 +67,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="photoInstructions"
         options={{
+          tabBarStyle: { display: "none" },
           title: "",
           tabBarIconStyle: {
             marginTop: -20,
