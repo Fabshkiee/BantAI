@@ -4,7 +4,7 @@ import "../global.css";
 
 export default function RootLayout() {
   return (
-    <View className="flex-1 bg-surface-default">
+    <View className="flex-1">
       <Stack
         screenOptions={{
           // Standard iOS/Android "Slide" feel
@@ -13,17 +13,7 @@ export default function RootLayout() {
           headerShown: false,
           contentStyle: { backgroundColor: "transparent" },
         }}
-      >
-        {/* Specific screen overrides */}
-        <Stack.Screen name="explore" options={{ animation: "fade" }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-
-        {/* Modals usually look better sliding from bottom */}
-        <Stack.Screen
-          name="not-found"
-          options={{ presentation: "modal", animation: "slide_from_bottom" }}
-        />
-      </Stack>
+      ></Stack>
     </View>
   );
 }
