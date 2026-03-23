@@ -1,12 +1,26 @@
 import ArrowIcon from "@/assets/icons/ArrowIcon";
 import Button from "@/components/Button";
 import { router } from "expo-router";
+import { useFocusEffect } from "expo-router";
+import * as ScreenOrientation from "expo-screen-orientation";
 import * as React from "react";
 import { Image, Text, View, useWindowDimensions } from "react-native";
 
 export default function LandscapeOrientationScreen() {
   const { width, height } = useWindowDimensions();
   const isLandscape = width > height;
+
+  useFocusEffect(
+    React.useCallback(() => {
+      // Unlock all orientations for this page
+      ScreenOrientation.unlockAsync();
+
+      return () => {
+        // Lock back to portrait when leaving
+        ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+      };
+    }, [])
+  );
 
   return (
     <View
