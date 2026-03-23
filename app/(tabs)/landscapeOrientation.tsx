@@ -2,9 +2,12 @@ import ArrowIcon from "@/assets/icons/ArrowIcon";
 import Button from "@/components/Button";
 import { router } from "expo-router";
 import * as React from "react";
-import { Image, Text, View } from "react-native";
+import { Image, Text, View, useWindowDimensions } from "react-native";
 
 export default function LandscapeOrientationScreen() {
+  const { width, height } = useWindowDimensions();
+  const isLandscape = width > height;
+
   return (
     <View className="flex-1 bg-surface-default px-8 pt-44">
       <View className="items-center">
@@ -20,13 +23,20 @@ export default function LandscapeOrientationScreen() {
           For better accuracy, hold your device in landscape orientation.
         </Text>
 
-        <Text className="text-md text-text-critical text-center font-text mb-6">
-          Device is not yet in landscape orientation.
+        <Text
+          className={`text-md text-center font-text mb-6 ${
+            isLandscape ? "text-low" : "text-text-critical"
+          }`}
+        >
+          {isLandscape
+            ? "Device is in landscape orientation."
+            : "Device is not yet in landscape orientation."}
         </Text>
 
         <Button
           label="Take Photo"
           className="w-full"
+          disabled={!isLandscape}
           onPress={() => {
             // Future logic: Trigger camera capture
             router.push("/");
