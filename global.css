@@ -2,4 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
-/*Custom styles diri fonts color etc.*/
+@layer base {
+  /* Primitives  */
+  :root {
+    /* Neutrals */
+    --color-black-500: #000000;
+    --color-white-100: #f5faff;
+    --color-gray-50: #e5e5e5;
+    --color-gray-500: #84888c;
+
+    /* Blues */
+    --color-blue-100: #f0f8ff;
+    --color-blue-400: #54a9ea;
+    --color-blue-500: #006ec2;
+    --color-blue-700: #005da3;
+
+    /* Status & Alerts */
+    --color-red-300: #dd9797;
+    --color-red-500: #b40000;
+    --color-green-300: #aeffb7;
+    --color-green-500: #00ad14;
+    --color-yellow-300: #fdffce;
+    --color-yellow-500: #d89700;
+    --color-orange-300: #ffd6ad;
+    --color-orange-500: #c56400;
+  }
+}
