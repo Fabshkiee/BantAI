@@ -1,14 +1,19 @@
-import { StyleSheet, Text, View } from "react-native";
+import ArrowIcon from "@/assets/icons/ArrowIcon";
+import Button from "@/components/Button";
+import { useRouter } from "expo-router";
+import { View } from "react-native";
 
 export default function HomeScreen() {
+  const router = useRouter();
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>BantAI Home Screen</Text>
+    <View className="mx-7">
+      <Button
+        label="Analyze Risks"
+        onPress={() => router.push("/explore")}
+        iconPosition="right"
+        icon={<ArrowIcon color="white" size={20} />}
+      />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, alignItems: "center", justifyContent: "center" },
-  text: { fontSize: 20, fontWeight: "bold" },
-});

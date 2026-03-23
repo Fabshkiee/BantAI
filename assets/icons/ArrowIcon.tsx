@@ -4,7 +4,13 @@ import Svg from "react-native-svg";
 // ArrowIcon
 export default function ArrowIcon({ color = "", size = 24 }) {
   return (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Svg
+      width={size}
+      height={size}
+      viewBox="0 0 18 18"
+      fill="none"
+      className="mt-2"
+    >
       <path
         fill-rule="evenodd"
         clip-rule="evenodd"

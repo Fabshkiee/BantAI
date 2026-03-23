@@ -1,0 +1,71 @@
+import * as React from "react";
+import { ActivityIndicator, Pressable, Text, View } from "react-native";
+
+type ButtonProps = {
+  label: string;
+  onPress: () => void;
+  icon?: React.ReactNode;
+  variant?: "primary" | "secondary";
+  className?: string;
+  iconPosition?: "left" | "right";
+  loading?: boolean;
+};
+
+export default function Button({
+  label,
+  onPress,
+  icon,
+  variant = "primary",
+  className = "",
+  iconPosition = "left",
+  loading = false,
+}: ButtonProps) {
+  const variants = {
+    primary: "bg-surface-primary border-transparent",
+    secondary: "border-border-primary border-2",
+  };
+
+  const textColors = {
+    primary: "text-text-inverse",
+    secondary: "text-text-primary",
+  };
+
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={loading}
+      className={`
+    flex-row items-center justify-center p-4 rounded-[56px] transition-all
+    ${variants[variant]} 
+    ${!loading ? " active:bg-surface-focus active:scale-[0.96]" : ""} 
+    ${className}
+  `}
+    >
+      {({ pressed }) => (
+        <>
+          {loading ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <View className="flex-row items-center">
+              {icon && iconPosition === "left" && (
+                <View className="mr-2">{icon}</View>
+              )}
+
+              <Text
+                className={`font-text font-bold text-lg ${textColors[variant]} ${pressed ? "" : ""}`}
+              >
+                {label}
+              </Text>
+
+              <View className="flex-row items-center">
+                {icon && iconPosition === "right" && (
+                  <View className="ml-2">{icon}</View>
+                )}
+              </View>
+            </View>
+          )}
+        </>
+      )}
+    </Pressable>
+  );
+}
