@@ -31,7 +31,7 @@ export default function PhotoInstructionsScreen() {
           label="Proceed"
           className="w-full"
           onPress={() => {
-            router.push("/");
+            router.push("/landscapeOrientation");
           }}
           icon={<ArrowIcon color="white" size={20} />}
           iconPosition="right"
