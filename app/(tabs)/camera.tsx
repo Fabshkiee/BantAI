@@ -28,7 +28,7 @@ export default function CameraScreen() {
     if (showNotification) {
       const timer = setTimeout(() => {
         setShowNotification(false);
-      }, 60000);
+      }, 5000);
       return () => clearTimeout(timer);
     }
   }, [showNotification]);
