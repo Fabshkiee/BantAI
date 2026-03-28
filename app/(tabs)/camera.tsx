@@ -67,14 +67,27 @@ export default function CameraScreen() {
       <CameraView style={{ flex: 1 }} facing="back">
         {/* Feedback Notification Popup */}
         {showNotification && (
-          <View className="absolute top-8 w-full items-center z-50">
-            <View className="relative ml-6 mr-6 mt-3">
-              <View className="bg-white rounded-[16px] pl-10 pr-6 py-3 flex-row items-center border border-gray-100 shadow-lg w-full">
-                <Text className="font-text text-md font-medium text-text-default ml-3">
+          <View
+            className="absolute top-8 left-0 items-center right-0 px-6"
+            style={{ zIndex: 50, overflow: "visible" }}
+          >
+            <View
+              className="w-[44%] flex-row items-center"
+              style={{ overflow: "visible" }}
+            >
+              <View
+                className="flex-1 bg-white rounded-full py-4 pr-6 pl-12 shadow-lg border border-gray-100"
+                style={{ minHeight: 64, justifyContent: "center" }}
+              >
+                <Text className="font-text text-md font-medium text-text-default ml-10">
                   Perfect, you may now take the photo.
                 </Text>
               </View>
-              <View className="absolute -left-6 -top-3 w-[64px] h-[64px] rounded-full bg-[#bde0fe] items-center justify-center shadow-sm z-10">
+
+              <View
+                className="absolute left-0 w-[64px] h-[64px] rounded-full bg-[#bde0fe] items-center justify-center shadow-sm"
+                style={{ zIndex: 100, elevation: 10 }} // Elevation forces it above the white box on Android
+              >
                 <Image
                   source={require("@/assets/mascot/MascotSmile.png")}
                   className="w-12 h-12"
@@ -86,7 +99,7 @@ export default function CameraScreen() {
         )}
 
         {/* Capture Button */}
-        <View className="absolute right-12 top-0 bottom-0 justify-center items-center">
+        <View className="absolute right-20 top-0 bottom-0 justify-center items-center">
           <TouchableOpacity
             className="w-[84px] h-[84px] rounded-full border-[3px] border-white items-center justify-center bg-transparent active:scale-95 transition-all"
             activeOpacity={0.8}
