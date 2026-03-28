@@ -25,6 +25,8 @@ export default function CameraScreen() {
     }, []),
   );
 
+  // Add to Function: "good lighting" camera logic
+
   // useEffect(() => {
   //   if (showNotification) {
   //     const timer = setTimeout(() => {
@@ -72,7 +74,7 @@ export default function CameraScreen() {
             style={{ zIndex: 50, overflow: "visible" }}
           >
             <View
-              className="w-[44%] flex-row items-center"
+              className="w-[330px] flex-row items-center"
               style={{ overflow: "visible" }}
             >
               <View
