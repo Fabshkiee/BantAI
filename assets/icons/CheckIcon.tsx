@@ -8,11 +8,10 @@ export default function CheckIcon({ color = "", size = 24 }) {
       <Path
         d="M5 13L9 17L19 7"
         stroke={color}
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
-      ;
     </Svg>
   );
 }

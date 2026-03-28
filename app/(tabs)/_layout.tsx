@@ -65,8 +65,9 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="startScan"
+        name="photoInstructions"
         options={{
+          tabBarStyle: { display: "none" },
           title: "",
           tabBarIconStyle: {
             marginTop: -20,
@@ -94,6 +95,20 @@ export default function TabLayout() {
             paddingBottom: 8,
           },
           tabBarIcon: ({ color }) => <HistoryIcon color={color} size={32} />,
+        }}
+      />
+      <Tabs.Screen
+        name="landscapeOrientation"
+        options={{
+          tabBarStyle: { display: "none" },
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="camera"
+        options={{
+          tabBarStyle: { display: "none" },
+          href: null,
         }}
       />
     </Tabs>

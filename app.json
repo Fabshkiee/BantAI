@@ -38,6 +38,12 @@
             "backgroundColor": "#000000"
           }
         }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow BantAI to access your camera for object detection"
+        }
       ]
     ],
     "experiments": {
