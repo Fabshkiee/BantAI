@@ -74,11 +74,11 @@ export default function CameraScreen() {
             style={{ zIndex: 50, overflow: "visible" }}
           >
             <View
-              className="w-[340px] flex-row items-center"
+              className="flex-row items-center"
               style={{ overflow: "visible" }}
             >
               <View
-                className="flex-1 bg-white rounded-full py-4 pr-6 pl-12 shadow-lg border border-gray-100"
+                className="bg-white rounded-full py-4 pr-6 pl-12 shadow-lg border border-gray-100 w-fit"
                 style={{ minHeight: 64, justifyContent: "center" }}
               >
                 <Text className="font-text text-md font-medium text-text-default ml-10">
