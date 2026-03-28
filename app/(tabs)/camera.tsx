@@ -74,7 +74,7 @@ export default function CameraScreen() {
             style={{ zIndex: 50, overflow: "visible" }}
           >
             <View
-              className="w-[330px] flex-row items-center"
+              className="w-[340px] flex-row items-center"
               style={{ overflow: "visible" }}
             >
               <View
