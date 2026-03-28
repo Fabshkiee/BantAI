@@ -5,19 +5,19 @@ import { Image, Text, View } from "react-native";
 
 export default function PhotoInstructionsScreen() {
   return (
-    <View className="flex-1 bg-surface-default px-8 justify-center">
+    <View className="flex-1 bg-surface-default px-8 pt-36">
       <View className="items-center w-full">
-        <Text className="text-h2 font-display font-bold text-center mb-4 leading-tight">
+        <Text className="text-h2 font-display font-bold text-center mb-3 leading-tight">
           How to Take the Photo
         </Text>
-        <Text className="text-[14px] text-black text-center font-text leading-6 mb-12">
+        <Text className="text-md text-center font-text leading-5 mb-9">
           Position your phone in the area where you{"\n"}can see most of the
           room to ensure a{"\n"}complete scan of all sections.
         </Text>
 
         {/* Image */}
         <View
-          className="w-full bg-blue-100 rounded-[16px] mb-12"
+          className="w-full rounded-2xl mb-9"
           style={{ overflow: "hidden", aspectRatio: 4 / 3 }}
         >
           <Image
@@ -33,7 +33,7 @@ export default function PhotoInstructionsScreen() {
           onPress={() => {
             router.push("/landscapeOrientation");
           }}
-          icon={<ArrowIcon color="white" size={20} />}
+          icon={<ArrowIcon color="white" size={18} />}
           iconPosition="right"
         />
       </View>
