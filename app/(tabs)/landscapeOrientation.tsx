@@ -1,7 +1,6 @@
 import ArrowIcon from "@/assets/icons/ArrowIcon";
 import Button from "@/components/Button";
-import { router } from "expo-router";
-import { useFocusEffect } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import * as ScreenOrientation from "expo-screen-orientation";
 import * as React from "react";
 import { Image, Text, View, useWindowDimensions } from "react-native";
@@ -17,15 +16,17 @@ export default function LandscapeOrientationScreen() {
 
       return () => {
         // Lock back to portrait when leaving
-        ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+        ScreenOrientation.lockAsync(
+          ScreenOrientation.OrientationLock.PORTRAIT_UP,
+        );
       };
-    }, [])
+    }, []),
   );
 
   return (
     <View
       className={`flex-1 bg-surface-default px-8 ${
-        isLandscape ? "items-center justify-center" : "pt-44"
+        isLandscape ? "items-center justify-center" : "pt-48"
       }`}
     >
       <View className="items-center">
@@ -46,7 +47,7 @@ export default function LandscapeOrientationScreen() {
 
       <View className="items-center">
         <Text
-          className={`text-lg font-text font-black mb-3 leading-tight text-center`}
+          className={`text-xl font-text font-semibold mb-3 leading-tight text-center`}
         >
           For better accuracy, hold your device in landscape orientation.
         </Text>
@@ -68,7 +69,7 @@ export default function LandscapeOrientationScreen() {
           onPress={() => {
             router.push("/camera");
           }}
-          icon={<ArrowIcon color="white" size={20} />}
+          icon={<ArrowIcon color="white" size={18} />}
           iconPosition="right"
         />
       </View>
