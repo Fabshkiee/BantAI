@@ -51,7 +51,6 @@ export default function ProgressBar() {
         height={12}
         borderRadius={12}
         borderWidth={0}
-        useNativeDriver={true}
         animationType="spring"
         unfilledColor="#e5e5e5"
         color={brandColor}
