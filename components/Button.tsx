@@ -5,7 +5,7 @@ type ButtonProps = {
   label: string;
   onPress: () => void;
   icon?: React.ReactNode;
-  variant?: "primary" | "secondary";
+  variant?: "primary" | "secondary" | "cancel";
   className?: string;
   iconPosition?: "left" | "right";
   loading?: boolean;
@@ -25,11 +25,13 @@ export default function Button({
   const variants = {
     primary: "bg-surface-primary border-transparent",
     secondary: "border-border-primary border-2",
+    cancel: "border-border-critical border-2",
   };
 
   const textColors = {
     primary: "text-text-inverse",
     secondary: "text-text-primary",
+    cancel: "text-text-critical",
   };
 
   return (
