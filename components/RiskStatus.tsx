@@ -7,10 +7,10 @@ type RiskLevelProps = {
 };
 
 const bgStyle = {
-  low: "bg-surface-green border-2 border-border-low",
-  medium: "bg-surface-yellow border-2 border-border-medium",
-  high: "bg-surface-orange border-2 border-border-high",
-  critical: "bg-surface-red border-2 border-border-critical",
+  low: "bg-surface-green/60 border-2 border-border-low",
+  medium: "bg-surface-yellow/60 border-2 border-border-medium",
+  high: "bg-surface-orange/60 border-2 border-border-high",
+  critical: "bg-surface-red/60 border-2 border-border-critical",
 };
 
 const textStyle = {
