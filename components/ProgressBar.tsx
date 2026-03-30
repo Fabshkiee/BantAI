@@ -30,6 +30,8 @@ const progressBarStates: progressBarState[] = [
 
 export default function ProgressBar() {
   // NOTE: Back-end Logic may be placed here.
+  // use index locations when changing conditions at each phase.
+  // refer to the map above.
 
   // index default by 0
   const indexProgress = 0;
