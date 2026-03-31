@@ -2,7 +2,7 @@ import * as React from "react";
 import Svg, { Path } from "react-native-svg";
 
 // LowRiskICon
-export default function LowRiskICon({ size = 36 }) {
+export default function LowRiskIcon({ size = 36 }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 36 36" fill="none">
       <Path
