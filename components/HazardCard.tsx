@@ -9,9 +9,39 @@ import { Image, LayoutAnimation, Pressable, Text, View } from "react-native";
 import Button from "./Button";
 import RiskStatus from "./RiskStatus";
 
-type HazardCardLevelProps = {
-  variants: "low" | "medium" | "high" | "critical";
+// Change to database connection
+export type HazardData = {
+  id: string;
+  title: string;
+  variant: "low" | "medium" | "high" | "critical";
+  reason: string;
+  suggestedFix: string;
 };
+
+// MockData for example
+const detectedHazards: HazardData[] = [
+  {
+    id: "risk-001",
+    title: "Exposed Wiring",
+    variant: "high",
+    reason: "Frayed wires near water source.",
+    suggestedFix: "Replace cable and route away from sink.",
+  },
+  {
+    id: "risk-002",
+    title: "Blocked Fire Exit",
+    variant: "critical",
+    reason: "Boxes stacked in front of the primary emergency door.",
+    suggestedFix: "Move boxes to storage room immediately.",
+  },
+  {
+    id: "risk-003",
+    title: "Slippery Floor",
+    variant: "low",
+    reason: "Minor water spill near the cooler.",
+    suggestedFix: "Wipe area with dry mop and place caution sign.",
+  },
+];
 
 const riskIcons = {
   low: <LowRiskIcon size={36} />,
@@ -27,16 +57,7 @@ const riskStatus = {
   critical: <RiskStatus variants="critical" />,
 };
 
-{
-  /* Modify based on scenarios */
-}
-const cardTitle = "Exposed Wiring";
-const variant = "low";
-const reason = "Frayed wires near water source.";
-const suggestedFix = "Replace cable and route away from sink.";
-const numberOfHazards = 4;
-
-function HazardCardDesign({ variants }: HazardCardLevelProps) {
+function HazardCardDesign({ data }: { data: HazardData }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const toggleExpand = () => {
@@ -47,11 +68,16 @@ function HazardCardDesign({ variants }: HazardCardLevelProps) {
   return (
     <View className="bg-surface-light rounded-2xl flex-col border-2 border-border-secondary p-4 overflow-hidden">
       <Pressable className="flex-row items-center gap-4" onPress={toggleExpand}>
-        {riskIcons[variants]}
-        <Text className="text-2xl font-semibold flex-1">{cardTitle}</Text>
+        {/* Read from data.variant */}
+        {riskIcons[data.variant]}
+        <Text className="text-2xl font-semibold flex-1">{data.title}</Text>
         <View className="flex-row items-center gap-3">
-          {riskStatus[variants]}
-          <View className={isExpanded ? "rotate-180" : "rotate-0"}>
+          {riskStatus[data.variant]}
+          <View
+            className={
+              isExpanded ? "rotate-180 items-center" : "rotate-0 items-center"
+            }
+          >
             <DropDownIcon size={26} />
           </View>
         </View>
@@ -70,12 +96,14 @@ function HazardCardDesign({ variants }: HazardCardLevelProps) {
 
           <View>
             <Text className="text-xl font-semibold mb-2">Reason:</Text>
-            <Text>{reason}</Text>
+            {/* Read from data.reason */}
+            <Text className="text-lg">{data.reason}</Text>
           </View>
 
           <View>
             <Text className="text-xl font-semibold mb-2">Suggested Fix:</Text>
-            <Text>{suggestedFix}</Text>
+            {/* Read from data.suggestedFix */}
+            <Text className="text-lg">{data.suggestedFix}</Text>
           </View>
 
           <View>
@@ -84,7 +112,7 @@ function HazardCardDesign({ variants }: HazardCardLevelProps) {
               variant="primary"
               icon={<CheckIcon color="white" size={24} />}
               iconPosition="right"
-              onPress={() => console.log("Resolved")}
+              onPress={() => console.log(`Resolved hazard: ${data.id}`)}
             />
           </View>
         </View>
@@ -96,8 +124,8 @@ function HazardCardDesign({ variants }: HazardCardLevelProps) {
 export default function HazardCard() {
   return (
     <View className="gap-4">
-      {Array.from({ length: numberOfHazards }).map((_, index) => (
-        <HazardCardDesign key={index} variants={variant} />
+      {detectedHazards.map((hazard) => (
+        <HazardCardDesign key={hazard.id} data={hazard} />
       ))}
     </View>
   );
