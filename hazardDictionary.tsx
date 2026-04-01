@@ -62,11 +62,11 @@ const hazardData = {
 
   ElevatedBreakables: {
     title: "elevated breakables",
-    risk_status: "high",
+    risk_status: "medium",
     description:
       "Fragile items like glass vases, heavy bottles, or ceramic decor placed on high shelves or open plateras. These free standing objects rely entirely on gravity to stay in place and lack protective barriers.",
     reason:
-      "This is a high urgency risk because these items become dangerous projectiles during disasters. Earthquakes cause them to shatter into sharp debris while strong typhoon winds can sweep them off tables. In a fire extreme heat causes exposed glass to explode creating hidden hazards during dark evacuations.",
+      "This is a medium urgency risk because these items become dangerous projectiles during disasters. Earthquakes cause them to shatter into sharp debris while strong typhoon winds can sweep them off tables. In a fire extreme heat causes exposed glass to explode creating hidden hazards during dark evacuations.",
     suggested_fixes: [
       {
         Earthquake: [
@@ -180,11 +180,11 @@ const hazardData = {
 
   ExposedCeilingLights: {
     title: "Exposed Ceiling Lights",
-    risk_status: "critical",
+    risk_status: "medium",
     description:
       "Ceiling lights with broken bulbs or messy octopus wires. These open wires are very dangerous because they are completely unprotected from water and shaking.",
     reason:
-      "This is a critical risk because the danger hangs right above your family. Earthquakes make heavy glass bulbs fall and shatter. Typhoon rains can leak into the open wires and cause deadly shocks. In a fire messy wires can quickly burn your wooden ceiling.",
+      "This is a medium urgency risk because the danger hangs right above your family. Earthquakes make heavy glass bulbs fall and shatter. Typhoon rains can leak into the open wires and cause deadly shocks. In a fire messy wires can quickly burn your wooden ceiling.",
     suggested_fixes: [
       {
         Earthquake: [
@@ -239,11 +239,11 @@ const hazardData = {
 
   HeavyWoodenFurniture: {
     title: "Heavy Wooden Furniture",
-    risk_status: "high",
+    risk_status: "medium",
     description:
       "Large and top heavy furniture like traditional wooden aparadors and big dining tables. These massive items are dangerous because they are not attached to the walls and can easily tip over.",
     reason:
-      "This is a high urgency risk because these heavy items can crush people during a disaster. Earthquakes make them fall and block your exit doors. In a flood heavy wood stays wet and becomes too heavy to move. During a fire large wooden furniture acts as extra fuel that keeps the fire burning longer.",
+      "This is a medium urgency risk because these heavy items can crush people during a disaster. Earthquakes make them fall and block your exit doors. In a flood heavy wood stays wet and becomes too heavy to move. During a fire large wooden furniture acts as extra fuel that keeps the fire burning longer.",
     suggested_fixes: [
       {
         Earthquake: [
@@ -349,6 +349,478 @@ const hazardData = {
           {
             fix_3:
               "Keep a large bucket of dry sand or a heavy wet sack near your candles or cooking area. This is a free and fast way to smother a small fire before it spreads to your ceiling.",
+          },
+        ],
+      },
+    ],
+  },
+
+  overloaded_socket: {
+    title: "overloaded sockets",
+    risk_status: "high",
+    description:
+      "Plugging too many appliances like rice cookers, fans, and TVs into one outlet or extension cord. This 'octopus wiring' makes the wires get dangerously hot and can start a fire inside your walls.",
+    reason:
+      "This is a high risk because it is a hidden fire hazard that you cannot see until it is too late. Earthquakes shake loose heavy plugs and cause dangerous sparks. Typhoon humidity or leaks can cause overloaded wires to short circuit. In a fire these hot wires melt their plastic covers and set fire to your wooden walls or floors.",
+    suggested_fixes: [
+      {
+        Earthquake: [
+          {
+            fix_1:
+              "Unplug heavy appliances like your refrigerator or washing machine right after a strong earthquake. This stops sparks from jumping if the plugs were shaken loose from the wall.",
+          },
+          {
+            fix_2:
+              "Use a piece of sturdy tape or a plastic tie to keep your main plugs firmly attached to the outlet. This prevents heavy plugs from falling out and creating dangerous sparks during a shake.",
+          },
+          {
+            fix_3:
+              "Keep your power strips on the floor instead of hanging them from the wall. This keeps the weight off the outlet so it does not tear out of the wall when the house vibrates.",
+          },
+        ],
+      },
+      {
+        Typhoon: [
+          {
+            fix_1:
+              "Never leave extension cords on the floor if you think rain will leak into your home. Lift all power strips and wires onto a table or chair to keep them dry and safe from short circuits.",
+          },
+          {
+            fix_2:
+              "Check your plugs for any green or black marks which show they are getting wet or too hot. If you see these marks stop using that outlet immediately to prevent a fire during the storm.",
+          },
+          {
+            fix_3:
+              "Only use one appliance at a time on each outlet during a storm. This keeps the wires cool and reduces the chance of a total power failure when the electricity is unstable.",
+          },
+        ],
+      },
+      {
+        Fire: [
+          {
+            fix_1:
+              "Feel your plugs and the wall around your outlets with the back of your hand. If they feel warm to the touch unplug everything because the wires inside are starting to melt.",
+          },
+          {
+            fix_2:
+              "Plug heavy appliances like rice cookers or irons directly into the wall instead of using cheap extension cords. These thin cords are not strong enough and will melt under the heavy load.",
+          },
+          {
+            fix_3:
+              "Never hide extension cords under rugs or pillows. The heat trapped under the rug can easily start a fire that you will not see until the flames have already spread.",
+          },
+        ],
+      },
+    ],
+  },
+
+  damaged_wire: {
+    title: "damaged wires",
+    risk_status: "high",
+    description:
+      "Electrical cords that are frayed, cracked, or have bare copper wires showing. These wires are very dangerous because they no longer have their protective plastic cover to stop sparks.",
+    reason:
+      "This is a high urgency risk because a damaged wire can shock you or start a fire at any moment. Earthquakes can snap old brittle wires and make metal bed frames or yero walls live with electricity. Typhoon rain can touch open wires and cause explosive short circuits. In a fire the heat from a broken wire can easily set fire to your curtains or wooden walls.",
+    suggested_fixes: [
+      {
+        Earthquake: [
+          {
+            fix_1:
+              "Check all your electric fan and appliance cords for cracks before a disaster hits. If you find a tiny crack wrap it tightly with several layers of thick electrical tape to keep the copper inside covered.",
+          },
+          {
+            fix_2:
+              "Unplug any device that has a wobbly or loose plug right after a strong shake. A loose connection can cause dangerous sparks called arcing which can start a fire behind your wooden walls.",
+          },
+          {
+            fix_3:
+              "Move all electrical cords away from under your bed or heavy cabinets. This stops the heavy furniture from pinching and crushing the wires when the house starts to shake.",
+          },
+        ],
+      },
+      {
+        Typhoon: [
+          {
+            fix_1:
+              "Never touch or unplug a damaged wire if your hands are wet or if you are standing on a damp floor. Always turn off the main breaker first to safely cut the power to the whole house.",
+          },
+          {
+            fix_2:
+              "Lift any cords with old or thin insulation off the floor and hang them on plastic hooks. This keeps them dry and prevents a short circuit if rain leaks through your roof or floor.",
+          },
+          {
+            fix_3:
+              "Throw away any extension cords that feel very soft or sticky to the touch. This means the plastic is rotting and it will fail instantly if it gets wet during a storm.",
+          },
+        ],
+      },
+      {
+        Fire: [
+          {
+            fix_1:
+              "Clean the dust and cobwebs away from your tangled wires behind the TV or computer. This dust acts like dry grass and can catch fire instantly from a single spark in a damaged wire.",
+          },
+          {
+            fix_2:
+              "If an appliance cord feels hot while you are using it unplug it and stop using the device. This heat is a warning that the wires inside are broken and could start a fire soon.",
+          },
+          {
+            fix_3:
+              "Always pull the plug itself and never pull on the wire when disconnecting your appliances. Pulling the wire breaks the tiny copper strands inside which leads to overheating and fire.",
+          },
+        ],
+      },
+    ],
+  },
+
+  gas_tank: {
+    title: "gas tank hazards",
+    risk_status: "critical",
+    description:
+      "Unsecured LPG tanks (Gasul) with old rubber hoses or loose regulators. These tanks contain high pressure gas that can leak and explode if the tank falls over or gets too hot.",
+    reason:
+      "This is a critical risk because a gas leak can turn your whole kitchen into a bomb. Earthquakes knock over tanks and snap the hoses. Floods can make tanks float and pull on the gas line. In a fire the heat makes the gas inside expand until the metal tank explodes and destroys your home.",
+    suggested_fixes: [
+      {
+        Earthquake: [
+          {
+            fix_1:
+              "Use a sturdy rope or a metal chain to tie your gas tank to a heavy table leg or a concrete wall. This stops the tank from falling over and snapping the hose during a strong shake.",
+          },
+          {
+            fix_2:
+              "Switch off the regulator valve every time you finish cooking. This ensures that even if the hose breaks during an earthquake no gas will leak out into your kitchen.",
+          },
+          {
+            fix_3:
+              "Place your gas tank on a flat and stable floor instead of a shaky wooden stand. A low position makes it much harder for the tank to tip over during a tremor.",
+          },
+        ],
+      },
+      {
+        Typhoon: [
+          {
+            fix_1:
+              "Keep your gas tank in a well ventilated area like a dirty kitchen with open windows. This allows any small leaks to blow away safely instead of building up inside your home during a storm.",
+          },
+          {
+            fix_2:
+              "If you expect deep flooding move your gas tank to a higher floor but keep it away from where you sleep. If you cannot move it tie it tightly to a post so it does not float away.",
+          },
+          {
+            fix_3:
+              "Check the rubber hose for tiny cracks by wiping it with soapy water. If you see bubbles it means gas is leaking and you must replace the hose immediately before the storm hits.",
+          },
+        ],
+      },
+      {
+        Fire: [
+          {
+            fix_1:
+              "Keep your gas tank at least one meter away from your stove and any electric fans. This safe distance prevents the tank from getting too hot while you are cooking your meals.",
+          },
+          {
+            fix_2:
+              "Replace your gas hose every two years even if it looks okay. Over time the rubber becomes hard and brittle and it can easily crack and catch fire in a hot kitchen.",
+          },
+          {
+            fix_3:
+              "Never store extra gas tanks inside your house or under the stairs. Keep them in a shaded area outside where they can stay cool and far away from any possible house fire.",
+          },
+        ],
+      },
+    ],
+  },
+
+  stove: {
+    title: "stove hazards",
+    risk_status: "high",
+    description:
+      "Stoves that are left dirty with grease or placed too close to curtains and wooden walls. These are dangerous because they can quickly start a fire that spreads to the rest of your kitchen.",
+    reason:
+      "This is a high urgency risk because most home fires start in the kitchen. Earthquakes can knock hot oil off the stove and onto the floor. Typhoon winds can blow curtains into the flame or blow out the gas and cause a leak. In a fire grease on the stove acts like fuel that makes the flames grow much larger and hotter.",
+    suggested_fixes: [
+      {
+        Earthquake: [
+          {
+            fix_1:
+              "Always turn your pot handles toward the back or side of the stove. This prevents the handles from being hit or snagged during a shake which stops hot food from spilling on you.",
+          },
+          {
+            fix_2:
+              "Turn off your stove immediately at the first sign of ground shaking. Stopping the heat source is the best way to prevent a kitchen fire from starting while you seek cover.",
+          },
+          {
+            fix_3:
+              "Keep the area above your stove clear of heavy objects or glass jars. This prevents things from falling onto your stove and knocking over hot pans during an earthquake.",
+          },
+        ],
+      },
+      {
+        Typhoon: [
+          {
+            fix_1:
+              "Keep curtains and dish towels at least one meter away from the stove. Strong wind gusts during a storm can easily blow these light materials into the fire.",
+          },
+          {
+            fix_2:
+              "Check your stove flame often if your kitchen windows are open. If the wind blows out the fire the gas will still be leaking which can cause an explosion the next time you strike a match.",
+          },
+          {
+            fix_3:
+              "Clean the grease off your stove and the wall behind it regularly. Grease catches fire very easily especially when the air is dry or when the stove is running for a long time during a storm.",
+          },
+        ],
+      },
+      {
+        Fire: [
+          {
+            fix_1:
+              "Never leave your cooking unattended even for a minute. Most kitchen fires start because the cook walked away and the food or oil got too hot and caught fire.",
+          },
+          {
+            fix_2:
+              "Keep a metal lid nearby whenever you are frying with oil. If the oil catches fire simply slide the lid over the pan to smother the flames and then turn off the heat.",
+          },
+          {
+            fix_3:
+              "Never throw water on a grease fire because it will cause the fire to explode. Use a metal lid or a large amount of baking soda to safely put out the flames without making them spread.",
+          },
+        ],
+      },
+    ],
+  },
+
+  smoke_detector: {
+    title: "smoke hazards",
+    risk_status: "high",
+    description:
+      "Thick black smoke and toxic gases produced during a fire. This is dangerous because breathing in smoke can make you confused, unconscious, or stop your breathing entirely.",
+    reason:
+      "This is a high urgency risk because smoke kills much faster than fire. Earthquakes can crack walls and allow smoke to enter your room through hidden gaps. Typhoon winds can push smoke back into your house instead of letting it out through the vents. In a fire smoke fills the room from the ceiling down making it impossible to see your way out.",
+    suggested_fixes: [
+      {
+        Earthquake: [
+          {
+            fix_1:
+              "Install a battery operated smoke alarm on the ceiling of every bedroom. These alarms will wake you up even if an earthquake starts a small fire in another part of the house while you are sleeping.",
+          },
+          {
+            fix_2:
+              "Check for new cracks in your walls or ceiling after a big shake. Smoke can travel through these small openings into your room so you should cover them with thick tape or plaster as soon as possible.",
+          },
+          {
+            fix_3:
+              "Keep a flashlight and a pair of slippers right next to your bed. If smoke fills the room you will need light to find your way and shoes to protect your feet from broken glass while you crawl out.",
+          },
+        ],
+      },
+      {
+        Typhoon: [
+          {
+            fix_1:
+              "Ensure your kitchen has a working exhaust fan or a window that opens easily. This helps pull smoke and cooking fumes out of the house even when the wind is blowing hard outside.",
+          },
+          {
+            fix_2:
+              "Close the doors to any rooms you are not using during a storm. Closed doors act as a barrier that slows down the spread of smoke and gives you more time to get out safely.",
+          },
+          {
+            fix_3:
+              "Check your smoke alarm batteries every time a big storm is coming. Power outages are common during typhoons and you need your battery powered alarms to be ready if a fire starts.",
+          },
+        ],
+      },
+      {
+        Fire: [
+          {
+            fix_1:
+              "If you see smoke stay low and crawl on your hands and knees toward the exit. The air near the floor is cooler and cleaner because the thick toxic smoke always rises to the ceiling first.",
+          },
+          {
+            fix_2:
+              "Cover your nose and mouth with a wet towel or a piece of clothing if you have to move through smoke. This acts as a simple filter that helps you breathe a little longer while you find your way out.",
+          },
+          {
+            fix_3:
+              "Test your smoke alarm once a month by pressing the test button. This simple five second check ensures that your family will be warned the moment smoke starts to build up in your home.",
+          },
+        ],
+      },
+    ],
+  },
+
+  major_crack: {
+    title: "major wall cracks",
+    risk_status: "high",
+    description:
+      "Deep cracks in your walls that are wider than a coin or look like a staircase. These are dangerous because they mean your house foundation is moving or the walls are starting to fail.",
+    reason:
+      "This is a high urgency risk because a cracked wall can fall down at any time. Earthquakes use these cracks to break the wall apart completely. Typhoon rain enters the cracks and rusts the iron bars inside your concrete. In a fire these gaps allow deadly smoke and heat to pass through the wall and trap you in your room.",
+    suggested_fixes: [
+      {
+        Earthquake: [
+          {
+            fix_1:
+              "Check your walls for cracks that are wider than five millimeters or about the width of two credit cards. If you see cracks this big you should ask a local engineer to check if the house is still safe.",
+          },
+          {
+            fix_2:
+              "Watch for diagonal cracks that start from the corners of your doors or windows. These are weak points that can snap during an earthquake and cause the whole wall to fall on you.",
+          },
+          {
+            fix_3:
+              "Never lean heavy furniture or water tanks against a wall that already has big cracks. The extra weight can push the weakened wall over even during a small shake.",
+          },
+        ],
+      },
+      {
+        Typhoon: [
+          {
+            fix_1:
+              "Seal any outside cracks with waterproof cement or sealant before the rainy season starts. This stops water from reaching the iron bars inside your wall so they do not rust and break.",
+          },
+          {
+            fix_2:
+              "Look for cracks that change size after a big storm. If the crack gets wider it means the ground under your house is moving from too much water and you may need to move to a safer place.",
+          },
+          {
+            fix_3:
+              "Clean any plants or moss growing inside the wall cracks. Roots act like wedges that slowly push the crack open wider every time it rains making the wall weaker over time.",
+          },
+        ],
+      },
+      {
+        Fire: [
+          {
+            fix_1:
+              "Fill deep wall cracks with fire proof plaster or cement right away. This keeps smoke and fire from sneaking through the wall and spreading to other rooms while you are trying to escape.",
+          },
+          {
+            fix_2:
+              "Check if your doors or windows are starting to stick and will not close properly. This often happens when major cracks shift the wall and it could trap you inside during a fire emergency.",
+          },
+          {
+            fix_3:
+              "Move your bed and gas tanks away from walls that have long horizontal cracks. If a fire starts these weakened walls are the first to collapse and can crush everything nearby.",
+          },
+        ],
+      },
+    ],
+  },
+
+  minor_crack: {
+    title: "minor wall cracks",
+    risk_status: "low",
+    description:
+      "Thin hairline cracks in your paint or plaster that are smaller than a strand of hair. These are usually just on the surface and do not mean your wall is about to fall down.",
+    reason:
+      "This is a low urgency risk because minor cracks can slowly grow into major problems. Earthquakes cause these small lines to appear as your house settles. Typhoon rain can sneak into these tiny gaps and cause mold or rot inside your walls. In a fire even small cracks can allow dangerous smoke to leak from one room to another.",
+    suggested_fixes: [
+      {
+        Earthquake: [
+          {
+            fix_1:
+              "Take a photo of any new hairline cracks after an earthquake and check them again after one month. If the crack has not grown wider it is likely just a surface scratch and not a structural danger.",
+          },
+          {
+            fix_2:
+              "Use a pencil to draw a small mark at the very end of a new crack. If the crack grows past that mark after a few weeks it means your house is still moving and you should show it to a technician.",
+          },
+          {
+            fix_3:
+              "Check around your windows and doors for tiny diagonal lines. These small cracks show where the house is flexing most during a shake and are usually safe as long as they stay very thin.",
+          },
+        ],
+      },
+      {
+        Typhoon: [
+          {
+            fix_1:
+              "Paint over hairline cracks with a thick layer of waterproof paint like elastomeric paint. This simple fix seals the opening and stops typhoon rain from soaking into your concrete walls.",
+          },
+          {
+            fix_2:
+              "Watch for damp spots or peeling paint near any minor cracks during the rainy season. If the wall feels wet it means water is getting inside and you need to seal the crack with a bit of putty.",
+          },
+          {
+            fix_3:
+              "Apply a clear water repellent spray to the outside of your walls if you see many small cracks. This is a cheap way to stop water from entering without changing the look of your home.",
+          },
+        ],
+      },
+      {
+        Fire: [
+          {
+            fix_1:
+              "Seal any small gaps around your electrical outlets or where pipes enter the wall. This stops smoke from using these tiny highways to move between rooms during a fire.",
+          },
+          {
+            fix_2:
+              "Check the mosquito nets or kulambo near walls with cracks. Make sure they are not touching the wall so that any heat or smoke coming through the crack does not set the net on fire.",
+          },
+          {
+            fix_3:
+              "Keep your walls clean and free of old peeling paint around minor cracks. Dry and flaky paint can act like tinder that catches fire easily if a spark reaches the wall.",
+          },
+        ],
+      },
+    ],
+  },
+
+  collapsed_structure: {
+    title: "collapsed structures",
+    risk_status: "critical",
+    description:
+      "A building that has partially or completely fallen down due to weak walls, a bad foundation, or rotten supports. This is the most dangerous hazard because it can trap or crush anyone inside the home.",
+    reason:
+      "This is a critical risk because you only have seconds to act when a building starts to fail. Earthquakes cause weak ground floors to drop or fold sideways. Typhoon floods can wash away the soil under your house and make it tilt or sink. In a fire the heat weakens your roof and floor supports until they are no longer strong enough to stand.",
+    suggested_fixes: [
+      {
+        Earthquake: [
+          {
+            fix_1:
+              "Identify the 'Triangle of Life' in your home. This is a small safe space next to large and sturdy objects like a heavy sofa or a solid wooden desk where a gap might form if the ceiling falls.",
+          },
+          {
+            fix_2:
+              "Never run outside while the ground is still shaking. Most injuries in the Philippines happen when people are hit by falling hollow blocks or glass while trying to leave the building.",
+          },
+          {
+            fix_3:
+              "Practice the 'Drop, Cover, and Hold On' drill with your family. This habit helps you protect your head and neck immediately so you can survive the first few seconds of a collapse.",
+          },
+        ],
+      },
+      {
+        Typhoon: [
+          {
+            fix_1:
+              "Check for 'soil erosion' or large holes around the base of your house after a big storm. If the ground is washed away your house foundation is no longer supported and could sink.",
+          },
+          {
+            fix_2:
+              "Listen for loud 'popping' or 'cracking' sounds coming from your walls or roof during a typhoon. These sounds mean the structure is under too much stress and you should leave immediately.",
+          },
+          {
+            fix_3:
+              "Avoid staying in a room that has a heavy concrete roof if the walls underneath it are already cracked. The heavy weight of the roof is the most dangerous part if the walls fail.",
+          },
+        ],
+      },
+      {
+        Fire: [
+          {
+            fix_1:
+              "Get out and stay out as soon as you see a fire. Never go back inside a burning building to save your belongings because the roof or floor could collapse on you at any second.",
+          },
+          {
+            fix_2:
+              "Avoid walking through rooms where the floor feels soft or bouncy after a fire. This is a sign that the wooden or steel supports underneath have been weakened by the heat.",
+          },
+          {
+            fix_3:
+              "Be very careful near 'yero' or tin roofs that have been in a fire. The heat makes the metal sheets loose and they can slide off and fall like sharp blades even after the fire is gone.",
           },
         ],
       },
