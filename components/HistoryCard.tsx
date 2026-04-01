@@ -3,6 +3,7 @@ import React from "react";
 import { Image, Pressable, Text, View } from "react-native";
 import MascotReporter from "./MascotReporter";
 
+// TO DO: Create props for historycard
 export default function HistoryCard() {
   return (
     <Pressable
