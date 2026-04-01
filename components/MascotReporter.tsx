@@ -2,8 +2,7 @@ import React from "react";
 import { Image, Text, View } from "react-native";
 import * as Progress from "react-native-progress";
 
-// safety report map
-type RiskVariant = "low" | "medium" | "high" | "critical";
+export type RiskVariant = "low" | "medium" | "high" | "critical";
 
 type MascotReportProps = {
   score: RiskVariant;
@@ -32,24 +31,11 @@ const statusTextColors = {
   critical: "text-text-critical",
 };
 
-// risk variant solver
 export function getRiskVariant(score: number): RiskVariant {
-  // 0 to 10 is Critical
-  if (score >= 0 && score <= 10) {
-    return "critical";
-  }
-  // 11 to 39 is High
-  else if (score > 10 && score < 40) {
-    return "high";
-  }
-  // 40 to 79 is Medium
-  else if (score >= 40 && score < 80) {
-    return "medium";
-  }
-  // 80 to 100+ is Low
-  else {
-    return "low";
-  }
+  if (score >= 0 && score <= 10) return "critical";
+  else if (score > 10 && score < 40) return "high";
+  else if (score >= 40 && score < 80) return "medium";
+  else return "low";
 }
 
 export default function MascotReporter({
@@ -59,42 +45,41 @@ export default function MascotReporter({
 }: MascotReportProps) {
   return (
     <View className="flex items-center justify-center max-w-fit">
-      <View>
+      <View className="relative flex items-center justify-center w-[280px] h-[280px]">
         <Progress.Circle
           progress={value / 100}
           size={280}
           unfilledColor="#e5e5e5"
           borderWidth={0}
-          className="absolute -left-[16%] -bottom-[28%]"
           thickness={18}
           color={colors[score]}
         />
-        {/* Mascot Head */}
+
         <Image
           source={require("@/assets/mascot/MascotHead.png")}
           resizeMode="contain"
-          className="w-45 h-45"
+          className="absolute w-[180px] h-[180px]"
         />
-        {/* Score */}
+
         <Text
-          className="text-h1 font-bold absolute left-[25%] bottom-[18%] -translate-x-1/2 text-center text-text-inverse overflow-visible"
+          className="absolute text-h1 font-bold left-[50%] top-[50%] -translate-x-1/2 text-center text-text-inverse overflow-visible"
           style={{
             textShadowColor: colors[score],
             textShadowRadius: 15,
             textShadowOffset: { width: 0, height: 0 },
           }}
         >
-          {/* Invisible space to negate shadow clippings */}
           {"   "}
           {value}
           {"   "}
         </Text>
       </View>
 
+      {/* Adjusted the margin-top so it doesn't overlap the newly sized 280px box */}
       {!hideStatus && (
-        <View>
+        <View className="mt-4">
           <Text
-            className={`text-center text-lg font-semibold mt-20 ${statusTextColors[score]}`}
+            className={`text-center text-lg font-semibold ${statusTextColors[score]}`}
           >
             Status: {statusDesc[score]} Risk{" "}
           </Text>
