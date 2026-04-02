@@ -1,47 +1,17 @@
+import { HazardData as DBHazardData, fetchDataFromDB } from "@/app/db/db";
 import CheckIcon from "@/assets/icons/CheckIcon";
 import CriticalRiskIcon from "@/assets/icons/CriticalRiskIcon";
 import DropDownIcon from "@/assets/icons/DropDownIcon";
 import HighRiskIcon from "@/assets/icons/HighRiskIcon";
 import LowRiskIcon from "@/assets/icons/LowRiskIcon";
 import MediumRiskIcon from "@/assets/icons/MediumRiskIcon";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Image, LayoutAnimation, Pressable, Text, View } from "react-native";
 import Button from "./Button";
 import RiskStatus from "./RiskStatus";
 
 // Change to database connection
-export type HazardData = {
-  id: string;
-  title: string;
-  variant: "low" | "medium" | "high" | "critical";
-  reason: string;
-  suggestedFix: string;
-};
-
-// MockData for example
-const detectedHazards: HazardData[] = [
-  {
-    id: "risk-001",
-    title: "Exposed Wiring",
-    variant: "high",
-    reason: "Frayed wires near water source.",
-    suggestedFix: "Replace cable and route away from sink.",
-  },
-  {
-    id: "risk-002",
-    title: "Blocked Fire Exit",
-    variant: "critical",
-    reason: "Boxes stacked in front of the primary emergency door.",
-    suggestedFix: "Move boxes to storage room immediately.",
-  },
-  {
-    id: "risk-003",
-    title: "Slippery Floor",
-    variant: "low",
-    reason: "Minor water spill near the cooler.",
-    suggestedFix: "Wipe area with dry mop and place caution sign.",
-  },
-];
+export type HazardData = DBHazardData;
 
 const riskIcons = {
   low: <LowRiskIcon size={36} />,
@@ -121,12 +91,29 @@ function HazardCardDesign({ data }: { data: HazardData }) {
   );
 }
 
-export default function HazardCard() {
+const HazardCard = () => {
+  const [hazards, setHazards] = useState<HazardData[]>([]);
+
+  useEffect(() => {
+    const fetchHazards = async () => {
+      try {
+        const data = await fetchDataFromDB();
+        setHazards(data);
+      } catch (error) {
+        console.error("Failed to load hazards:", error);
+      }
+    };
+
+    fetchHazards();
+  }, []);
+
   return (
     <View className="gap-4">
-      {detectedHazards.map((hazard) => (
+      {hazards.map((hazard) => (
         <HazardCardDesign key={hazard.id} data={hazard} />
       ))}
     </View>
   );
-}
+};
+
+export default HazardCard;
