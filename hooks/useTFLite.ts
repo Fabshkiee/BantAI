@@ -113,3 +113,36 @@ function parseDetectionsFromOutput(
   return detections;
 }
 
+export function useTFLite() {
+  const [modelLoaded, setModelLoaded] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [model, setModel] = useState<TensorflowModel | null>(null);
+
+  useEffect(() => {
+    loadModel();
+  }, []);
+
+  const loadModel = async () => {
+    try {
+      console.log("Loading TFLite model...");
+
+      // Use the pre-bundled native Android asset to bypass dev server HTTP crashes completely
+      const modelSource =
+        Platform.OS === "android"
+          ? { url: ANDROID_BUNDLED_MODEL_URL }
+          : require("@/model/bantai_model.tflite");
+
+      const loadedModel = await loadTensorflowModel(modelSource);
+      setModel(loadedModel);
+      setModelLoaded(true);
+      console.log("✓ TFLite model loaded");
+      console.log("Model inputs:", loadedModel.inputs);
+      console.log("Model outputs:", loadedModel.outputs);
+    } catch (err) {
+      const errMessage = err instanceof Error ? err.message : String(err);
+      setError(errMessage);
+      console.error("✗ Model load failed:", errMessage);
+    }
+  };
+
+}
