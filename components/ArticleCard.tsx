@@ -25,7 +25,7 @@ const articleProps: articleProp[] = [
     route: "/articles/earthquakeArticle",
   },
   {
-    imageSource: require("@/assets/images/typhoon.webp"),
+    imageSource: require("@/assets/images/typhoon.jpg"),
     title: "Ready Your Home: How to Prepare for a Typhoon",
     desc: "Still cannot believe that we are halfway through the year already? As we enter the months full of tropical cyclones and isolated rains, we bid farewell to our favorite summer activities and destinations and the daily humidity and relatively high temperature that it brings.",
     route: "/articles/typhoonArticle",
