@@ -27,7 +27,7 @@ const riskStatus = {
   critical: <RiskStatus variants="critical" />,
 };
 
-function HazardCardDesign({ data }: { data: HazardData }) {
+function HazardCardDesign({ data, imageUri }: { data: HazardData, imageUri?: string }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const toggleExpand = () => {
@@ -58,8 +58,8 @@ function HazardCardDesign({ data }: { data: HazardData }) {
           <View>
             <Text className="text-xl font-semibold">Identified Hazard:</Text>
             <Image
-              source={require("@/assets/images/room.png")}
-              className="rounded-2xl mt-2 w-full h-160"
+              source={imageUri ? { uri: imageUri } : require("@/assets/images/room.png")}
+              className="rounded-2xl mt-2 w-full h-64"
               resizeMode="cover"
             />
           </View>
@@ -91,10 +91,19 @@ function HazardCardDesign({ data }: { data: HazardData }) {
   );
 }
 
-const HazardCard = () => {
-  const [hazards, setHazards] = useState<HazardData[]>([]);
+export interface HazardCardProps {
+  hazards?: HazardData[];
+  imageUri?: string;
+}
+
+const HazardCard = ({ hazards: propHazards, imageUri }: HazardCardProps) => {
+  const [hazards, setHazards] = useState<HazardData[]>(propHazards || []);
 
   useEffect(() => {
+    if (propHazards) {
+      setHazards(propHazards);
+      return;
+    }
     const fetchHazards = async () => {
       try {
         const data = await fetchDataFromDB();
@@ -105,12 +114,12 @@ const HazardCard = () => {
     };
 
     fetchHazards();
-  }, []);
+  }, [propHazards]);
 
   return (
     <View className="gap-4">
       {hazards.map((hazard) => (
-        <HazardCardDesign key={hazard.id} data={hazard} />
+        <HazardCardDesign key={hazard.id} data={hazard} imageUri={imageUri} />
       ))}
     </View>
   );
