@@ -48,7 +48,7 @@ export default function ArticleCard() {
       {articleProps.map((article, index) => (
         <Pressable
           key={index}
-          className="bg-surface-light border border-border-secondary p-3 w-[250px] rounded-2xl active:scale-95 transition-all"
+          className="bg-surface-light border-2 border-border-secondary p-3 w-[250px] rounded-2xl active:scale-95 transition-all"
           onPress={() => {
             router.push(article.route);
           }}
@@ -59,11 +59,11 @@ export default function ArticleCard() {
             resizeMode="cover"
           />
 
-          <Text className="text-xl font-semibold mb-2" numberOfLines={2}>
+          <Text className="text-xl font-semibold mb-2" numberOfLines={3}>
             {article.title}
           </Text>
 
-          <Text className="text-md text-text-subtle" numberOfLines={3}>
+          <Text className="text-md text-gray-500 leading-5" numberOfLines={3}>
             {article.desc}
           </Text>
         </Pressable>
