@@ -40,7 +40,10 @@ const CONF_THRESHOLD = 0.4;
 const ANDROID_BUNDLED_MODEL_URL =
   "file:///android_asset/models/bantai_model.tflite";
 
-async function preprocessImage(imageUri: string): Promise<Float32Array> {
+async function preprocessImage(
+  imageUri: string,
+  modelDataType: string,
+): Promise<Float32Array | Uint8Array> {
   const resized = await manipulateAsync(
     imageUri,
     [{ resize: { width: INPUT_SIZE, height: INPUT_SIZE } }],
@@ -57,17 +60,27 @@ async function preprocessImage(imageUri: string): Promise<Float32Array> {
     useTArray: true,
   });
 
-  const tensor = new Float32Array(INPUT_SIZE * INPUT_SIZE * 3);
-  let tensorIndex = 0;
+  const isQuantized = modelDataType === "uint8" || modelDataType === "int8";
 
-  for (let i = 0; i < decoded.data.length; i += 4) {
-    // RGB extraction, normalizing to 0-1 range
-    tensor[tensorIndex++] = decoded.data[i] / 255.0;
-    tensor[tensorIndex++] = decoded.data[i + 1] / 255.0;
-    tensor[tensorIndex++] = decoded.data[i + 2] / 255.0;
+  if (isQuantized) {
+    const tensor = new Uint8Array(INPUT_SIZE * INPUT_SIZE * 3);
+    let tensorIndex = 0;
+    for (let i = 0; i < decoded.data.length; i += 4) {
+      tensor[tensorIndex++] = decoded.data[i]; // R (0-255)
+      tensor[tensorIndex++] = decoded.data[i + 1]; // G (0-255)
+      tensor[tensorIndex++] = decoded.data[i + 2]; // B (0-255)
+    }
+    return tensor;
+  } else {
+    const tensor = new Float32Array(INPUT_SIZE * INPUT_SIZE * 3);
+    let tensorIndex = 0;
+    for (let i = 0; i < decoded.data.length; i += 4) {
+      tensor[tensorIndex++] = decoded.data[i] / 255.0; // R (0.0-1.0)
+      tensor[tensorIndex++] = decoded.data[i + 1] / 255.0; // G (0.0-1.0)
+      tensor[tensorIndex++] = decoded.data[i + 2] / 255.0; // B (0.0-1.0)
+    }
+    return tensor;
   }
-
-  return tensor;
 }
 
 function parseDetectionsFromOutput(
@@ -126,10 +139,12 @@ export function useTFLite() {
     try {
       console.log("Loading TFLite model...");
 
-      // Use the pre-bundled native Android asset to bypass dev server HTTP crashes completely
+      // Bypass Metro completely for large models on Android to prevent dev server crashes.
+      // NOTE FOR DEVS: Must store the model natively inside `android/app/src/main/res/raw/bantai_model.tflite`.
+      // Passing just the filename string without extension tells fast-tflite to read from Android raw resources.
       const modelSource =
         Platform.OS === "android"
-          ? { url: ANDROID_BUNDLED_MODEL_URL }
+          ? { url: "bantai_model" }
           : require("@/model/bantai_model.tflite");
 
       const loadedModel = await loadTensorflowModel(modelSource);
@@ -145,14 +160,15 @@ export function useTFLite() {
     }
   };
 
-const runInference = useCallback(
+  const runInference = useCallback(
     async (imageUri: string): Promise<Detection[]> => {
       if (!modelLoaded || !model) {
         throw new Error("Model not loaded");
       }
 
       try {
-        const inputTensor = await preprocessImage(imageUri);
+        const inputDataType = model.inputs[0].dataType;
+        const inputTensor = await preprocessImage(imageUri, inputDataType);
         const outputs = await model.run([inputTensor]);
         const detections = parseDetectionsFromOutput(outputs[0]);
 
