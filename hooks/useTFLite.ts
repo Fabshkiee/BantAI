@@ -35,5 +35,8 @@ const CLASS_NAMES = [
   "open_flame_hazard",
 ];
 
-
+const INPUT_SIZE = 640;
+const CONF_THRESHOLD = 0.4;
+const ANDROID_BUNDLED_MODEL_URL =
+  "file:///android_asset/models/bantai_model.tflite";
 
