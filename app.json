@@ -64,7 +64,8 @@
             "enableExpoModulesClassPath": true
           }
         }
-      ]
+      ],
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true,
