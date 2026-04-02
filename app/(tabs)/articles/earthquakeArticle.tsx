@@ -71,111 +71,90 @@ export default function earthquakeArticle() {
         </View>
 
         {/* Main Article */}
-        <View className="gap-3">
+        <View className="gap-4">
           <Text className="leading-7">
-            Living in an area prone to earthquakes demands more than just casual
-            awareness; it requires proactive steps to ensure the safety of your
-            home and family. Earthquakes strike without warning, turning
-            everyday objects into potential hazards. By taking some
-            straightforward yet critical measures, you can significantly reduce
-            the risks and protect your loved ones and property. And since a
-            claim may still be necessary, it is essential to understand the
-            claims process from reporting to settlement.
+            Living in an earthquake-prone area requires proactive preparation.
+            Earthquakes strike without warning, but taking these straightforward
+            steps can significantly reduce risks to your home and protect your
+            family.
           </Text>
 
-          {/* Tip 1 */}
+          {/* 1. Lock Your Cabinets */}
           <View className="gap-2">
             <Text className="text-xl font-medium leading-7">
-              Lock Your Cabinets
+              1. Lock Your Cabinets
             </Text>
             <Text className="leading-7">
-              Unsecured cabinets can swing open during an earthquake, causing
-              contents to fall out and potentially injure someone or break
-              valuable items. Installing latches on your cabinet doors is an
-              easy and effective way to keep everything securely inside.
+              Unsecured cabinets can swing open during a quake, spilling their
+              contents. Install safety latches on your cabinet doors to keep
+              everything securely inside and prevent injuries or broken
+              valuables.
             </Text>
           </View>
 
-          {/* Tip 2 */}
+          {/* 2. Keep Exits Clear */}
           <View className="gap-2">
             <Text className="text-xl font-medium leading-7">
-              Keep a Clear Path to the Exits
+              2. Keep Exits Clear
             </Text>
             <Text className="leading-7">
-              In an earthquake, a quick and unobstructed escape is crucial.
-              Ensure that the paths to all exits are clear of any obstacles.
-              Regularly check these paths and keep them free from clutter. This
-              not only helps in case of an emergency but also promotes a more
-              organized and safer living space.
+              A quick, unobstructed escape is crucial during an emergency.
+              Regularly check the paths to all your doors and windows and keep
+              them completely free of clutter and tripping hazards.
             </Text>
           </View>
 
-          {/* Tip 3 */}
+          {/* 3. Know How to Protect Yourself */}
           <View className="gap-2">
             <Text className="text-xl font-medium leading-7">
-              Know How to Protect Yourself
+              3. Know How to Protect Yourself
             </Text>
             <Text className="leading-7">
-              Understanding how to protect yourself during an earthquake is
-              vital. Teach your family the “Drop, Cover, and Hold On” method.
-              Practice earthquake drills periodically so everyone knows what to
-              do. Identify safe spots in each room, like under sturdy furniture
-              or against an interior wall, away from windows and heavy objects
-              that might topple.
+              Teach your family the “Drop, Cover, and Hold On” method and
+              practice drills periodically. Identify safe spots in every room,
+              such as under sturdy furniture or against an interior wall, far
+              away from windows and objects that could topple.
             </Text>
           </View>
 
-          {/* Tip 4 */}
+          {/* 4. Anchor Heavy Furniture */}
           <View className="gap-2">
             <Text className="text-xl font-medium leading-7">
-              Relocate or Anchor Any Large/Heavy Objects
+              4. Anchor Heavy Furniture
             </Text>
             <Text className="leading-7">
-              Tall, heavy furniture, like bookcases, dressers, and shelving
-              units, should be securely anchored to the walls. This prevents
-              them from falling over during an earthquake, which could cause
-              injury or block escape routes. Consider relocating heavy objects
-              to lower shelves and secure items like TVs and computer monitors.
+              Tall, heavy items like bookcases, dressers, and shelving units
+              should be securely anchored directly to the walls. Relocate heavy
+              objects to lower shelves, and make sure to secure items like TVs
+              and computer monitors.
             </Text>
           </View>
 
-          {/* Tip 5 */}
+          {/* 5. Secure Utilities & Flammables */}
           <View className="gap-2">
             <Text className="text-xl font-medium leading-7">
-              Secure Water Fixtures and Any Flammable or Toxic Substances
+              5. Secure Utilities & Flammables
             </Text>
             <Text className="leading-7">
               Water heaters, gas fixtures, and other utilities should be
-              anchored and fitted with flexible connectors to prevent breaks and
-              leaks. Flammable or toxic substances, such as cleaning supplies or
-              paint, should be stored in a secure, low area where they cannot
-              spill and create additional hazards.
+              anchored and fitted with flexible connectors to prevent dangerous
+              leaks. Store flammable or toxic substances (like cleaning supplies
+              or paint) in low, secure areas where they cannot spill.
             </Text>
           </View>
 
-          {/* Tip 6 */}
+          {/* 6. Secure Small Hazards */}
           <View className="gap-2">
             <Text className="text-xl font-medium leading-7">
-              Secure Any Fixtures or Electronics That Can Hurt Someone, Cause
-              Damage, or Break
+              6. Secure Small Hazards
             </Text>
             <Text className="leading-7">
-              Beyond the larger pieces of furniture, pay attention to smaller
-              fixtures and electronics. Secure items like picture frames,
-              mirrors, and lamps. Use cord organizers to prevent tripping over
-              cables during an evacuation. Additionally, consider using safety
-              film on windows to prevent shattering.
+              Pay attention to smaller fixtures that can cause damage or break.
+              Secure picture frames, mirrors, and lamps. Organize loose cables
+              to prevent tripping, and consider applying safety film to your
+              windows to prevent glass from shattering.
             </Text>
           </View>
-
-          <Text className="leading-7">
-            Preparing your home for an earthquake involves a series of
-            thoughtful and deliberate actions. While it may initially seem
-            overwhelming, taking these steps can immensely reduce the risks and
-            provide peace of mind. Remember, safety is not just about reacting
-            in the moment of crisis but about being prepared long before it
-            arrives.
-          </Text>
 
           {/* Divider */}
           <View className="h-[2px] bg-border-secondary my-4" />
