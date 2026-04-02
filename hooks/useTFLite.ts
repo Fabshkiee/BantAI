@@ -145,4 +145,32 @@ export function useTFLite() {
     }
   };
 
+const runInference = useCallback(
+    async (imageUri: string): Promise<Detection[]> => {
+      if (!modelLoaded || !model) {
+        throw new Error("Model not loaded");
+      }
+
+      try {
+        const inputTensor = await preprocessImage(imageUri);
+        const outputs = await model.run([inputTensor]);
+        const detections = parseDetectionsFromOutput(outputs[0]);
+
+        console.log(`Found ${detections.length} hazards:`, detections);
+        return detections;
+      } catch (err) {
+        const errMessage = err instanceof Error ? err.message : String(err);
+        console.error("Inference failed:", errMessage);
+        throw err;
+      }
+    },
+    [model, modelLoaded],
+  );
+
+  return {
+    modelLoaded,
+    error,
+    model,
+    runInference,
+  };
 }
