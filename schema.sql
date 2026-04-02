@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS scan_sessions (
 
 CREATE TABLE IF NOT EXISTS hazard_types (
     id               INTEGER PRIMARY KEY AUTOINCREMENT,
-    name             TEXT NOT NULL UNIQUE,      -- e.g. 'Exposed Wiring'
+    name             TEXT NOT NULL UNIQUE,      -- canonical model label, e.g. 'overloaded_socket'
     category         TEXT NOT NULL,             -- 'electrical' | 'fire' | 'trip' | 'chemical' etc.
     default_severity TEXT NOT NULL DEFAULT 'medium'
                      CHECK (default_severity IN ('low', 'medium', 'high', 'critical')),
@@ -74,11 +74,16 @@ CREATE INDEX IF NOT EXISTS idx_sessions_status     ON scan_sessions (status);
 -- This way we can safely add new hazard types in future updates without affecting existing data.
 
 INSERT OR IGNORE INTO hazard_types (name, category, default_severity, description, recommendation) VALUES
-    ('Exposed Wiring',            'electrical', 'critical', 'Bare or damaged electrical wires visible in the room.',        'Cover or replace exposed wiring immediately. Consult an electrician.'),
-    ('Overloaded Outlet',         'electrical', 'high',     'Too many devices plugged into a single outlet or strip.',      'Distribute devices across outlets. Use a surge protector.'),
-    ('Blocked Fire Exit',         'fire',       'critical', 'An exit or doorway is obstructed.',                            'Clear all items blocking exits and keep pathways free at all times.'),
-    ('Flammable Items Near Heat', 'fire',       'high',     'Combustible objects placed too close to a heat source.',       'Move flammable materials at least 1 metre away from heat sources.'),
-    ('Trip Hazard',               'trip',       'medium',   'Objects or cords on the floor that could cause a fall.',       'Secure cords with cable ties and remove floor clutter.'),
-    ('Unsecured Heavy Object',    'structural', 'high',     'Tall or heavy furniture that could tip over.',                 'Anchor furniture to the wall using safety straps.'),
-    ('Poor Lighting',             'visibility', 'low',      'Area is insufficiently lit, increasing accident risk.',        'Add adequate lighting or replace faulty bulbs.'),
-    ('Chemical Storage Risk',     'chemical',   'high',     'Hazardous substances stored improperly or within reach.',      'Store chemicals in a locked cabinet away from children.');
+    ('overloaded_socket',        'electrical', 'high',     'Too many devices plugged into a single socket or extension strip.', 'Distribute devices across outlets and avoid overloading a single socket.'),
+    ('damaged_wire',             'electrical', 'critical', 'Bare, frayed, or visibly damaged wiring is present.',              'Replace or isolate damaged wiring immediately and consult an electrician.'),
+    ('floor_appliance',          'trip',       'medium',   'An appliance or its cable is placed where people may trip over it.', 'Move the appliance and route cables away from walkways.'),
+    ('major_crack',              'structural', 'critical', 'A large crack is visible in a wall, ceiling, or foundation surface.', 'Restrict access and have the structure assessed by a qualified professional.'),
+    ('minor_crack',              'structural', 'medium',   'A smaller crack is visible and may require monitoring or repair.',   'Monitor the crack and repair it before it worsens.'),
+    ('collapsed_structure',      'structural', 'critical', 'A structural element appears collapsed, broken, or unstable.',      'Keep clear of the area and contact emergency or structural support services.'),
+    ('broken_glass',             'trip',       'medium',   'Broken glass or sharp fragments are visible on the floor or surfaces.', 'Clean up the broken glass carefully and dispose of it safely.'),
+    ('electronic_hazard',        'electrical', 'high',     'An electronic device, charger, or power source looks unsafe or misused.', 'Disconnect the device and inspect it before using it again.'),
+    ('elevated_breakables',      'structural', 'medium',   'Breakable objects are stored in a high position where they may fall.', 'Move breakables to a secure, lower location.'),
+    ('exposed_breaker',         'electrical', 'critical', 'A breaker panel or electrical distribution component is exposed.',  'Restrict access and have the electrical panel covered or repaired immediately.'),
+    ('exposed_ceiling_lights',  'electrical', 'high',     'Ceiling lights or fixtures are exposed, loose, or damaged.',        'Repair or cover the fixture before using the area normally.'),
+    ('heavy_wooden_furniture',  'structural', 'high',     'Tall or heavy wooden furniture could tip over or fall.',           'Anchor the furniture securely to prevent tipping.'),
+    ('open_flame_hazard',       'fire',       'critical', 'An open flame or ignition source is present near combustibles.',   'Extinguish the flame and keep combustible materials away from heat sources.');

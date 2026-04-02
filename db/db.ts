@@ -1,7 +1,17 @@
 import * as SQLite from "expo-sqlite";
+import { HAZARD_DISPLAY_NAMES, HAZARD_TYPES } from "./hazards";
 
 const dbPromise = SQLite.openDatabaseAsync("app.db");
 let initPromise: Promise<void> | null = null;
+
+const sqlQuote = (value: string) => value.replaceAll("'", "''");
+const formatHazardTitle = (value: string) =>
+  value.includes("_")
+    ? value
+        .split("_")
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(" ")
+    : value;
 
 export type HazardData = {
   id: number;
@@ -67,15 +77,8 @@ export async function initDatabase(): Promise<void> {
       CREATE INDEX IF NOT EXISTS idx_sessions_scanned_at ON scan_sessions (scanned_at DESC);
       CREATE INDEX IF NOT EXISTS idx_sessions_status     ON scan_sessions (status);
 
-      INSERT OR IGNORE INTO hazard_types (name, category, default_severity, description, recommendation) VALUES
-          ('Exposed Wiring',            'electrical', 'critical', 'Bare or damaged electrical wires visible in the room.',        'Cover or replace exposed wiring immediately. Consult an electrician.'),
-          ('Overloaded Outlet',         'electrical', 'high',     'Too many devices plugged into a single outlet or strip.',      'Distribute devices across outlets. Use a surge protector.'),
-          ('Blocked Fire Exit',         'fire',       'critical', 'An exit or doorway is obstructed.',                            'Clear all items blocking exits and keep pathways free at all times.'),
-          ('Flammable Items Near Heat', 'fire',       'high',     'Combustible objects placed too close to a heat source.',       'Move flammable materials at least 1 metre away from heat sources.'),
-          ('Trip Hazard',               'trip',       'medium',   'Objects or cords on the floor that could cause a fall.',       'Secure cords with cable ties and remove floor clutter.'),
-          ('Unsecured Heavy Object',    'structural', 'high',     'Tall or heavy furniture that could tip over.',                 'Anchor furniture to the wall using safety straps.'),
-          ('Poor Lighting',             'visibility', 'low',      'Area is insufficiently lit, increasing accident risk.',        'Add adequate lighting or replace faulty bulbs.'),
-          ('Chemical Storage Risk',     'chemical',   'high',     'Hazardous substances stored improperly or within reach.',      'Store chemicals in a locked cabinet away from children.');
+        INSERT OR IGNORE INTO hazard_types (name, category, default_severity, description, recommendation) VALUES
+          ${HAZARD_TYPES.map((hazard) => `('${sqlQuote(hazard.name)}', '${sqlQuote(hazard.category)}', '${sqlQuote(hazard.default_severity)}', '${sqlQuote(hazard.description)}', '${sqlQuote(hazard.recommendation)}')`).join(",\n          ")};
     `);
   })();
 
@@ -91,7 +94,9 @@ export async function fetchDataFromDB(): Promise<HazardData[]> {
 
   return rows.map((row) => ({
     id: row.id,
-    title: row.name,
+    title:
+      HAZARD_DISPLAY_NAMES[row.name as keyof typeof HAZARD_DISPLAY_NAMES] ??
+      formatHazardTitle(row.name),
     variant: row.default_severity,
     reason: row.description ?? "No reason available.",
     suggestedFix: row.recommendation ?? "No recommendation available.",
