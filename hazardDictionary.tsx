@@ -6,8 +6,19 @@ const hazardData = {
     risk_status: "high",
     description:
       "Involves common household electronics operating with damaged enclosures or placed on unsecured tables. These devices contain high voltage power supplies and sensitive circuitry that require a stable environment to operate safely.",
-    reason:
-      "This is a high urgency risk because these items become dangerous during disasters. Earthquakes cause unsecured screens to shatter, while typhoons push rain into vents to cause explosive short circuits. In a fire, plastic housings release toxic smoke and spread flames rapidly to nearby furniture.",
+    reason: [
+      {
+        Earthquake:
+          "Unsecured electronics can fall and break during shaking, exposing live wires that can cause electrical fires or electrocution.",
+      },
+      {
+        Typhoon:
+          "Rain getting into electronics can cause short circuits or electrocution, especially when power comes back on.",
+      },
+      {
+        Fire: "Electronics that overheat or are overloaded can catch fire and spread flames quickly while releasing toxic smoke.",
+      },
+    ],
     suggested_fixes: [
       {
         Earthquake: [
@@ -65,8 +76,19 @@ const hazardData = {
     risk_status: "medium",
     description:
       "Fragile items like glass vases, heavy bottles, or ceramic decor placed on high shelves or open plateras. These free standing objects rely entirely on gravity to stay in place and lack protective barriers.",
-    reason:
-      "This is a medium urgency risk because these items become dangerous projectiles during disasters. Earthquakes cause them to shatter into sharp debris while strong typhoon winds can sweep them off tables. In a fire extreme heat causes exposed glass to explode creating hidden hazards during dark evacuations.",
+    reason: [
+      {
+        Earthquake:
+          "Fragile items on high shelves can fall and shatter into sharp debris that can injure anyone nearby during or after the shaking.",
+      },
+      {
+        Typhoon:
+          "Strong winds can knock over unsecured glass and ceramic items, sending sharp broken pieces across the floor.",
+      },
+      {
+        Fire: "Extreme heat can cause glass to crack or explode, scattering sharp shards along evacuation paths in the dark.",
+      },
+    ],
     suggested_fixes: [
       {
         Earthquake: [
@@ -124,8 +146,19 @@ const hazardData = {
     risk_status: "critical",
     description:
       "Electrical service panels where the protective safety cover is missing. This leaves internal high voltage copper bars open to accidental touch or water splashes in the dirty kitchen.",
-    reason:
-      "This is a critical risk because the main electrical hub of your house is unprotected. Earthquakes cause loose wires to spark while typhoon rain entering through the yero roof causes explosive short circuits. In a fire the lack of a metal cover allows electrical sparks to leap directly onto your wooden ceiling.",
+    reason: [
+      {
+        Earthquake:
+          "Loose wires in an uncovered panel can spark and ignite nearby materials when shaking rattles the connections loose.",
+      },
+      {
+        Typhoon:
+          "Rain entering through the roof can hit exposed copper bars and cause short circuits or electrocution.",
+      },
+      {
+        Fire: "Without a metal cover, electrical sparks can jump directly onto wooden ceilings or nearby clutter and start a fire.",
+      },
+    ],
     suggested_fixes: [
       {
         earthquake: [
@@ -183,8 +216,19 @@ const hazardData = {
     risk_status: "medium",
     description:
       "Ceiling lights with broken bulbs or messy octopus wires. These open wires are very dangerous because they are completely unprotected from water and shaking.",
-    reason:
-      "This is a medium urgency risk because the danger hangs right above your family. Earthquakes make heavy glass bulbs fall and shatter. Typhoon rains can leak into the open wires and cause deadly shocks. In a fire messy wires can quickly burn your wooden ceiling.",
+    reason: [
+      {
+        Earthquake:
+          "Heavy bulbs and loose fixtures can fall and shatter on people below when the ceiling shakes.",
+      },
+      {
+        Typhoon:
+          "Rain leaking through the roof can reach open wires and cause deadly shocks or short circuits.",
+      },
+      {
+        Fire: "Overloaded or exposed wires near a wooden ceiling can easily spark and set the roof on fire.",
+      },
+    ],
     suggested_fixes: [
       {
         Earthquake: [
@@ -242,8 +286,19 @@ const hazardData = {
     risk_status: "medium",
     description:
       "Large and top heavy furniture like traditional wooden aparadors and big dining tables. These massive items are dangerous because they are not attached to the walls and can easily tip over.",
-    reason:
-      "This is a medium urgency risk because these heavy items can crush people during a disaster. Earthquakes make them fall and block your exit doors. In a flood heavy wood stays wet and becomes too heavy to move. During a fire large wooden furniture acts as extra fuel that keeps the fire burning longer.",
+    reason: [
+      {
+        Earthquake:
+          "Tall and top heavy furniture can tip over and crush people or block exit doors during strong shaking.",
+      },
+      {
+        Typhoon:
+          "Flood water soaks into wood making furniture too heavy to move, turning it into a barrier during evacuation.",
+      },
+      {
+        Fire: "Large wooden furniture burns easily and acts as extra fuel that keeps the fire going longer and spreads it faster.",
+      },
+    ],
     suggested_fixes: [
       {
         Earthquake: [
@@ -301,8 +356,19 @@ const hazardData = {
     risk_status: "critical",
     description:
       "Using candles, gasera lamps, or mosquito coils near curtains and wooden walls. These open flames are very dangerous because they can easily tip over and start a big house fire.",
-    reason:
-      "This is a critical risk because a single small flame can burn down your entire home in minutes. Earthquakes knock over candles onto your bed or floor. Typhoon winds can blow curtains or mosquito nets into the flame. During a fire these small flames act as the starting point that makes the blaze spread much faster through your home.",
+    reason: [
+      {
+        Earthquake:
+          "Candles and gas lamps can tip over during shaking and immediately ignite nearby curtains or wooden floors.",
+      },
+      {
+        Typhoon:
+          "Strong wind gusts can blow curtains or mosquito nets directly into an open flame and start a fire.",
+      },
+      {
+        Fire: "An unattended open flame acts as the starting point that spreads fire rapidly through the rest of the home.",
+      },
+    ],
     suggested_fixes: [
       {
         Earthquake: [
@@ -360,8 +426,19 @@ const hazardData = {
     risk_status: "high",
     description:
       "Plugging too many appliances like rice cookers, fans, and TVs into one outlet or extension cord. This 'octopus wiring' makes the wires get dangerously hot and can start a fire inside your walls.",
-    reason:
-      "This is a high risk because it is a hidden fire hazard that you cannot see until it is too late. Earthquakes shake loose heavy plugs and cause dangerous sparks. Typhoon humidity or leaks can cause overloaded wires to short circuit. In a fire these hot wires melt their plastic covers and set fire to your wooden walls or floors.",
+    reason: [
+      {
+        Earthquake:
+          "Shaking can loosen heavy plugs from overloaded outlets and cause sparks that ignite walls or floors.",
+      },
+      {
+        Typhoon:
+          "Rain or humidity reaching overloaded wires can cause a short circuit or total power failure.",
+      },
+      {
+        Fire: "Overloaded wires overheat and melt their plastic coating, easily setting fire to wooden walls or floors.",
+      },
+    ],
     suggested_fixes: [
       {
         Earthquake: [
@@ -419,8 +496,19 @@ const hazardData = {
     risk_status: "high",
     description:
       "Electrical cords that are frayed, cracked, or have bare copper wires showing. These wires are very dangerous because they no longer have their protective plastic cover to stop sparks.",
-    reason:
-      "This is a high urgency risk because a damaged wire can shock you or start a fire at any moment. Earthquakes can snap old brittle wires and make metal bed frames or yero walls live with electricity. Typhoon rain can touch open wires and cause explosive short circuits. In a fire the heat from a broken wire can easily set fire to your curtains or wooden walls.",
+    reason: [
+      {
+        Earthquake:
+          "Shaking can snap old brittle wires and make metal furniture or walls live with dangerous electricity.",
+      },
+      {
+        Typhoon:
+          "Rain touching exposed copper wires can instantly cause short circuits or electrocute anyone nearby.",
+      },
+      {
+        Fire: "Heat from a broken wire can quickly ignite nearby curtains, wooden walls, or dusty clutter.",
+      },
+    ],
     suggested_fixes: [
       {
         Earthquake: [
@@ -478,8 +566,19 @@ const hazardData = {
     risk_status: "critical",
     description:
       "Unsecured LPG tanks (Gasul) with old rubber hoses or loose regulators. These tanks contain high pressure gas that can leak and explode if the tank falls over or gets too hot.",
-    reason:
-      "This is a critical risk because a gas leak can turn your whole kitchen into a bomb. Earthquakes knock over tanks and snap the hoses. Floods can make tanks float and pull on the gas line. In a fire the heat makes the gas inside expand until the metal tank explodes and destroys your home.",
+    reason: [
+      {
+        Earthquake:
+          "A falling tank can snap the hose and release gas that ignites instantly from any nearby spark.",
+      },
+      {
+        Typhoon:
+          "Floodwater can float the tank and pull on the gas line, causing a leak that builds up inside a closed home.",
+      },
+      {
+        Fire: "Heat causes the gas inside to expand until the metal tank explodes and destroys everything around it.",
+      },
+    ],
     suggested_fixes: [
       {
         Earthquake: [
@@ -537,8 +636,19 @@ const hazardData = {
     risk_status: "high",
     description:
       "Stoves that are left dirty with grease or placed too close to curtains and wooden walls. These are dangerous because they can quickly start a fire that spreads to the rest of your kitchen.",
-    reason:
-      "This is a high urgency risk because most home fires start in the kitchen. Earthquakes can knock hot oil off the stove and onto the floor. Typhoon winds can blow curtains into the flame or blow out the gas and cause a leak. In a fire grease on the stove acts like fuel that makes the flames grow much larger and hotter.",
+    reason: [
+      {
+        Earthquake:
+          "Shaking can knock hot oil or pans off the stove and onto the floor, instantly starting a fire.",
+      },
+      {
+        Typhoon:
+          "Wind can blow curtains into the flame or put out the gas without shutting it off, causing a dangerous leak.",
+      },
+      {
+        Fire: "Built up grease on the stove acts as extra fuel that makes flames grow much larger and harder to control.",
+      },
+    ],
     suggested_fixes: [
       {
         Earthquake: [
@@ -596,8 +706,19 @@ const hazardData = {
     risk_status: "high",
     description:
       "Thick black smoke and toxic gases produced during a fire. This is dangerous because breathing in smoke can make you confused, unconscious, or stop your breathing entirely.",
-    reason:
-      "This is a high urgency risk because smoke kills much faster than fire. Earthquakes can crack walls and allow smoke to enter your room through hidden gaps. Typhoon winds can push smoke back into your house instead of letting it out through the vents. In a fire smoke fills the room from the ceiling down making it impossible to see your way out.",
+    reason: [
+      {
+        Earthquake:
+          "Cracks in walls from shaking allow smoke to silently enter rooms through hidden gaps before anyone notices.",
+      },
+      {
+        Typhoon:
+          "Strong winds can push smoke back into the house through vents instead of letting it escape outside.",
+      },
+      {
+        Fire: "Smoke fills the room from the ceiling down within minutes, making it impossible to see or breathe your way out.",
+      },
+    ],
     suggested_fixes: [
       {
         Earthquake: [
@@ -655,8 +776,19 @@ const hazardData = {
     risk_status: "high",
     description:
       "Deep cracks in your walls that are wider than a coin or look like a staircase. These are dangerous because they mean your house foundation is moving or the walls are starting to fail.",
-    reason:
-      "This is a high urgency risk because a cracked wall can fall down at any time. Earthquakes use these cracks to break the wall apart completely. Typhoon rain enters the cracks and rusts the iron bars inside your concrete. In a fire these gaps allow deadly smoke and heat to pass through the wall and trap you in your room.",
+    reason: [
+      {
+        Earthquake:
+          "Existing deep cracks give the wall a weak point where it can fully break apart and collapse during strong shaking.",
+      },
+      {
+        Typhoon:
+          "Rain seeping into deep cracks rusts the iron bars inside the concrete, slowly destroying the wall from the inside.",
+      },
+      {
+        Fire: "Large gaps in the wall allow deadly smoke and heat to pass through and trap people in other rooms.",
+      },
+    ],
     suggested_fixes: [
       {
         Earthquake: [
@@ -714,8 +846,19 @@ const hazardData = {
     risk_status: "low",
     description:
       "Thin hairline cracks in your paint or plaster that are smaller than a strand of hair. These are usually just on the surface and do not mean your wall is about to fall down.",
-    reason:
-      "This is a low urgency risk because minor cracks can slowly grow into major problems. Earthquakes cause these small lines to appear as your house settles. Typhoon rain can sneak into these tiny gaps and cause mold or rot inside your walls. In a fire even small cracks can allow dangerous smoke to leak from one room to another.",
+    reason: [
+      {
+        Earthquake:
+          "Small cracks can quietly grow wider after each shake until they become a serious structural problem.",
+      },
+      {
+        Typhoon:
+          "Rain sneaking into tiny gaps causes mold and rot to build up slowly inside your walls over time.",
+      },
+      {
+        Fire: "Even small cracks can act as pathways that let dangerous smoke leak from one room to another.",
+      },
+    ],
     suggested_fixes: [
       {
         Earthquake: [
@@ -773,8 +916,19 @@ const hazardData = {
     risk_status: "critical",
     description:
       "A building that has partially or completely fallen down due to weak walls, a bad foundation, or rotten supports. This is the most dangerous hazard because it can trap or crush anyone inside the home.",
-    reason:
-      "This is a critical risk because you only have seconds to act when a building starts to fail. Earthquakes cause weak ground floors to drop or fold sideways. Typhoon floods can wash away the soil under your house and make it tilt or sink. In a fire the heat weakens your roof and floor supports until they are no longer strong enough to stand.",
+    reason: [
+      {
+        Earthquake:
+          "Weak ground floors can drop or fold sideways in seconds, leaving no time to escape the collapsing structure.",
+      },
+      {
+        Typhoon:
+          "Floodwater washing away soil under the house can cause the entire foundation to tilt or sink without warning.",
+      },
+      {
+        Fire: "Heat weakens roof and floor supports until they can no longer hold their own weight and suddenly give way.",
+      },
+    ],
     suggested_fixes: [
       {
         Earthquake: [
