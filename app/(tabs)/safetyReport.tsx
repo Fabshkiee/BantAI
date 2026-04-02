@@ -33,14 +33,24 @@ export default function SafetyReport() {
     if (d.confidence >= 0.8) variant = "critical";
     else if (d.confidence >= 0.6) variant = "high";
     else if (d.confidence >= 0.4) variant = "medium";
+<<<<<<< HEAD
 
+=======
+    else variant = "low";
+    
+>>>>>>> 202989a (feat: Style for bboxes)
     return {
       id: index,
       title: title,
       variant: variant,
       reason: `AI detected this hazard with ${(d.confidence * 100).toFixed(1)}% confidence.`,
+<<<<<<< HEAD
       suggestedFix:
         "Please inspect the area and resolve the hazard to ensure safety.",
+=======
+      suggestedFix: "Please inspect the area and resolve the hazard to ensure safety.",
+      bbox: d.bbox,
+>>>>>>> 202989a (feat: Style for bboxes)
     };
   });
 

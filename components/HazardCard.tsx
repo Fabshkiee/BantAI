@@ -4,14 +4,46 @@ import DropDownIcon from "@/assets/icons/DropDownIcon";
 import HighRiskIcon from "@/assets/icons/HighRiskIcon";
 import LowRiskIcon from "@/assets/icons/LowRiskIcon";
 import MediumRiskIcon from "@/assets/icons/MediumRiskIcon";
-import { HazardData as DBHazardData, fetchDataFromDB } from "@/db/db";
+import { fetchDataFromDB } from "@/db/db";
 import React, { useEffect, useState } from "react";
 import { Image, LayoutAnimation, Pressable, Text, View } from "react-native";
 import Button from "./Button";
 import RiskStatus from "./RiskStatus";
 
 // Change to database connection
-export type HazardData = DBHazardData;
+export type HazardData = {
+  id: string | number;
+  title: string;
+  variant: "low" | "medium" | "high" | "critical";
+  reason: string;
+  suggestedFix: string;
+  bbox?: [number, number, number, number];
+};
+
+// MockData for example
+const detectedHazards: HazardData[] = [
+  {
+    id: "risk-001",
+    title: "Exposed Wiring",
+    variant: "high",
+    reason: "Frayed wires near water source.",
+    suggestedFix: "Replace cable and route away from sink.",
+  },
+  {
+    id: "risk-002",
+    title: "Blocked Fire Exit",
+    variant: "critical",
+    reason: "Boxes stacked in front of the primary emergency door.",
+    suggestedFix: "Move boxes to storage room immediately.",
+  },
+  {
+    id: "risk-003",
+    title: "Slippery Floor",
+    variant: "low",
+    reason: "Minor water spill near the cooler.",
+    suggestedFix: "Wipe area with dry mop and place caution sign.",
+  },
+];
 
 const riskIcons = {
   low: <LowRiskIcon size={36} />,
@@ -27,7 +59,13 @@ const riskStatus = {
   critical: <RiskStatus variants="critical" />,
 };
 
-function HazardCardDesign({ data, imageUri }: { data: HazardData, imageUri?: string }) {
+function HazardCardDesign({
+  data,
+  imageUri,
+}: {
+  data: HazardData;
+  imageUri?: string;
+}) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const toggleExpand = () => {
@@ -55,13 +93,67 @@ function HazardCardDesign({ data, imageUri }: { data: HazardData, imageUri?: str
 
       {isExpanded && (
         <View className="flex-col gap-7 mt-4">
-          <View>
-            <Text className="text-xl font-semibold">Identified Hazard:</Text>
+          <View className="relative w-full h-64 mt-2 rounded-2xl overflow-hidden bg-gray-100">
             <Image
-              source={imageUri ? { uri: imageUri } : require("@/assets/images/room.png")}
-              className="rounded-2xl mt-2 w-full h-64"
-              resizeMode="cover"
+              source={
+                imageUri
+                  ? { uri: imageUri }
+                  : require("@/assets/images/room.png")
+              }
+              className="absolute inset-0 w-full h-full"
+              resizeMode="stretch"
             />
+            {data.bbox && (
+              <View
+                className="absolute border-[2px] bg-opacity-10"
+                style={{
+                  left: `${data.bbox[0] * 100}%`,
+                  top: `${data.bbox[1] * 100}%`,
+                  width: `${(data.bbox[2] - data.bbox[0]) * 100}%`,
+                  height: `${(data.bbox[3] - data.bbox[1]) * 100}%`,
+                  borderColor:
+                    data.variant === "critical"
+                      ? "#b40000" // --color-red-500
+                      : data.variant === "high"
+                        ? "#c56400" // --color-orange-500
+                        : data.variant === "medium"
+                          ? "#d89700" // --color-yellow-500
+                          : "#00ad14", // --color-green-500
+                  backgroundColor:
+                    data.variant === "critical"
+                      ? "rgba(180, 0, 0, 0.1)"
+                      : data.variant === "high"
+                        ? "rgba(197, 100, 0, 0.1)"
+                        : data.variant === "medium"
+                          ? "rgba(216, 151, 0, 0.1)"
+                          : "rgba(0, 173, 20, 0.1)",
+                }}
+              >
+                {/* Risk Label Tag */}
+                <View
+                  className="absolute -top-[18px] -left-[2px] px-1.5 py-0.5 rounded-t-sm"
+                  style={{
+                    backgroundColor:
+                      data.variant === "critical"
+                        ? "#b40000"
+                        : data.variant === "high"
+                          ? "#c56400"
+                          : data.variant === "medium"
+                            ? "#d89700"
+                            : "#00ad14",
+                    minWidth: 40,
+                  }}
+                >
+                  <Text
+                    className="text-[9px] font-bold text-white text-center"
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                  >
+                    {data.variant.toUpperCase()}
+                  </Text>
+                </View>
+              </View>
+            )}
           </View>
 
           <View>
