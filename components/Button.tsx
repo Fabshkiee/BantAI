@@ -5,7 +5,7 @@ type ButtonProps = {
   label: string;
   onPress: () => void;
   icon?: React.ReactNode;
-  variant?: "primary" | "secondary" | "cancel";
+  variant?: "primary" | "secondary" | "cancel" | "return";
   className?: string;
   iconPosition?: "left" | "right";
   loading?: boolean;
@@ -26,12 +26,14 @@ export default function Button({
     primary: "bg-surface-primary border-transparent",
     secondary: "border-border-primary border-2",
     cancel: "border-border-critical border-2",
+    return: "bg-surface-default/75 backdrop-blur-3xl",
   };
 
   const textColors = {
     primary: "text-text-inverse",
     secondary: "text-text-primary",
     cancel: "text-text-critical",
+    return: "text-text-default",
   };
 
   return (
@@ -41,7 +43,7 @@ export default function Button({
       className={`
     flex-row items-center justify-center p-4 rounded-[56px] transition-all
     ${variants[variant]} 
-    ${!(disabled || loading) ? " active:bg-surface-focus active:scale-[0.96]" : "opacity-50"} 
+    ${!(disabled || loading) ? " active:opacity-75 active:scale-[0.96]" : "opacity-50"} 
     ${className}
   `}
     >
@@ -52,7 +54,7 @@ export default function Button({
           ) : (
             <View className="flex-row items-center">
               {icon && iconPosition === "left" && (
-                <View className="mr-2">{icon}</View>
+                <View className="mr-3">{icon}</View>
               )}
 
               <Text

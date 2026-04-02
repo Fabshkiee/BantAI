@@ -125,6 +125,27 @@ export default function TabLayout() {
           href: null,
         }}
       />
+      <Tabs.Screen
+        name="articles/earthquakeArticle"
+        options={{
+          tabBarStyle: { display: "none" },
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="articles/typhoonArticle"
+        options={{
+          tabBarStyle: { display: "none" },
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="articles/fireArticle"
+        options={{
+          tabBarStyle: { display: "none" },
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }
