@@ -70,4 +70,46 @@ async function preprocessImage(imageUri: string): Promise<Float32Array> {
   return tensor;
 }
 
+function parseDetectionsFromOutput(
+  output: ArrayLike<number | bigint>,
+): Detection[] {
+  const readValue = (index: number) => Number(output[index]);
+
+  const detections: Detection[] = [];
+  const stride = 6; // Output shape is [1, 300, 6] (x, y, w, h, confidence, class_id) or (x1, y1, x2, y2, score, class_id)
+  const numDetections = Math.floor(output.length / stride);
+
+  for (let i = 0; i < numDetections; i++) {
+    const offset = i * stride;
+
+    // YOLO26s TFLite format: [x1, y1, x2, y2, confidence, class_id]
+    const x1_raw = readValue(offset);
+    const y1_raw = readValue(offset + 1);
+    const x2_raw = readValue(offset + 2);
+    const y2_raw = readValue(offset + 3);
+    const confidence = readValue(offset + 4);
+    const classIdx = Math.round(readValue(offset + 5));
+
+    // If it's a valid prediction (classIdx usually shouldn't be negative but just in case, and check confidence)
+    if (
+      confidence > CONF_THRESHOLD &&
+      classIdx >= 0 &&
+      classIdx < CLASS_NAMES.length
+    ) {
+      // Coordinates are usually absolute (0-INPUT_SIZE), convert to normalized (0-1)
+      const x1 = Math.max(0, Math.min(1, x1_raw / INPUT_SIZE));
+      const y1 = Math.max(0, Math.min(1, y1_raw / INPUT_SIZE));
+      const x2 = Math.max(0, Math.min(1, x2_raw / INPUT_SIZE));
+      const y2 = Math.max(0, Math.min(1, y2_raw / INPUT_SIZE));
+
+      detections.push({
+        class: CLASS_NAMES[classIdx],
+        confidence: Math.min(1, confidence),
+        bbox: [x1, y1, x2, y2],
+      });
+    }
+  }
+
+  return detections;
+}
 
