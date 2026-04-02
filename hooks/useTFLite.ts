@@ -109,11 +109,11 @@ function parseDetectionsFromOutput(
       classIdx >= 0 &&
       classIdx < CLASS_NAMES.length
     ) {
-      // Coordinates are usually absolute (0-INPUT_SIZE), convert to normalized (0-1)
-      const x1 = Math.max(0, Math.min(1, x1_raw / INPUT_SIZE));
-      const y1 = Math.max(0, Math.min(1, y1_raw / INPUT_SIZE));
-      const x2 = Math.max(0, Math.min(1, x2_raw / INPUT_SIZE));
-      const y2 = Math.max(0, Math.min(1, y2_raw / INPUT_SIZE));
+      // Model already outputs normalized coordinates (0-1), just clamp them to be safe
+      const x1 = Math.max(0, Math.min(1, x1_raw));
+      const y1 = Math.max(0, Math.min(1, y1_raw));
+      const x2 = Math.max(0, Math.min(1, x2_raw));
+      const y2 = Math.max(0, Math.min(1, y2_raw));
 
       detections.push({
         class: CLASS_NAMES[classIdx],
