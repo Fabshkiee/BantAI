@@ -1,10 +1,10 @@
-import { HazardData as DBHazardData, fetchDataFromDB } from "@/app/db/db";
 import CheckIcon from "@/assets/icons/CheckIcon";
 import CriticalRiskIcon from "@/assets/icons/CriticalRiskIcon";
 import DropDownIcon from "@/assets/icons/DropDownIcon";
 import HighRiskIcon from "@/assets/icons/HighRiskIcon";
 import LowRiskIcon from "@/assets/icons/LowRiskIcon";
 import MediumRiskIcon from "@/assets/icons/MediumRiskIcon";
+import { HazardData as DBHazardData, fetchDataFromDB } from "@/db/db";
 import React, { useEffect, useState } from "react";
 import { Image, LayoutAnimation, Pressable, Text, View } from "react-native";
 import Button from "./Button";

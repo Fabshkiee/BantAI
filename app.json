@@ -46,7 +46,8 @@
         }
       ],
       "react-native-vision-camera",
-      "react-native-fast-tflite"
+      "react-native-fast-tflite",
+      "expo-sqlite"
     ],
     "experiments": {
       "typedRoutes": true,
