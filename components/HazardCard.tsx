@@ -93,67 +93,86 @@ function HazardCardDesign({
 
       {isExpanded && (
         <View className="flex-col gap-7 mt-4">
-          <View className="relative w-full h-64 mt-2 rounded-2xl overflow-hidden bg-gray-100">
-            <Image
-              source={
-                imageUri
-                  ? { uri: imageUri }
-                  : require("@/assets/images/room.png")
+          <View className="relative w-full h-64 mt-2 rounded-2xl overflow-hidden bg-gray-100 border border-border-secondary">
+            {(() => {
+              // Zoom logic: Calculate transform based on bbox
+              const hasBbox = data.bbox && data.bbox.length === 4;
+              let transformStyles = {};
+              
+              if (hasBbox) {
+                const [x1, y1, x2, y2] = data.bbox!;
+                const centerX = (x1 + x2) / 2;
+                const centerY = (y1 + y2) / 2;
+                const width = x2 - x1;
+                const height = y2 - y1;
+                
+                // Calculate scale: we want the box to take up ~60% of the view height/width
+                const scale = Math.min(2.5, Math.max(1, 0.6 / Math.max(width, height)));
+                
+                // Calculate translation to center the bbox
+                // (0.5 - center) * 100%
+                const translateX = (0.5 - centerX) * 100;
+                const translateY = (0.5 - centerY) * 100;
+                
+                transformStyles = {
+                  transform: [
+                    { scale: scale },
+                    { translateX: `${translateX}%` as any },
+                    { translateY: `${translateY}%` as any },
+                  ]
+                };
               }
-              className="absolute inset-0 w-full h-full"
-              resizeMode="stretch"
-            />
-            {data.bbox && (
-              <View
-                className="absolute border-[2px] bg-opacity-10"
-                style={{
-                  left: `${data.bbox[0] * 100}%`,
-                  top: `${data.bbox[1] * 100}%`,
-                  width: `${(data.bbox[2] - data.bbox[0]) * 100}%`,
-                  height: `${(data.bbox[3] - data.bbox[1]) * 100}%`,
-                  borderColor:
-                    data.variant === "critical"
-                      ? "#b40000" // --color-red-500
-                      : data.variant === "high"
-                        ? "#c56400" // --color-orange-500
-                        : data.variant === "medium"
-                          ? "#d89700" // --color-yellow-500
-                          : "#00ad14", // --color-green-500
-                  backgroundColor:
-                    data.variant === "critical"
-                      ? "rgba(180, 0, 0, 0.1)"
-                      : data.variant === "high"
-                        ? "rgba(197, 100, 0, 0.1)"
-                        : data.variant === "medium"
-                          ? "rgba(216, 151, 0, 0.1)"
-                          : "rgba(0, 173, 20, 0.1)",
-                }}
-              >
-                {/* Risk Label Tag */}
-                <View
-                  className="absolute -top-[18px] -left-[2px] px-1.5 py-0.5 rounded-t-sm"
-                  style={{
-                    backgroundColor:
-                      data.variant === "critical"
-                        ? "#b40000"
-                        : data.variant === "high"
-                          ? "#c56400"
-                          : data.variant === "medium"
-                            ? "#d89700"
-                            : "#00ad14",
-                    minWidth: 40,
-                  }}
-                >
-                  <Text
-                    className="text-[9px] font-bold text-white text-center"
-                    numberOfLines={1}
-                    adjustsFontSizeToFit
-                  >
-                    {data.variant.toUpperCase()}
-                  </Text>
+
+              return (
+                <View className="w-full h-full" style={transformStyles}>
+                  <Image
+                    source={
+                      imageUri
+                        ? { uri: imageUri }
+                        : require("@/assets/images/room.png")
+                    }
+                    className="absolute inset-0 w-full h-full"
+                    resizeMode="stretch"
+                  />
+                  {hasBbox && (
+                    <View
+                      className="absolute border-[2.5px]"
+                      style={{
+                        left: `${data.bbox![0] * 100}%`,
+                        top: `${data.bbox![1] * 100}%`,
+                        width: `${(data.bbox![2] - data.bbox![0]) * 100}%`,
+                        height: `${(data.bbox![3] - data.bbox![1]) * 100}%`,
+                        borderColor:
+                          data.variant === "critical" ? "#b40000" : 
+                          data.variant === "high" ? "#c56400" : 
+                          data.variant === "medium" ? "#d89700" : "#00ad14",
+                        backgroundColor: "rgba(255,255,255,0.05)",
+                      }}
+                    >
+                      {/* Risk Label Tag */}
+                      <View
+                        className="absolute -top-[18px] -left-[2px] px-1.5 py-0.5 rounded-t-sm"
+                        style={{
+                          backgroundColor:
+                            data.variant === "critical" ? "#b40000" : 
+                            data.variant === "high" ? "#c56400" : 
+                            data.variant === "medium" ? "#d89700" : "#00ad14",
+                          minWidth: 40,
+                        }}
+                      >
+                        <Text
+                          className="text-[9px] font-bold text-white text-center"
+                          numberOfLines={1}
+                          adjustsFontSizeToFit
+                        >
+                          {data.variant.toUpperCase()}
+                        </Text>
+                      </View>
+                    </View>
+                  )}
                 </View>
-              </View>
-            )}
+              );
+            })()}
           </View>
 
           <View>
