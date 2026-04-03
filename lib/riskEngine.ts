@@ -1,4 +1,5 @@
 import { hazardDictionary } from "../hazardDictionary";
+import { getBoxDistance, getContainmentRatio } from "./spatialMath";
 
 export type RiskLevel = "Safe" | "Low" | "Medium" | "High" | "Critical";
 
@@ -8,6 +9,7 @@ export interface RiskResult {
   level: RiskLevel;
   mascotVariant: "low" | "medium" | "high" | "critical";
   breakdown: Record<string, { count: number; weightedScore: number }>;
+  spatialInsights: string[];
 }
 
 const SEVERITY_VALUES: Record<string, number> = {
@@ -16,6 +18,8 @@ const SEVERITY_VALUES: Record<string, number> = {
   medium: 5,
   low: 2,
 };
+
+const PROXIMITY_THRESHOLD = 0.2; // 20% of the screen distance edge-to-edge
 
 function getDictionaryId(className: string): string {
   return `HAZARD_LABELS.${className.toUpperCase()}`;
@@ -100,5 +104,6 @@ export function calculateRoomRisk(
     level,
     mascotVariant,
     breakdown,
+    spatialInsights: [],
   };
 }
