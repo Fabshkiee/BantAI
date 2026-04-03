@@ -2,7 +2,16 @@ import { initDatabase } from "@/db/db";
 import { Stack } from "expo-router";
 import { useEffect } from "react";
 import { View } from "react-native";
+import {
+  configureReanimatedLogger,
+  ReanimatedLogLevel,
+} from "react-native-reanimated";
 import "../global.css";
+
+configureReanimatedLogger({
+  level: ReanimatedLogLevel.warn,
+  strict: false,
+});
 
 export default function RootLayout() {
   useEffect(() => {
