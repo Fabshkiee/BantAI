@@ -130,6 +130,16 @@ export function calculateRoomRisk(
     }
   }
 
+  // 4. Flood Zone Awareness (Bottom 15% of frame)
+  detections.forEach((det) => {
+    const isAtBottom = det.bbox[3] > 0.85; // Lower 15%
+    const entry = hazardDictionary.find((h) => h.id === getDictionaryId(det.class));
+    if (isAtBottom && (entry?.category === "electrical" || det.class === "floor_appliance")) {
+      totalRiskScore += 12;
+      spatialInsights.push(`Flood Risk: Electrical hazards identified in the flood zone (floor).`);
+    }
+  });
+
 
   const safetyScore = Math.max(0, Math.min(100, Math.round(100 - (totalRiskScore * 1.3))));
 
