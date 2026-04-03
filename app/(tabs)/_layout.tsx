@@ -153,6 +153,14 @@ const CameraActionModal = ({
   );
 };
 
+// Main tab layout
+export default function TabLayout() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  return (
+    <>
+      <Tabs screenOptions={TAB_BAR_OPTIONS}>
+        {/* Home Tab */}
         <Tabs.Screen
           name="index"
           options={{
@@ -162,7 +170,7 @@ const CameraActionModal = ({
           }}
         />
 
-        {/* The Intercepted Camera Screen */}
+        {/* Action Button (Center Tab) */}
         <Tabs.Screen
           name="photoInstructions"
           options={{
@@ -190,6 +198,7 @@ const CameraActionModal = ({
           }}
         />
 
+        {/* History Tab */}
         <Tabs.Screen
           name="history"
           options={{
@@ -199,8 +208,21 @@ const CameraActionModal = ({
           }}
         />
 
+        {/* Dynamically Render All Hidden Screens */}
+        {HIDDEN_SCREENS.map((screenName) => (
+          <Tabs.Screen
+            key={screenName}
+            name={screenName}
+            options={{ href: null, tabBarStyle: { display: "none" } }}
+          />
+        ))}
       </Tabs>
 
+      {/* Extracted Modal Component */}
+      <CameraActionModal
+        isVisible={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </>
   );
 }
