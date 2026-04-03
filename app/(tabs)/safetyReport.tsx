@@ -6,13 +6,15 @@ import MascotReporter from "@/components/MascotReporter";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { calculateRoomRisk } from "@/lib/riskEngine";
+import { calculateRoomRisk, type Detection } from "@/lib/riskEngine";
+import { hazardDictionary } from "@/hazardDictionary";
 
-export interface Detection {
-  class: string;
-  confidence: number;
-  bbox: [number, number, number, number];
-}
+const SEVERITY_PRIORITY: Record<string, number> = {
+  critical: 4,
+  high: 3,
+  medium: 2,
+  low: 1,
+};
 
 export default function SafetyReport() {
   const router = useRouter();
@@ -22,30 +24,41 @@ export default function SafetyReport() {
     ? JSON.parse(detectionsJson as string)
     : [];
 
-  const mappedHazards: HazardData[] = detections.map((d, index) => {
-    // Format the class name to be more readable
-    const title = d.class
-      .split("_")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
+  // Logic: Intercept raw detections and sort them by Urgency (Critical > High > Medium > Low)
+  const mappedHazards: HazardData[] = [];
+  for (let i = 0; i < detections.length; i++) {
+    const d = detections[i];
+    const dictId = `HAZARD_LABELS.${d.class.toUpperCase()}`;
+    const entry = hazardDictionary.find((h) => h.id === dictId);
 
-    // Map confidence to variant
-    let variant: "low" | "medium" | "high" | "critical" = "low";
-    if (d.confidence >= 0.8) variant = "critical";
-    else if (d.confidence >= 0.6) variant = "high";
-    else if (d.confidence >= 0.4) variant = "medium";
-    else variant = "low";
+    const title = entry
+      ? entry.title
+      : d.class
+          .split("_")
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" ");
 
-    return {
-      id: index,
+    const variant = entry ? entry.default_severity : "low";
+
+    mappedHazards.push({
+      id: i.toString(),
       title: title,
-      variant: variant,
-      reason: `AI detected this hazard with ${(d.confidence * 100).toFixed(1)}% confidence.`,
+      variant: variant as "low" | "medium" | "high" | "critical",
+      reason:
+        entry?.description ||
+        `AI detected this hazard with ${(d.confidence * 100).toFixed(1)}% confidence.`,
       suggestedFix:
+        entry?.fire_fixes?.[0] ||
         "Please inspect the area and resolve the hazard to ensure safety.",
       bbox: d.bbox,
-    };
-  });
+    });
+  }
+
+  // Final sort by urgency
+  mappedHazards.sort(
+    (a, b) =>
+      (SEVERITY_PRIORITY[b.variant] || 0) - (SEVERITY_PRIORITY[a.variant] || 0),
+  );
 
   const executeDatabaseSearch = (sqlCommand: string) => {};
 
@@ -61,7 +74,6 @@ export default function SafetyReport() {
       contentContainerClassName="pb-20"
     >
       <View className="mx-7 gap-7">
-        {/* Safety Report Header */}
         <View className="flex-1 justify-center items-center gap-4">
           <Text className="text-h2 font-bold text-center mt-10">
             Room Safety Report
@@ -71,7 +83,6 @@ export default function SafetyReport() {
           </View>
         </View>
 
-        {/* Spatial Insights / Warning Section */}
         {spatialInsights.length > 0 && (
           <View className="bg-surface-critical/10 border border-surface-critical p-4 rounded-xl gap-2">
             <Text className="text-text-critical font-bold text-lg">
@@ -85,11 +96,9 @@ export default function SafetyReport() {
           </View>
         )}
 
-        {/* No. of identified hazard and instructions */}
         <View>
           <Text className="text-2xl font-bold mt-10 mb-1">
-            Identified Hazards (
-            {mappedHazards.length > 0 ? mappedHazards.length : 3})
+            Identified Hazards ({mappedHazards.length})
           </Text>
           <Text className="text-lg">
             After assessing each hazard, apply the recommended fix, and press
@@ -98,23 +107,16 @@ export default function SafetyReport() {
         </View>
 
         <View>
-          {/* TO DO: define parameters */}
           <HazardSortingButtons
             tableName="test"
             onSortQueryChange={executeDatabaseSearch}
           />
         </View>
 
-        {/* TO DO: modify hazard card to determine risks */}
-        {/* Hazard Cards */}
         <View className="mt-7">
-          <HazardCard
-            hazards={mappedHazards.length > 0 ? mappedHazards : undefined}
-            imageUri={imageUri as string | undefined}
-          />
+          <HazardCard hazards={mappedHazards} imageUri={imageUri as string | undefined} />
         </View>
 
-        {/* Return Buttons */}
         <View className="w-full gap-4">
           <Button
             label="Rescan Room"
