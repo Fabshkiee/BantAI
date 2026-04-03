@@ -2,10 +2,11 @@ import RefreshIcon from "@/assets/icons/RefreshIcon";
 import Button from "@/components/Button";
 import HazardCard, { HazardData } from "@/components/HazardCard";
 import HazardSortingButtons from "@/components/HazardSortingButons";
-import MascotReporter, { getRiskVariant } from "@/components/MascotReporter";
+import MascotReporter from "@/components/MascotReporter";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { calculateRoomRisk } from "@/lib/riskEngine";
 
 export interface Detection {
   class: string;
@@ -46,11 +47,10 @@ export default function SafetyReport() {
     };
   });
 
-  const executeDatabaseSearch = (sqlCommand: string) => {}; // TO DO: Create a function that searches the db (change to const)
+  const executeDatabaseSearch = (sqlCommand: string) => {};
 
-  // TO DO: create a function to solve the room score */
-  const roomScore = 15;
-  const riskVariant = getRiskVariant(roomScore);
+  // Calculate the actual room score and variant using the new Risk Engine
+  const { safetyScore, mascotVariant } = calculateRoomRisk(detections);
   const insets = useSafeAreaInsets();
 
   return (
@@ -66,7 +66,7 @@ export default function SafetyReport() {
             Room Safety Report
           </Text>
           <View className="relative">
-            <MascotReporter score={riskVariant} value={roomScore} />
+            <MascotReporter score={mascotVariant} value={safetyScore} />
           </View>
         </View>
 
