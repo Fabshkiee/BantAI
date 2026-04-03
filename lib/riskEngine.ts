@@ -32,11 +32,16 @@ function getDictionaryId(className: string): string {
  * 3. Lock status to Critical if extreme conditions met
  */
 export function calculateRoomRisk(
-  detections: { class: string; confidence: number; bbox: [number, number, number, number] }[],
+  detections: {
+    class: string;
+    confidence: number;
+    bbox: [number, number, number, number];
+  }[],
 ): RiskResult {
-  const breakdown: Record<string, { count: number; weightedScore: number }> = {};
+  const breakdown: Record<string, { count: number; weightedScore: number }> =
+    {};
   const spatialInsights: string[] = [];
-  
+
   // 1. Group and count detections
   detections.forEach((det) => {
     const dictId = getDictionaryId(det.class);
@@ -57,20 +62,18 @@ export function calculateRoomRisk(
     const baseValue = SEVERITY_VALUES[entry.default_severity] || 0;
     const count = breakdown[dictId].count;
 
-    // Density Formula: 15% boost per extra instance
     const densityMultiplier = 1 + (count - 1) * 0.15;
     const weightedScore = baseValue * densityMultiplier;
 
     breakdown[dictId].weightedScore = weightedScore;
     totalRiskScore += weightedScore;
 
-    // 3. Status Escalation (Locking) logic
-    // 5+ High hazards OR 3+ Critical hazards = Automatic Critical Risk
     if (entry.default_severity === "high" && count >= 5) forceCritical = true;
-    if (entry.default_severity === "critical" && count >= 3) forceCritical = true;
+    if (entry.default_severity === "critical" && count >= 3)
+      forceCritical = true;
   });
 
-  // 4. Precise Spatial Reasoning Phase
+  // 3. Precise Spatial Reasoning Phase
   for (let i = 0; i < detections.length; i++) {
     for (let j = i + 1; j < detections.length; j++) {
       const detA = detections[i];
@@ -79,18 +82,26 @@ export function calculateRoomRisk(
 
       if (dist < PROXIMITY_THRESHOLD) {
         let multiplier = 1;
-        const entryA = hazardDictionary.find((h) => h.id === getDictionaryId(detA.class));
-        const entryB = hazardDictionary.find((h) => h.id === getDictionaryId(detB.class));
-        
+        const entryA = hazardDictionary.find(
+          (h) => h.id === getDictionaryId(detA.class),
+        );
+        const entryB = hazardDictionary.find(
+          (h) => h.id === getDictionaryId(detB.class),
+        );
+
         if (!entryA || !entryB) continue;
 
         // RULE: Fire + Furniture Proximity (High Spread Risk)
         if (
-          (entryA.category === "fire" && entryB.id === "HAZARD_LABELS.HEAVY_WOODEN_FURNITURE") ||
-          (entryB.category === "fire" && entryA.id === "HAZARD_LABELS.HEAVY_WOODEN_FURNITURE")
+          (entryA.category === "fire" &&
+            entryB.id === "HAZARD_LABELS.HEAVY_WOODEN_FURNITURE") ||
+          (entryB.category === "fire" &&
+            entryA.id === "HAZARD_LABELS.HEAVY_WOODEN_FURNITURE")
         ) {
           multiplier = 2.0;
-          spatialInsights.push(`Critical: Open flame detected dangerously close to wooden furniture.`);
+          spatialInsights.push(
+            `Critical: Open flame detected dangerously close to wooden furniture.`,
+          );
         }
         // RULE: Fire + Electrical Proximity
         else if (
@@ -98,32 +109,47 @@ export function calculateRoomRisk(
           (entryA.category === "electrical" && entryB.category === "fire")
         ) {
           multiplier = 1.8;
-          spatialInsights.push(`Danger: Fire source near electrical components.`);
+          spatialInsights.push(
+            `Danger: Fire source near electrical components.`,
+          );
         }
         // RULE: Structural Clustering (Edge distance is 0 for touching boxes)
-        else if (entryA.category === "structural" && entryB.category === "structural") {
+        else if (
+          entryA.category === "structural" &&
+          entryB.category === "structural"
+        ) {
           multiplier = 1.4;
-          spatialInsights.push(`Structural Warning: Clustered cracks detected in the same area.`);
+          spatialInsights.push(
+            `Structural Warning: Clustered cracks detected in the same area.`,
+          );
         }
-        
+
         // RULE: Containment Check for Broken Glass
         // If broken glass is contained within elevated breakables shelf, it's safer.
         if (
-          (detA.class === "broken_glass" && detB.class === "elevated_breakables") ||
-          (detB.class === "broken_glass" && detA.class === "elevated_breakables")
+          (detA.class === "broken_glass" &&
+            detB.class === "elevated_breakables") ||
+          (detB.class === "broken_glass" &&
+            detA.class === "elevated_breakables")
         ) {
-          const glassBox = detA.class === "broken_glass" ? detA.bbox : detB.bbox;
-          const shelfBox = detA.class === "elevated_breakables" ? detA.bbox : detB.bbox;
+          const glassBox =
+            detA.class === "broken_glass" ? detA.bbox : detB.bbox;
+          const shelfBox =
+            detA.class === "elevated_breakables" ? detA.bbox : detB.bbox;
           const containment = getContainmentRatio(glassBox, shelfBox);
-          
+
           if (containment > 0.7) {
             multiplier = 0.5; // Half risk if glass is contained on a shelf
-            spatialInsights.push(`Safe: Broken glass is contained within its original shelf area.`);
+            spatialInsights.push(
+              `Safe: Broken glass is contained within its original shelf area.`,
+            );
           }
         }
 
         if (multiplier !== 1) {
-          const pairBaseSeverity = SEVERITY_VALUES[entryA.default_severity] + SEVERITY_VALUES[entryB.default_severity];
+          const pairBaseSeverity =
+            SEVERITY_VALUES[entryA.default_severity] +
+            SEVERITY_VALUES[entryB.default_severity];
           totalRiskScore += pairBaseSeverity * (multiplier - 1);
         }
       }
@@ -133,27 +159,37 @@ export function calculateRoomRisk(
   // 4. Flood Zone Awareness (Bottom 15% of frame)
   detections.forEach((det) => {
     const isAtBottom = det.bbox[3] > 0.85; // Lower 15%
-    const entry = hazardDictionary.find((h) => h.id === getDictionaryId(det.class));
-    if (isAtBottom && (entry?.category === "electrical" || det.class === "floor_appliance")) {
+    const entry = hazardDictionary.find(
+      (h) => h.id === getDictionaryId(det.class),
+    );
+    if (
+      isAtBottom &&
+      (entry?.category === "electrical" || det.class === "floor_appliance")
+    ) {
       totalRiskScore += 12;
-      spatialInsights.push(`Flood Risk: Electrical hazards identified in the flood zone (floor).`);
+      spatialInsights.push(
+        `Flood Risk: Electrical hazards identified in the flood zone (floor).`,
+      );
     }
   });
 
+  // 5. Calculate final safety score
+  const safetyScore = Math.max(
+    0,
+    Math.min(100, Math.round(100 - totalRiskScore * 1.3)),
+  );
 
-  const safetyScore = Math.max(0, Math.min(100, Math.round(100 - (totalRiskScore * 1.3))));
-
-
+  // 6. Determine status
   let level: RiskLevel = "Safe";
   let mascotVariant: "low" | "medium" | "high" | "critical" = "low";
 
-  if (safetyScore <= 10 || forceCritical) {
+  if (safetyScore <= 15 || forceCritical) {
     level = "Critical";
     mascotVariant = "critical";
-  } else if (safetyScore < 40) {
+  } else if (safetyScore < 45) {
     level = "High";
     mascotVariant = "high";
-  } else if (safetyScore < 70) {
+  } else if (safetyScore < 75) {
     level = "Medium";
     mascotVariant = "medium";
   } else if (safetyScore < 95) {
@@ -170,6 +206,6 @@ export function calculateRoomRisk(
     level,
     mascotVariant,
     breakdown,
-    spatialInsights: [],
+    spatialInsights: Array.from(new Set(spatialInsights)), // Deduplicate
   };
 }
