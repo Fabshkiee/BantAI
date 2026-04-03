@@ -24,6 +24,20 @@ export type HazardTypeSeed = {
   recommendation: string;
 };
 
+export const SEVERITY_SCORES = {
+  low: 25,
+  medium: 50,
+  high: 75,
+  critical: 100,
+} as const;
+
+export const CATEGORY_WEIGHTS: Record<string, number> = {
+  fire: 0.30,
+  structural: 0.25,
+  electrical: 0.25,
+  trip: 0.20,
+};
+
 export const HAZARD_DISPLAY_NAMES: Record<HazardLabel, string> = {
   [HAZARD_LABELS.OVERLOADED_SOCKET]: "Overloaded Socket",
   [HAZARD_LABELS.DAMAGED_WIRE]: "Damaged Wire",
