@@ -105,11 +105,25 @@ export function calculateRoomRisk(
           multiplier = 1.4;
           spatialInsights.push(`Structural Warning: Clustered cracks detected in the same area.`);
         }
+        
+        // RULE: Containment Check for Broken Glass
+        // If broken glass is contained within elevated breakables shelf, it's safer.
+        if (
+          (detA.class === "broken_glass" && detB.class === "elevated_breakables") ||
+          (detB.class === "broken_glass" && detA.class === "elevated_breakables")
+        ) {
+          const glassBox = detA.class === "broken_glass" ? detA.bbox : detB.bbox;
+          const shelfBox = detA.class === "elevated_breakables" ? detA.bbox : detB.bbox;
+          const containment = getContainmentRatio(glassBox, shelfBox);
+          
+          if (containment > 0.7) {
+            multiplier = 0.5; // Half risk if glass is contained on a shelf
+            spatialInsights.push(`Safe: Broken glass is contained within its original shelf area.`);
+          }
+        }
       }
     }
   }
-        
-
 
 
   const safetyScore = Math.max(0, Math.min(100, Math.round(100 - (totalRiskScore * 1.3))));
