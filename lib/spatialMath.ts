@@ -61,3 +61,21 @@ export function isOverlapping(
   );
 }
 
+/**
+ * Calculate the Intersection over Union (IoU) of two boxes.
+ */
+export function getIoU(
+  boxA: [number, number, number, number],
+  boxB: [number, number, number, number],
+): number {
+  const xA = Math.max(boxA[0], boxB[0]);
+  const yA = Math.max(boxA[1], boxB[1]);
+  const xB = Math.min(boxA[2], boxB[2]);
+  const yB = Math.min(boxA[3], boxB[3]);
+
+  const interArea = Math.max(0, xB - xA) * Math.max(0, yB - yA);
+  const boxAArea = (boxA[2] - boxA[0]) * (boxA[3] - boxA[1]);
+  const boxBArea = (boxB[2] - boxB[0]) * (boxB[3] - boxB[1]);
+
+  return interArea / (boxAArea + boxBArea - interArea);
+}
