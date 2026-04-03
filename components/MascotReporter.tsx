@@ -31,13 +31,6 @@ const statusTextColors = {
   critical: "text-text-critical",
 };
 
-export function getRiskVariant(score: number): RiskVariant {
-  if (score >= 0 && score <= 10) return "critical";
-  else if (score > 10 && score < 40) return "high";
-  else if (score >= 40 && score < 80) return "medium";
-  else return "low";
-}
-
 export default function MascotReporter({
   score,
   value,
