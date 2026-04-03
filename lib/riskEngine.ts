@@ -121,6 +121,11 @@ export function calculateRoomRisk(
             spatialInsights.push(`Safe: Broken glass is contained within its original shelf area.`);
           }
         }
+
+        if (multiplier !== 1) {
+          const pairBaseSeverity = SEVERITY_VALUES[entryA.default_severity] + SEVERITY_VALUES[entryB.default_severity];
+          totalRiskScore += pairBaseSeverity * (multiplier - 1);
+        }
       }
     }
   }
