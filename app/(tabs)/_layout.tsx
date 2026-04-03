@@ -10,40 +10,80 @@ export default function TabLayout() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Animated value starting off-screen
+// Static configurations
+const TAB_BAR_OPTIONS = {
+  headerShown: false,
+  tabBarActiveTintColor: "#006ec2",
+  tabBarInactiveTintColor: "#84888c",
+  tabBarItemStyle: { justifyContent: "center", alignItems: "center" } as any,
+  tabBarStyle: {
+    backgroundColor: "#f0f8ff",
+    borderStartWidth: 2,
+    borderTopWidth: 2,
+    borderEndWidth: 2,
+    borderColor: "#e5e5e5",
+    borderTopLeftRadius: 36,
+    borderTopRightRadius: 36,
+    paddingBottom: 28,
+    paddingTop: 16,
+    bottom: 38,
+    position: "absolute",
+    shadowOpacity: 0,
+    elevation: 0,
+  } as any,
+  tabBarLabelStyle: {
+    fontFamily: "Inter",
+    fontSize: 16,
+    fontWeight: "bold",
+  } as any,
+};
+
+const HIDDEN_SCREENS = [
+  "landscapeOrientation",
+  "camera",
+  "loadingScreen",
+  "safetyReport",
+  "articles/earthquakeArticle",
+  "articles/typhoonArticle",
+  "articles/fireArticle",
+];
+
+// Modal component
+const CameraActionModal = ({
+  isVisible,
+  onClose,
+}: {
+  isVisible: boolean;
+  onClose: () => void;
+}) => {
   const slideAnim = useRef(new Animated.Value(400)).current;
 
-  // Automatically slide up when the modal opens
   useEffect(() => {
-    if (isModalOpen) {
-      slideAnim.setValue(400); // Reset position
+    if (isVisible) {
+      slideAnim.setValue(400);
       Animated.timing(slideAnim, {
         toValue: 0,
         duration: 300,
         useNativeDriver: true,
       }).start();
     }
-  }, [isModalOpen]);
+  }, [isVisible]);
 
-  // Slide down before unmounting the modal
-  const closeModal = (callback?: () => void) => {
+  const handleClose = (callback?: () => void) => {
     Animated.timing(slideAnim, {
       toValue: 400,
       duration: 250,
       useNativeDriver: true,
     }).start(() => {
-      setIsModalOpen(false);
+      onClose();
       if (callback) callback();
     });
   };
 
-  const handleCamera = () => {
-    closeModal(async () => {
-      router.push("/camera");
-    });
-  };
+  const handleCamera = () => handleClose(() => router.push("/camera"));
 
   const handleOpenGallery = () => {
-    closeModal(async () => {
+    handleClose(async () => {
       const { status } =
         await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== "granted") {
@@ -53,51 +93,17 @@ export default function TabLayout() {
         );
         return;
       }
-
       let result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         quality: 0.8,
       });
-
-      if (!result.canceled) {
+      if (!result.canceled)
         console.log("Photo selected:", result.assets[0].uri);
-      }
     });
   };
 
   return (
-    <>
-      <Tabs
-        screenOptions={{
-          headerShown: false,
-          tabBarActiveTintColor: "#006ec2",
-          tabBarInactiveTintColor: "#84888c",
-          tabBarItemStyle: {
-            justifyContent: "center",
-            alignItems: "center",
-          },
-          tabBarStyle: {
-            backgroundColor: "#f0f8ff",
-            borderStartWidth: 2,
-            borderTopWidth: 2,
-            borderEndWidth: 2,
-            borderColor: "#e5e5e5",
-            borderTopLeftRadius: 36,
-            borderTopRightRadius: 36,
-            paddingBottom: 28,
-            paddingTop: 16,
-            bottom: 38,
-            position: "absolute",
-            shadowOpacity: 0,
-            elevation: 0,
-          },
-          tabBarLabelStyle: {
-            fontFamily: "Inter",
-            fontSize: 16,
-            fontWeight: "bold",
-          },
-        }}
       >
         <Tabs.Screen
           name="index"
@@ -145,35 +151,6 @@ export default function TabLayout() {
           }}
         />
 
-        {/* Hidden Screens */}
-        <Tabs.Screen
-          name="landscapeOrientation"
-          options={{ href: null, tabBarStyle: { display: "none" } }}
-        />
-        <Tabs.Screen
-          name="camera"
-          options={{ href: null, tabBarStyle: { display: "none" } }}
-        />
-        <Tabs.Screen
-          name="loadingScreen"
-          options={{ href: null, tabBarStyle: { display: "none" } }}
-        />
-        <Tabs.Screen
-          name="safetyReport"
-          options={{ href: null, tabBarStyle: { display: "none" } }}
-        />
-        <Tabs.Screen
-          name="articles/earthquakeArticle"
-          options={{ href: null, tabBarStyle: { display: "none" } }}
-        />
-        <Tabs.Screen
-          name="articles/typhoonArticle"
-          options={{ href: null, tabBarStyle: { display: "none" } }}
-        />
-        <Tabs.Screen
-          name="articles/fireArticle"
-          options={{ href: null, tabBarStyle: { display: "none" } }}
-        />
       </Tabs>
 
       <Modal
