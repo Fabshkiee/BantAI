@@ -92,6 +92,14 @@ export function calculateRoomRisk(
           multiplier = 2.0;
           spatialInsights.push(`Critical: Open flame detected dangerously close to wooden furniture.`);
         }
+        // RULE: Fire + Electrical Proximity
+        else if (
+          (entryA.category === "fire" && entryB.category === "electrical") ||
+          (entryA.category === "electrical" && entryB.category === "fire")
+        ) {
+          multiplier = 1.8;
+          spatialInsights.push(`Danger: Fire source near electrical components.`);
+        }
       }
     }
   }
@@ -100,7 +108,7 @@ export function calculateRoomRisk(
 
   const safetyScore = Math.max(0, Math.min(100, Math.round(100 - (totalRiskScore * 1.3))));
 
-  // 5. Determine levels and mascot variants
+
   let level: RiskLevel = "Safe";
   let mascotVariant: "low" | "medium" | "high" | "critical" = "low";
 
