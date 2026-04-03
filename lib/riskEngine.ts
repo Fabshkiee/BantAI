@@ -25,19 +25,19 @@ function getDictionaryId(className: string): string {
   return `HAZARD_LABELS.${className.toUpperCase()}`;
 }
 
+export interface Detection {
+  class: string;
+  confidence: number;
+  bbox: [number, number, number, number];
+}
+
 /**
  * Calculates a density-weighted AND spatial-aware risk score.
  * 1. Count instances (Density)
  * 2. Check Boundary Proximity & Containment
  * 3. Lock status to Critical if extreme conditions met
  */
-export function calculateRoomRisk(
-  detections: {
-    class: string;
-    confidence: number;
-    bbox: [number, number, number, number];
-  }[],
-): RiskResult {
+export function calculateRoomRisk(detections: Detection[]): RiskResult {
   const breakdown: Record<string, { count: number; weightedScore: number }> =
     {};
   const spatialInsights: string[] = [];
