@@ -46,3 +46,18 @@ export function getContainmentRatio(
   return interArea / areaA;
 }
 
+/**
+ * Quick check if two bounding boxes intersect.
+ */
+export function isOverlapping(
+  boxA: [number, number, number, number],
+  boxB: [number, number, number, number],
+): boolean {
+  return !(
+    boxA[2] < boxB[0] ||
+    boxA[0] > boxB[2] ||
+    boxA[3] < boxB[1] ||
+    boxA[1] > boxB[3]
+  );
+}
+
