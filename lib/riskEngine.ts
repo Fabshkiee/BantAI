@@ -26,16 +26,17 @@ function getDictionaryId(className: string): string {
 }
 
 /**
- * Calculates a density-weighted risk score for a room.
- * Multiplier logic: Every additional instance of a hazard adds 15% to that hazard's total score.
- * Locking logic: If 5+ instances of a High hazard or 3+ of a Critical hazard exist, the room is automatically 'Critical'.
+ * Calculates a density-weighted AND spatial-aware risk score.
+ * 1. Count instances (Density)
+ * 2. Check Boundary Proximity & Containment
+ * 3. Lock status to Critical if extreme conditions met
  */
 export function calculateRoomRisk(
-  detections: { class: string; confidence: number }[],
+  detections: { class: string; confidence: number; bbox: [number, number, number, number] }[],
 ): RiskResult {
-  const breakdown: Record<string, { count: number; weightedScore: number }> =
-    {};
-
+  const breakdown: Record<string, { count: number; weightedScore: number }> = {};
+  const spatialInsights: string[] = [];
+  
   // 1. Group and count detections
   detections.forEach((det) => {
     const dictId = getDictionaryId(det.class);
@@ -48,7 +49,7 @@ export function calculateRoomRisk(
   let totalRiskScore = 0;
   let forceCritical = false;
 
-  // 2. Apply density logic to each group
+  // 2. Base & Density Scoring
   Object.keys(breakdown).forEach((dictId) => {
     const entry = hazardDictionary.find((h) => h.id === dictId);
     if (!entry) return;
@@ -66,16 +67,38 @@ export function calculateRoomRisk(
     // 3. Status Escalation (Locking) logic
     // 5+ High hazards OR 3+ Critical hazards = Automatic Critical Risk
     if (entry.default_severity === "high" && count >= 5) forceCritical = true;
-    if (entry.default_severity === "critical" && count >= 3)
-      forceCritical = true;
+    if (entry.default_severity === "critical" && count >= 3) forceCritical = true;
   });
 
-  // 4. Calculate safety score (invert risk)
-  // Max risk considered for 0% safety is ~50
-  const safetyScore = Math.max(
-    0,
-    Math.min(100, Math.round(100 - totalRiskScore * 2)),
-  );
+  // 4. Precise Spatial Reasoning Phase
+  for (let i = 0; i < detections.length; i++) {
+    for (let j = i + 1; j < detections.length; j++) {
+      const detA = detections[i];
+      const detB = detections[j];
+      const dist = getBoxDistance(detA.bbox, detB.bbox);
+
+      if (dist < PROXIMITY_THRESHOLD) {
+        let multiplier = 1;
+        const entryA = hazardDictionary.find((h) => h.id === getDictionaryId(detA.class));
+        const entryB = hazardDictionary.find((h) => h.id === getDictionaryId(detB.class));
+        
+        if (!entryA || !entryB) continue;
+
+        // RULE: Fire + Furniture Proximity (High Spread Risk)
+        if (
+          (entryA.category === "fire" && entryB.id === "HAZARD_LABELS.HEAVY_WOODEN_FURNITURE") ||
+          (entryB.category === "fire" && entryA.id === "HAZARD_LABELS.HEAVY_WOODEN_FURNITURE")
+        ) {
+          multiplier = 2.0;
+          spatialInsights.push(`Critical: Open flame detected dangerously close to wooden furniture.`);
+        }
+      }
+    }
+  }
+        
+
+
+  const safetyScore = Math.max(0, Math.min(100, Math.round(100 - (totalRiskScore * 1.3))));
 
   // 5. Determine levels and mascot variants
   let level: RiskLevel = "Safe";
