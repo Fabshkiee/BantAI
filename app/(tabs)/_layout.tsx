@@ -6,10 +6,6 @@ import { router, Tabs } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import { Alert, Animated, Modal, Pressable, Text, View } from "react-native";
 
-export default function TabLayout() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  // Animated value starting off-screen
 // Static configurations
 const TAB_BAR_OPTIONS = {
   headerShown: false,
@@ -104,7 +100,59 @@ const CameraActionModal = ({
   };
 
   return (
+    <Modal
+      visible={isVisible}
+      animationType="fade"
+      transparent={true}
+      onRequestClose={() => handleClose()}
+    >
+      <Pressable
+        className="flex-1 bg-black/50 justify-end"
+        onPress={() => handleClose()}
       >
+        <Animated.View style={{ transform: [{ translateY: slideAnim }] }}>
+          <Pressable
+            className="bg-white rounded-t-3xl p-6 pb-10 gap-3 shadow-xl border-t border-gray-200"
+            onPress={(e) => e.stopPropagation()}
+          >
+            <View className="w-12 h-1.5 bg-gray-300 rounded-full self-center mb-2" />
+            <Text className="text-2xl font-bold text-center mb-4">
+              Ready for a Safety Check?
+            </Text>
+
+            <Pressable
+              className="bg-surface-primary p-4 rounded-full flex-row justify-center items-center active:opacity-80"
+              onPress={handleCamera}
+            >
+              <Text className="text-white font-semibold text-lg">
+                Snap a Photo
+              </Text>
+            </Pressable>
+
+            <Pressable
+              className="bg-blue-50 border border-blue-200 p-4 rounded-full flex-row justify-center items-center active:bg-blue-100"
+              onPress={handleOpenGallery}
+            >
+              <Text className="text-surface-primary font-semibold text-lg">
+                Choose from Gallery
+              </Text>
+            </Pressable>
+
+            <Pressable
+              className="bg-gray-100 p-4 rounded-full items-center mt-2 active:bg-gray-200"
+              onPress={() => handleClose()}
+            >
+              <Text className="text-text-subtle font-semibold text-lg">
+                Cancel
+              </Text>
+            </Pressable>
+          </Pressable>
+        </Animated.View>
+      </Pressable>
+    </Modal>
+  );
+};
+
         <Tabs.Screen
           name="index"
           options={{
@@ -153,55 +201,6 @@ const CameraActionModal = ({
 
       </Tabs>
 
-      <Modal
-        visible={isModalOpen}
-        animationType="fade"
-        transparent={true}
-        onRequestClose={() => closeModal()}
-      >
-        <Pressable
-          className="flex-1 bg-black/50 justify-end"
-          onPress={() => closeModal()}
-        >
-          <Animated.View style={{ transform: [{ translateY: slideAnim }] }}>
-            <Pressable
-              className="bg-white rounded-t-3xl p-6 pb-10 gap-3 shadow-xl border-t border-gray-200"
-              onPress={(e) => e.stopPropagation()}
-            >
-              <Text className="text-2xl font-bold text-center mb-4">
-                Ready for a Safety Check?
-              </Text>
-
-              <Pressable
-                className="bg-surface-primary p-4 rounded-full flex-row justify-center items-center active:opacity-80"
-                onPress={handleCamera}
-              >
-                <Text className="text-white font-semibold text-lg">
-                  Snap a Photo
-                </Text>
-              </Pressable>
-
-              <Pressable
-                className="bg-blue-50 border border-blue-200 p-4 rounded-full flex-row justify-center items-center active:bg-blue-100"
-                onPress={handleOpenGallery}
-              >
-                <Text className="text-surface-primary font-semibold text-lg">
-                  Choose from Gallery
-                </Text>
-              </Pressable>
-
-              <Pressable
-                className="bg-gray-100 p-4 rounded-full items-center mt-2 active:bg-gray-200"
-                onPress={() => closeModal()}
-              >
-                <Text className="text-text-subtle font-semibold text-lg">
-                  Cancel
-                </Text>
-              </Pressable>
-            </Pressable>
-          </Animated.View>
-        </Pressable>
-      </Modal>
     </>
   );
 }
