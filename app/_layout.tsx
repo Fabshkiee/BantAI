@@ -15,9 +15,8 @@ export default function RootLayout() {
     <View className="flex-1">
       <Stack
         screenOptions={{
-          // Standard iOS/Android "Slide" feel
           animation: "slide_from_right",
-          animationDuration: 250, // 250ms is the "Sweet Spot" for perceived speed
+          animationDuration: 250,
           headerShown: false,
           contentStyle: { backgroundColor: "transparent" },
         }}
