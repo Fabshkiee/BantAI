@@ -20,31 +20,6 @@ export type HazardData = {
   bbox?: [number, number, number, number];
 };
 
-// MockData for example
-const detectedHazards: HazardData[] = [
-  {
-    id: "risk-001",
-    title: "Exposed Wiring",
-    variant: "high",
-    reason: "Frayed wires near water source.",
-    suggestedFix: "Replace cable and route away from sink.",
-  },
-  {
-    id: "risk-002",
-    title: "Blocked Fire Exit",
-    variant: "critical",
-    reason: "Boxes stacked in front of the primary emergency door.",
-    suggestedFix: "Move boxes to storage room immediately.",
-  },
-  {
-    id: "risk-003",
-    title: "Slippery Floor",
-    variant: "low",
-    reason: "Minor water spill near the cooler.",
-    suggestedFix: "Wipe area with dry mop and place caution sign.",
-  },
-];
-
 const riskIcons = {
   low: <LowRiskIcon size={36} />,
   medium: <MediumRiskIcon size={36} />,
@@ -207,25 +182,17 @@ export interface HazardCardProps {
   imageUri?: string;
 }
 
-const HazardCard = ({ hazards: propHazards, imageUri }: HazardCardProps) => {
-  const [hazards, setHazards] = useState<HazardData[]>(propHazards || []);
-
-  useEffect(() => {
-    if (propHazards) {
-      setHazards(propHazards);
-      return;
-    }
-    const fetchHazards = async () => {
-      try {
-        const data = await fetchDataFromDB();
-        setHazards(data);
-      } catch (error) {
-        console.error("Failed to load hazards:", error);
-      }
-    };
-
-    fetchHazards();
-  }, [propHazards]);
+const HazardCard = ({ hazards, imageUri }: HazardCardProps) => {
+  if (!hazards || hazards.length === 0) {
+    return (
+      <View className="bg-surface-light rounded-2xl p-8 items-center border-2 border-dashed border-border-secondary">
+        <Text className="text-xl font-semibold text-gray-500">No Hazards Detected</Text>
+        <Text className="text-base text-gray-400 text-center mt-2">
+          This area appears to be safe based on the current AI scan.
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <View className="gap-4">
