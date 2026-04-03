@@ -65,12 +65,8 @@
           }
         }
       ],
-<<<<<<< HEAD
-      "expo-asset"
-=======
       "expo-asset",
       "expo-sqlite"
->>>>>>> 3faadaf (chore: missing comma)
     ],
     "experiments": {
       "typedRoutes": true,
