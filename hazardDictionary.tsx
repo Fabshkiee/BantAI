@@ -1,5 +1,4 @@
 //This is the hazard dictionary that contains all the hazards and their corresponding information. It is used to display the hazards in the app and to provide information about each hazard when the user clicks on it.
-
 export type HazardCategory = "electrical" | "interior" | "structural" | "fire";
 
 export type HazardDictionaryEntry = {
@@ -18,7 +17,7 @@ export type HazardDictionaryEntry = {
 
 export const hazardDictionary: HazardDictionaryEntry[] = [
   {
-    id: "electronic_hazard",
+    id: "HAZARD_LABELS.ELECTRONIC_HAZARD",
     title: "Electronic Hazard",
     category: "electrical",
     default_severity: "high",
@@ -47,7 +46,7 @@ export const hazardDictionary: HazardDictionaryEntry[] = [
     ],
   },
   {
-    id: "elevated_breakables",
+    id: "HAZARD_LABELS.ELEVATED_BREAKABLES",
     title: "Elevated Breakables",
     category: "interior",
     default_severity: "medium",
@@ -76,7 +75,7 @@ export const hazardDictionary: HazardDictionaryEntry[] = [
     ],
   },
   {
-    id: "exposed_breaker",
+    id: "HAZARD_LABELS.EXPOSED_BREAKER",
     title: "Exposed Circuit Breakers",
     category: "electrical",
     default_severity: "critical",
@@ -105,7 +104,7 @@ export const hazardDictionary: HazardDictionaryEntry[] = [
     ],
   },
   {
-    id: "exposed_ceiling_lights",
+    id: "HAZARD_LABELS.EXPOSED_CEILING_LIGHTS",
     title: "Exposed Ceiling Lights",
     category: "electrical",
     default_severity: "medium",
@@ -134,7 +133,7 @@ export const hazardDictionary: HazardDictionaryEntry[] = [
     ],
   },
   {
-    id: "heavy_wooden_furniture",
+    id: "HAZARD_LABELS.HEAVY_WOODEN_FURNITURE",
     title: "Heavy Wooden Furniture",
     category: "interior",
     default_severity: "medium",
@@ -163,7 +162,7 @@ export const hazardDictionary: HazardDictionaryEntry[] = [
     ],
   },
   {
-    id: "open_flame_hazard",
+    id: "HAZARD_LABELS.OPEN_FLAME_HAZARD",
     title: "Open Flame Hazards",
     category: "fire",
     default_severity: "critical",
@@ -192,7 +191,7 @@ export const hazardDictionary: HazardDictionaryEntry[] = [
     ],
   },
   {
-    id: "overloaded_socket",
+    id: "HAZARD_LABELS.OVERLOADED_SOCKET",
     title: "Overloaded Sockets",
     category: "electrical",
     default_severity: "high",
@@ -221,7 +220,7 @@ export const hazardDictionary: HazardDictionaryEntry[] = [
     ],
   },
   {
-    id: "damaged_wire",
+    id: "HAZARD_LABELS.DAMAGED_WIRE",
     title: "Damaged Wires",
     category: "electrical",
     default_severity: "high",
@@ -251,7 +250,7 @@ export const hazardDictionary: HazardDictionaryEntry[] = [
   },
 
   {
-    id: "floor_appliance",
+    id: "HAZARD_LABELS.FLOOR_APPLIANCE",
     title: "Floor Appliances",
     category: "electrical",
     default_severity: "high",
@@ -280,7 +279,7 @@ export const hazardDictionary: HazardDictionaryEntry[] = [
     ],
   },
   {
-    id: "major_crack",
+    id: "HAZARD_LABELS.MAJOR_CRACK",
     title: "Major Wall Cracks",
     category: "structural",
     default_severity: "high",
@@ -309,7 +308,7 @@ export const hazardDictionary: HazardDictionaryEntry[] = [
     ],
   },
   {
-    id: "minor_crack",
+    id: "HAZARD_LABELS.MINOR_CRACK",
     title: "Minor Wall Cracks",
     category: "structural",
     default_severity: "low",
@@ -338,7 +337,7 @@ export const hazardDictionary: HazardDictionaryEntry[] = [
     ],
   },
   {
-    id: "broken_glass",
+    id: "HAZARD_LABELS.BROKEN_GLASS",
     title: "Broken Glass Hazards",
     category: "interior",
     default_severity: "medium",
@@ -367,7 +366,7 @@ export const hazardDictionary: HazardDictionaryEntry[] = [
     ],
   },
   {
-    id: "collapsed_structure",
+    id: "HAZARD_LABELS.COLLAPSED_STRUCTURE",
     title: "Collapsed Structures",
     category: "structural",
     default_severity: "critical",
