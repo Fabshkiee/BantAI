@@ -44,7 +44,10 @@
         {
           "cameraPermission": "Allow BantAI to access your camera for object detection"
         }
-      ]
+      ],
+      "react-native-vision-camera",
+      "react-native-fast-tflite",
+      "expo-sqlite"
     ],
     "experiments": {
       "typedRoutes": true,
