@@ -25,3 +25,24 @@ export function getBoxDistance(
   const distY = Math.max(0, boxA[1] - boxB[3], boxB[1] - boxA[3]);
   return Math.sqrt(distX * distX + distY * distY);
 }
+
+/**
+ * Calculates what fraction of Box A's area lies inside Box B.
+ * Returns a value from 0 to 1.
+ */
+export function getContainmentRatio(
+  boxA: [number, number, number, number],
+  boxB: [number, number, number, number],
+): number {
+  const xA = Math.max(boxA[0], boxB[0]);
+  const yA = Math.max(boxA[1], boxB[1]);
+  const xB = Math.min(boxA[2], boxB[2]);
+  const yB = Math.min(boxA[3], boxB[3]);
+
+  const interArea = Math.max(0, xB - xA) * Math.max(0, yB - yA);
+  const areaA = (boxA[2] - boxA[0]) * (boxA[3] - boxA[1]);
+
+  if (areaA <= 0) return 0;
+  return interArea / areaA;
+}
+
