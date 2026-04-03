@@ -1,23 +1,20 @@
+import { Detection, performNMS } from "@/lib/spatialMath";
 import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
 import { useCallback, useEffect, useState } from "react";
-import { Platform } from "react-native";
+import { Image, Platform } from "react-native";
 import {
   loadTensorflowModel,
   type TensorflowModel,
 } from "react-native-fast-tflite";
 
-const jpeg = require("jpeg-js") as {
+interface JpegDecoder {
   decode: (
     data: Uint8Array,
     options?: { useTArray?: boolean },
   ) => { data: Uint8Array; width: number; height: number };
-};
-
-export interface Detection {
-  class: string;
-  confidence: number;
-  bbox: [number, number, number, number];
 }
+
+const jpeg = require("jpeg-js") as JpegDecoder;
 
 const CLASS_NAMES = [
   "overloaded_socket",
@@ -37,23 +34,30 @@ const CLASS_NAMES = [
 
 const INPUT_SIZE = 640;
 const CONF_THRESHOLD = 0.4;
-const ANDROID_BUNDLED_MODEL_URL =
-  "file:///android_asset/models/bantai_model.tflite";
+const NMS_THRESHOLD = 0.45;
 
-async function preprocessImage(
+/** 2x2 Grid with 20% overlap */
+const SAHI_SLICES = [
+  { x: 0, y: 0, w: 0.6, h: 0.6 }, // Top-Left
+  { x: 0.4, y: 0, w: 0.6, h: 0.6 }, // Top-Right
+  { x: 0, y: 0.4, w: 0.6, h: 0.6 }, // Bottom-Left
+  { x: 0.4, y: 0.4, w: 0.6, h: 0.6 }, // Bottom-Right
+];
+
+async function getOriginalSize(
+  uri: string,
+): Promise<{ width: number; height: number }> {
+  return new Promise((resolve, reject) => {
+    Image.getSize(uri, (width, height) => resolve({ width, height }), reject);
+  });
+}
+
+/** Prepares a normalized tensor from an image URI (expects image to be 640x640 already) */
+async function prepareTensor(
   imageUri: string,
   modelDataType: string,
 ): Promise<Float32Array | Uint8Array> {
-  const resized = await manipulateAsync(
-    imageUri,
-    [{ resize: { width: INPUT_SIZE, height: INPUT_SIZE } }],
-    {
-      compress: 0.9,
-      format: SaveFormat.JPEG,
-    },
-  );
-
-  const response = await fetch(resized.uri);
+  const response = await fetch(imageUri);
   const arrayBuffer = await response.arrayBuffer();
 
   const decoded = jpeg.decode(new Uint8Array(arrayBuffer), {
@@ -66,36 +70,38 @@ async function preprocessImage(
     const tensor = new Uint8Array(INPUT_SIZE * INPUT_SIZE * 3);
     let tensorIndex = 0;
     for (let i = 0; i < decoded.data.length; i += 4) {
-      tensor[tensorIndex++] = decoded.data[i]; // R (0-255)
-      tensor[tensorIndex++] = decoded.data[i + 1]; // G (0-255)
-      tensor[tensorIndex++] = decoded.data[i + 2]; // B (0-255)
+      tensor[tensorIndex++] = decoded.data[i];
+      tensor[tensorIndex++] = decoded.data[i + 1];
+      tensor[tensorIndex++] = decoded.data[i + 2];
     }
     return tensor;
   } else {
     const tensor = new Float32Array(INPUT_SIZE * INPUT_SIZE * 3);
     let tensorIndex = 0;
     for (let i = 0; i < decoded.data.length; i += 4) {
-      tensor[tensorIndex++] = decoded.data[i] / 255.0; // R (0.0-1.0)
-      tensor[tensorIndex++] = decoded.data[i + 1] / 255.0; // G (0.0-1.0)
-      tensor[tensorIndex++] = decoded.data[i + 2] / 255.0; // B (0.0-1.0)
+      tensor[tensorIndex++] = decoded.data[i] / 255.0;
+      tensor[tensorIndex++] = decoded.data[i + 1] / 255.0;
+      tensor[tensorIndex++] = decoded.data[i + 2] / 255.0;
     }
     return tensor;
   }
 }
 
-function parseDetectionsFromOutput(
+function parseDetections(
   output: ArrayLike<number | bigint>,
+  offsetParams: { x: number; y: number; scale: number } = {
+    x: 0,
+    y: 0,
+    scale: 1,
+  },
 ): Detection[] {
   const readValue = (index: number) => Number(output[index]);
-
   const detections: Detection[] = [];
-  const stride = 6; // Output shape is [1, 300, 6] (x, y, w, h, confidence, class_id) or (x1, y1, x2, y2, score, class_id)
+  const stride = 6;
   const numDetections = Math.floor(output.length / stride);
 
   for (let i = 0; i < numDetections; i++) {
     const offset = i * stride;
-
-    // YOLO26s TFLite format: [x1, y1, x2, y2, confidence, class_id]
     const x1_raw = readValue(offset);
     const y1_raw = readValue(offset + 1);
     const x2_raw = readValue(offset + 2);
@@ -103,26 +109,29 @@ function parseDetectionsFromOutput(
     const confidence = readValue(offset + 4);
     const classIdx = Math.round(readValue(offset + 5));
 
-    // If it's a valid prediction (classIdx usually shouldn't be negative but just in case, and check confidence)
     if (
       confidence > CONF_THRESHOLD &&
       classIdx >= 0 &&
       classIdx < CLASS_NAMES.length
     ) {
-      // Model already outputs normalized coordinates (0-1), just clamp them to be safe
-      const x1 = Math.max(0, Math.min(1, x1_raw));
-      const y1 = Math.max(0, Math.min(1, y1_raw));
-      const x2 = Math.max(0, Math.min(1, x2_raw));
-      const y2 = Math.max(0, Math.min(1, y2_raw));
+      // Map local slice coordinates back to global normalized space (0-1)
+      const x1 = offsetParams.x + x1_raw * offsetParams.scale;
+      const y1 = offsetParams.y + y1_raw * offsetParams.scale;
+      const x2 = offsetParams.x + x2_raw * offsetParams.scale;
+      const y2 = offsetParams.y + y2_raw * offsetParams.scale;
 
       detections.push({
         class: CLASS_NAMES[classIdx],
         confidence: Math.min(1, confidence),
-        bbox: [x1, y1, x2, y2],
+        bbox: [
+          Math.max(0, Math.min(1, x1)),
+          Math.max(0, Math.min(1, y1)),
+          Math.max(0, Math.min(1, x2)),
+          Math.max(0, Math.min(1, y2)),
+        ],
       });
     }
   }
-
   return detections;
 }
 
@@ -137,11 +146,6 @@ export function useTFLite() {
 
   const loadModel = async () => {
     try {
-      console.log("Loading TFLite model...");
-
-      // Bypass Metro completely for large models on Android to prevent dev server crashes.
-      // NOTE FOR DEVS: Must store the model natively inside `android/app/src/main/res/raw/bantai_model.tflite`.
-      // Passing just the filename string without extension tells fast-tflite to read from Android raw resources.
       const modelSource =
         Platform.OS === "android"
           ? { url: "bantai_model" }
@@ -150,43 +154,84 @@ export function useTFLite() {
       const loadedModel = await loadTensorflowModel(modelSource);
       setModel(loadedModel);
       setModelLoaded(true);
-      console.log("✓ TFLite model loaded");
-      console.log("Model inputs:", loadedModel.inputs);
-      console.log("Model outputs:", loadedModel.outputs);
+      console.log("✓ YOLO26s Model Loaded");
     } catch (err) {
-      const errMessage = err instanceof Error ? err.message : String(err);
-      setError(errMessage);
-      console.error("✗ Model load failed:", errMessage);
+      setError(err instanceof Error ? err.message : String(err));
     }
+  };
+
+  const runSinglePass = async (
+    uri: string,
+    offset = { x: 0, y: 0, scale: 1 },
+  ): Promise<Detection[]> => {
+    if (!model) return [];
+    const tensor = await prepareTensor(uri, model.inputs[0].dataType);
+    const outputs = await model.run([tensor]);
+    return parseDetections(outputs[0], offset);
   };
 
   const runInference = useCallback(
     async (imageUri: string): Promise<Detection[]> => {
-      if (!modelLoaded || !model) {
-        throw new Error("Model not loaded");
-      }
+      if (!modelLoaded || !model) throw new Error("Model not ready");
 
       try {
-        const inputDataType = model.inputs[0].dataType;
-        const inputTensor = await preprocessImage(imageUri, inputDataType);
-        const outputs = await model.run([inputTensor]);
-        const detections = parseDetectionsFromOutput(outputs[0]);
+        const { width, height } = await getOriginalSize(imageUri);
+        const allResults: Detection[] = [];
 
-        console.log(`Found ${detections.length} hazards:`, detections);
-        return detections;
+        console.log("--- Starting SAHI Scan ---");
+
+        // Pass 1: Global Scan
+        const globalResized = await manipulateAsync(
+          imageUri,
+          [{ resize: { width: INPUT_SIZE, height: INPUT_SIZE } }],
+          { format: SaveFormat.JPEG },
+        );
+        const globalDetections = await runSinglePass(globalResized.uri);
+        allResults.push(...globalDetections);
+        console.log(`Global Pass: Found ${globalDetections.length}`);
+
+        // Pass 2-5: Detailed Slices (2x2 Grid)
+        for (let idx = 0; idx < SAHI_SLICES.length; idx++) {
+          const s = SAHI_SLICES[idx];
+          const crop = await manipulateAsync(
+            imageUri,
+            [
+              {
+                crop: {
+                  originX: s.x * width,
+                  originY: s.y * height,
+                  width: s.w * width,
+                  height: s.h * height,
+                },
+              },
+              { resize: { width: INPUT_SIZE, height: INPUT_SIZE } },
+            ],
+            { format: SaveFormat.JPEG },
+          );
+
+          const sliceDetections = await runSinglePass(crop.uri, {
+            x: s.x,
+            y: s.y,
+            scale: s.w,
+          });
+          allResults.push(...sliceDetections);
+          console.log(`Slice ${idx + 1} Pass: Found ${sliceDetections.length}`);
+        }
+
+        // Final Step: NMS to merge overlapping detections
+        const mergedResults = performNMS(allResults, NMS_THRESHOLD);
+        console.log(
+          `SAHI Complete: ${mergedResults.length} unique hazards found.`,
+        );
+
+        return mergedResults;
       } catch (err) {
-        const errMessage = err instanceof Error ? err.message : String(err);
-        console.error("Inference failed:", errMessage);
+        console.error("SAHI Inference Failed:", err);
         throw err;
       }
     },
     [model, modelLoaded],
   );
 
-  return {
-    modelLoaded,
-    error,
-    model,
-    runInference,
-  };
+  return { modelLoaded, error, runInference };
 }
