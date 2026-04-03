@@ -50,7 +50,8 @@ export default function SafetyReport() {
   const executeDatabaseSearch = (sqlCommand: string) => {};
 
   // Calculate the actual room score and variant using the new Risk Engine
-  const { safetyScore, mascotVariant } = calculateRoomRisk(detections);
+  const { safetyScore, mascotVariant, spatialInsights } =
+    calculateRoomRisk(detections);
   const insets = useSafeAreaInsets();
 
   return (
@@ -69,6 +70,20 @@ export default function SafetyReport() {
             <MascotReporter score={mascotVariant} value={safetyScore} />
           </View>
         </View>
+
+        {/* Spatial Insights / Warning Section */}
+        {spatialInsights.length > 0 && (
+          <View className="bg-surface-critical/10 border border-surface-critical p-4 rounded-xl gap-2">
+            <Text className="text-text-critical font-bold text-lg">
+              ⚠️ Spatial Warnings
+            </Text>
+            {spatialInsights.map((insight, idx) => (
+              <Text key={idx} className="text-text-default text-base">
+                • {insight}
+              </Text>
+            ))}
+          </View>
+        )}
 
         {/* No. of identified hazard and instructions */}
         <View>
