@@ -13,3 +13,15 @@ export function getCenter(bbox: [number, number, number, number]): Point {
   };
 }
 
+/**
+ * Calculates the shortest Euclidean distance between the boundaries of two boxes.
+ * Returns 0 if they overlap or touch.
+ */
+export function getBoxDistance(
+  boxA: [number, number, number, number],
+  boxB: [number, number, number, number],
+): number {
+  const distX = Math.max(0, boxA[0] - boxB[2], boxB[0] - boxA[2]);
+  const distY = Math.max(0, boxA[1] - boxB[3], boxB[1] - boxA[3]);
+  return Math.sqrt(distX * distX + distY * distY);
+}
