@@ -100,10 +100,16 @@ export function calculateRoomRisk(
           multiplier = 1.8;
           spatialInsights.push(`Danger: Fire source near electrical components.`);
         }
+        // RULE: Structural Clustering (Edge distance is 0 for touching boxes)
+        else if (entryA.category === "structural" && entryB.category === "structural") {
+          multiplier = 1.4;
+          spatialInsights.push(`Structural Warning: Clustered cracks detected in the same area.`);
+        }
       }
     }
   }
         
+
 
 
   const safetyScore = Math.max(0, Math.min(100, Math.round(100 - (totalRiskScore * 1.3))));
