@@ -10,7 +10,7 @@ export default function PhotoInstructionsScreen() {
         <Text className="text-h2 font-display font-bold text-center mb-3 leading-tight">
           How to Take the Photo
         </Text>
-        <Text className="text-md text-center font-text leading-5 mb-9">
+        <Text className="text-lg text-center font-text leading-5 mb-9">
           Position your phone in the area where you{"\n"}can see most of the
           room to ensure a{"\n"}complete scan of all sections.
         </Text>
