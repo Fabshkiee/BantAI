@@ -1,6 +1,6 @@
 import * as SQLite from "expo-sqlite";
-import { calculateRisk } from "./engine";
-import { DisasterType, HAZARD_DISPLAY_NAMES, HAZARD_TYPES } from "./hazards";
+import { calculateRoomRisk, type Detection } from "@/lib/riskEngine";
+import { type DisasterType, HAZARD_DISPLAY_NAMES, HAZARD_TYPES } from "./hazards";
 
 const dbPromise = SQLite.openDatabaseAsync("app.db");
 let initPromise: Promise<void> | null = null;
@@ -30,6 +30,7 @@ export type HazardData = {
   reason: string;
   suggestedFix: string;
   disasterTypes: DisasterType[];
+  bbox?: [number, number, number, number];
 };
 
 export type ScanStatus = "pending" | "processing" | "completed" | "failed";
@@ -78,6 +79,10 @@ type SessionHazardRow = {
   recommendation: string | null;
   is_assessed: 0 | 1;
   detected_at: number;
+  x1: number | null;
+  y1: number | null;
+  x2: number | null;
+  y2: number | null;
 };
 
 export async function initDatabase(): Promise<void> {
@@ -120,7 +125,11 @@ export async function initDatabase(): Promise<void> {
           recommendation  TEXT,
           is_assessed     INTEGER NOT NULL DEFAULT 0 CHECK (is_assessed IN (0, 1)),
           assessed_at     INTEGER,
-          detected_at     INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
+          detected_at     INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
+          x1              REAL,
+          y1              REAL,
+          x2              REAL,
+          y2              REAL
       );
 
       CREATE INDEX IF NOT EXISTS idx_hazards_session_id  ON detected_hazards (session_id);
@@ -245,7 +254,11 @@ export async function getScanSessionDetails(
         d.description,
         d.recommendation,
         d.is_assessed,
-        d.detected_at
+        d.detected_at,
+        d.x1,
+        d.y1,
+        d.x2,
+        d.y2
       FROM detected_hazards d
       WHERE d.session_id = ?
       ORDER BY d.detected_at DESC, d.id DESC
@@ -269,6 +282,13 @@ export async function getScanSessionDetails(
       variant: row.severity,
       reason: row.description ?? "No reason available.",
       suggestedFix: row.recommendation ?? "No recommendation available.",
+      bbox:
+        row.x1 !== null &&
+        row.y1 !== null &&
+        row.x2 !== null &&
+        row.y2 !== null
+          ? [row.x1, row.y1, row.x2, row.y2]
+          : undefined,
       disasterTypes:
         HAZARD_TYPES.find(
           (h) =>
@@ -287,20 +307,17 @@ export async function getHazardsForSession(
 
 export async function insertDetectedHazards(
   sessionId: number,
-  hazardNames: string[],
+  detections: Detection[],
 ): Promise<ScanSessionDetails | null> {
   await initDatabase();
   const db = await dbPromise;
 
-  const uniqueHazards = hazardNames.filter(
-    (name, index) => hazardNames.indexOf(name) === index,
-  );
-  if (uniqueHazards.length === 0) {
+  if (detections.length === 0) {
     await db.runAsync(
       `
         UPDATE scan_sessions
-        SET room_score = 0,
-            risk_variant = 'critical',
+        SET room_score = 100,
+            risk_variant = 'low',
             status = 'completed',
             completed_at = strftime('%s', 'now')
         WHERE id = ?
@@ -310,21 +327,20 @@ export async function insertDetectedHazards(
     return getScanSessionDetails(sessionId);
   }
 
-  const roomScore = calculateRisk(uniqueHazards);
-  const riskVariant = getRiskVariantFromScore(roomScore);
-  const placeholders = uniqueHazards.map(() => "?").join(", ");
-  const hazardRows = await db.getAllAsync<{ id: number; name: string }>(
-    `SELECT id, name FROM hazard_types WHERE name IN (${placeholders})`,
-    ...uniqueHazards,
-  );
-  const hazardTypeIds = new Map(hazardRows.map((row) => [row.name, row.id]));
+  // Use the advanced Risk Engine for proper spatial scoring
+  const { safetyScore, mascotVariant } = calculateRoomRisk(detections);
 
-  for (const name of uniqueHazards) {
-    const hazardTypeId = hazardTypeIds.get(name);
-    const seed = HAZARD_TYPES.find((hazard) => hazard.name === name);
+  for (const det of detections) {
+    const seed = HAZARD_TYPES.find((hazard) => hazard.name === det.class);
     const title =
-      HAZARD_DISPLAY_NAMES[name as keyof typeof HAZARD_DISPLAY_NAMES] ??
-      formatHazardTitle(name);
+      HAZARD_DISPLAY_NAMES[det.class as keyof typeof HAZARD_DISPLAY_NAMES] ??
+      formatHazardTitle(det.class);
+
+    const hazardRows = await db.getAllAsync<{ id: number }>(
+      "SELECT id FROM hazard_types WHERE name = ?",
+      det.class,
+    );
+    const hazardTypeId = hazardRows.length > 0 ? hazardRows[0].id : null;
 
     await db.runAsync(
       `
@@ -334,15 +350,20 @@ export async function insertDetectedHazards(
           severity,
           label,
           description,
-          recommendation
-        ) VALUES (?, ?, ?, ?, ?, ?)
+          recommendation,
+          x1, y1, x2, y2
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       sessionId,
-      hazardTypeId ?? null,
+      hazardTypeId,
       seed?.default_severity ?? "medium",
       title,
       seed?.description ?? null,
       seed?.recommendation ?? null,
+      det.bbox[0],
+      det.bbox[1],
+      det.bbox[2],
+      det.bbox[3],
     );
   }
 
@@ -355,8 +376,8 @@ export async function insertDetectedHazards(
           completed_at = strftime('%s', 'now')
       WHERE id = ?
     `,
-    roomScore,
-    riskVariant,
+    safetyScore,
+    mascotVariant,
     sessionId,
   );
 
