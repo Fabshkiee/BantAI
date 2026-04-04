@@ -43,12 +43,12 @@ export default function ArticleCard() {
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
-      contentContainerClassName="gap-4 px-4 py-2"
+      contentContainerClassName="gap-4 px-3 pb-8 pt-2"
     >
       {articleProps.map((article, index) => (
         <Pressable
           key={index}
-          className="bg-surface-light border-2 border-border-secondary p-3 w-[250px] rounded-2xl active:scale-95 transition-all"
+          className="bg-surface-light shadow-lg shadow-border-default p-3 w-[250px] rounded-2xl active:scale-95 transition-all"
           onPress={() => {
             router.push(article.route);
           }}
@@ -63,7 +63,10 @@ export default function ArticleCard() {
             {article.title}
           </Text>
 
-          <Text className="text-md text-gray-500 leading-5" numberOfLines={3}>
+          <Text
+            className="text-md text-text-subtle leading-5"
+            numberOfLines={3}
+          >
             {article.desc}
           </Text>
         </Pressable>
