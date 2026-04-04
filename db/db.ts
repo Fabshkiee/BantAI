@@ -31,6 +31,8 @@ export type HazardData = {
   suggestedFix: string;
   disasterTypes: DisasterType[];
   bbox?: [number, number, number, number];
+  isAssessed?: boolean;
+  internalName?: string;
 };
 
 export type ScanStatus = "pending" | "processing" | "completed" | "failed";
@@ -258,8 +260,10 @@ export async function getScanSessionDetails(
         d.x1,
         d.y1,
         d.x2,
-        d.y2
+        d.y2,
+        ht.name as internalName
       FROM detected_hazards d
+      JOIN hazard_types ht ON d.hazard_type_id = ht.id
       WHERE d.session_id = ?
       ORDER BY d.detected_at DESC, d.id DESC
     `,
@@ -276,12 +280,14 @@ export async function getScanSessionDetails(
     completedAt: session.completed_at,
     hazardCount: session.hazard_count,
     assessedCount: session.assessed_count ?? 0,
-    hazards: hazards.map((row) => ({
+    hazards: (hazards as any[]).map((row) => ({
       id: row.id,
       title: row.label,
       variant: row.severity,
       reason: row.description ?? "No reason available.",
       suggestedFix: row.recommendation ?? "No recommendation available.",
+      isAssessed: !!row.is_assessed,
+      internalName: row.internalName,
       bbox:
         row.x1 !== null &&
         row.y1 !== null &&
@@ -387,6 +393,17 @@ export async function insertDetectedHazards(
 export async function markHazardAsAssessed(hazardId: number): Promise<void> {
   await initDatabase();
   const db = await dbPromise;
+
+  // 1. Get the session ID before updating
+  const row = await db.getFirstAsync<{ session_id: number }>(
+    "SELECT session_id FROM detected_hazards WHERE id = ?",
+    hazardId,
+  );
+  if (!row) return;
+
+  const sessionId = row.session_id;
+
+  // 2. Mark as assessed
   await db.runAsync(
     `
       UPDATE detected_hazards
@@ -395,5 +412,43 @@ export async function markHazardAsAssessed(hazardId: number): Promise<void> {
       WHERE id = ?
     `,
     hazardId,
+  );
+
+  // 3. Re-calculate room risk based on REMAINING hazards
+  const unassessedRows = await db.getAllAsync<{
+    name: string;
+    x1: number;
+    y1: number;
+    x2: number;
+    y2: number;
+  }>(
+    `
+    SELECT ht.name, dh.x1, dh.y1, dh.x2, dh.y2 
+    FROM detected_hazards dh
+    JOIN hazard_types ht ON dh.hazard_type_id = ht.id
+    WHERE dh.session_id = ? AND dh.is_assessed = 0
+    `,
+    sessionId,
+  );
+
+  const detections: Detection[] = unassessedRows.map((r) => ({
+    class: r.name,
+    confidence: 1.0,
+    bbox: [r.x1, r.y1, r.x2, r.y2],
+  }));
+
+  const { safetyScore, mascotVariant } = calculateRoomRisk(detections);
+
+  // 4. Update the session score and variant
+  await db.runAsync(
+    `
+      UPDATE scan_sessions
+      SET room_score = ?,
+          risk_variant = ?
+      WHERE id = ?
+    `,
+    safetyScore,
+    mascotVariant,
+    sessionId,
   );
 }
