@@ -1,7 +1,5 @@
 import ArrowIcon from "@/assets/icons/ArrowIcon";
 import Button from "@/components/Button";
-import { createScanSession, insertDetectedHazards } from "@/db/db";
-import { HAZARD_LABELS, type HazardLabel } from "@/db/hazards";
 import { useTFLite } from "@/hooks/useTFLite";
 import { useFocusEffect, useRouter } from "expo-router";
 import * as ScreenOrientation from "expo-screen-orientation";
@@ -20,15 +18,6 @@ import {
   useCameraPermission,
 } from "react-native-vision-camera";
 
-const FALLBACK_HAZARDS: HazardLabel[] = [
-  HAZARD_LABELS.OVERLOADED_SOCKET,
-  HAZARD_LABELS.DAMAGED_WIRE,
-  HAZARD_LABELS.FLOOR_APPLIANCE,
-  HAZARD_LABELS.MAJOR_CRACK,
-  HAZARD_LABELS.MINOR_CRACK,
-  HAZARD_LABELS.BROKEN_GLASS,
-];
-
 export default function CameraScreen() {
   const router = useRouter();
   const { hasPermission, requestPermission } = useCameraPermission();
@@ -37,23 +26,6 @@ export default function CameraScreen() {
   const [isCapturing, setIsCapturing] = useState(false);
   const cameraRef = useRef<Camera>(null);
   const { modelLoaded, error: modelError } = useTFLite();
-
-  const getFallbackPredictions = (): HazardLabel[] => {
-    const randomCount = 2 + Math.floor(Math.random() * 3);
-    return [...FALLBACK_HAZARDS]
-      .sort(() => Math.random() - 0.5)
-      .slice(0, randomCount);
-  };
-
-  const navigateToReportWithSession = async (photoPath: string) => {
-    const sessionId = await createScanSession(photoPath);
-    await insertDetectedHazards(sessionId, getFallbackPredictions());
-
-    router.replace({
-      pathname: "/safetyReport",
-      params: { sessionId: String(sessionId) },
-    });
-  };
 
   useFocusEffect(
     React.useCallback(() => {
@@ -89,7 +61,6 @@ export default function CameraScreen() {
     try {
       setIsCapturing(true);
 
-      // Take the photo FIRST while the camera is still active!
       const photo = await cameraRef.current.takePhoto({
         flash: "off",
         enableShutterSound: false,
@@ -101,8 +72,10 @@ export default function CameraScreen() {
         ? photo.path
         : `file://${photo.path}`;
 
-      // Await integration logic based on specific workflow
-      await navigateToReportWithSession(fileUri);
+      router.replace({
+        pathname: "/loadingScreen",
+        params: { imageUri: fileUri },
+      });
     } catch (err) {
       console.error("Camera error:", err);
       Alert.alert(

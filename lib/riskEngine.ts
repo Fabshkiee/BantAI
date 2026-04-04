@@ -22,6 +22,7 @@ const SEVERITY_VALUES: Record<string, number> = {
 const PROXIMITY_THRESHOLD = 0.2; // 20% of the screen distance edge-to-edge
 
 function getDictionaryId(className: string): string {
+  if (!className) return "HAZARD_LABELS.UNKNOWN";
   return `HAZARD_LABELS.${className.toUpperCase()}`;
 }
 

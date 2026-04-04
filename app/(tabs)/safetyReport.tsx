@@ -164,11 +164,18 @@ export default function SafetyReport() {
     : mappedHazards.length;
   const finalImageUri = hasSession ? session?.photoPath : imageUri;
 
-  const filteredHazards = finalHazards
-    ? activeDisasterTab === "all"
-      ? finalHazards
-      : finalHazards.filter((h) => h.disasterTypes?.includes(activeDisasterTab))
-    : undefined;
+  const filteredHazards = (
+    finalHazards
+      ? activeDisasterTab === "all"
+        ? finalHazards
+        : finalHazards.filter((h) =>
+            h.disasterTypes?.includes(activeDisasterTab),
+          )
+      : []
+  ).sort(
+    (a, b) =>
+      (SEVERITY_PRIORITY[b.variant] || 0) - (SEVERITY_PRIORITY[a.variant] || 0),
+  );
 
   return (
     <Animated.ScrollView
@@ -183,7 +190,7 @@ export default function SafetyReport() {
             variant="return"
             icon={<ArrowLeftIcon color="black" size={18} />}
             iconPosition="left"
-            onPress={() => router.replace("/history")}
+            onPress={() => router.push("/history")}
           />
         </View>
 
@@ -254,13 +261,13 @@ export default function SafetyReport() {
           <View className="w-full gap-4">
             <Button
               label="Rescan Room"
-              onPress={() => router.replace("/camera")}
+              onPress={() => router.push("/camera")}
               icon={<RefreshIcon color="white" size={26} />}
             />
             <Button
               label="Back to Home"
               variant="secondary"
-              onPress={() => router.replace("/")}
+              onPress={() => router.push("/")}
             />
           </View>
         </View>
