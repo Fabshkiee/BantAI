@@ -13,7 +13,7 @@ const TAB_BAR_OPTIONS = {
   tabBarInactiveTintColor: "#84888c",
   tabBarItemStyle: { justifyContent: "center", alignItems: "center" } as any,
   tabBarStyle: {
-    height: 111,
+    height: 120,
     backgroundColor: "#f0f8ff",
     borderStartWidth: 2,
     borderTopWidth: 2,
@@ -21,7 +21,7 @@ const TAB_BAR_OPTIONS = {
     borderColor: "#e5e5e5",
     borderTopLeftRadius: 36,
     borderTopRightRadius: 36,
-    paddingBottom: 56,
+    paddingBottom: 60,
     paddingTop: 16,
     position: "absolute",
     shadowOpacity: 0,
