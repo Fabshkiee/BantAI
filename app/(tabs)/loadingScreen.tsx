@@ -1,4 +1,5 @@
 import ProgressBar from "@/components/ProgressBar";
+import { createScanSession, insertDetectedHazards } from "@/db/db";
 import { useTFLite } from "@/hooks/useTFLite";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -27,26 +28,27 @@ export default function LoadingScreen() {
         setProgressIndex(2);
         const detections = await runInference(imageUri as string);
 
-        // Step 4: Generating report (index 3)
+        // Step 4: Saving to Database (index 3)
         setProgressIndex(3);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        const sessionId = await createScanSession(imageUri as string);
+        await insertDetectedHazards(sessionId, detections);
 
         // Step 5: Complete! (index 4)
         setProgressIndex(4);
         await new Promise((resolve) => setTimeout(resolve, 500));
 
-        // Navigate to Safety Report
-        router.push({
+        // Navigate to Safety Report with the sessionId
+        router.replace({
           pathname: "/safetyReport",
           params: {
-            imageUri: imageUri,
-            detections: JSON.stringify(detections),
+            sessionId: String(sessionId),
+            imageUri: imageUri, // Keep for quick display
+            detections: JSON.stringify(detections), // Keep for immediate rendering
           },
         });
       } catch (error) {
         console.error("Analysis failed:", error);
-        // Fallback to safety report even if inference fails to show empty state/error
-        router.push("/safetyReport");
+        router.replace("/safetyReport");
       }
     }
 
