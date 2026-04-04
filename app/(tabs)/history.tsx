@@ -12,13 +12,13 @@ export default function history() {
         <View className="justify-center items-center">
           <Image
             source={require("@/assets/logo/horizontal.png")}
-            className="flex w-52 h-14 mt-5 mb-3"
+            className="flex w-52 h-14 mt-5 mb-4"
             resizeMode="contain"
           />
         </View>
 
-        <Text className="text-h2 font-bold mb-3">Recent Scans</Text>
-        <View className="flex gap-3">
+        <Text className="text-h2 font-bold mb-4">Recent Scans</Text>
+        <View className="flex gap-6">
           <HistoryCard />
           <HistoryCard />
           <HistoryCard />
