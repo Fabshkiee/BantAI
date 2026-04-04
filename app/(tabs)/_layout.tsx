@@ -166,6 +166,7 @@ export default function TabLayout() {
             title: "Home",
             tabBarIconStyle: { paddingBottom: 8 },
             tabBarIcon: ({ color }) => <HomeIcon color={color} size={40} />,
+            animation: "fade",
           }}
         />
 
@@ -205,6 +206,7 @@ export default function TabLayout() {
             title: "History",
             tabBarIconStyle: { paddingBottom: 8 },
             tabBarIcon: ({ color }) => <HistoryIcon color={color} size={32} />,
+            animation: "fade",
           }}
         />
 
