@@ -19,9 +19,9 @@ export default function SafetyReport() {
 
   return (
     <ScrollView
-      className="flex-1 mt-9 pb-56 bg-surface-default"
+      className="flex-1 mt-9 pb-56 mb-14 bg-surface-default"
       showsVerticalScrollIndicator={false}
-      contentContainerClassName="pb-16"
+      contentContainerClassName="pb-14"
     >
       <View className="mx-7 gap-7">
         {/* Safety Report Header */}
