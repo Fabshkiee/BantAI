@@ -1,3 +1,4 @@
+import FadeInWrapper from "@/components/FadeInWrapper";
 import HistoryCard from "@/components/HistoryCard";
 import { Image, ScrollView, Text, View } from "react-native";
 
@@ -8,7 +9,7 @@ export default function history() {
       contentContainerClassName="pb-40"
       showsVerticalScrollIndicator={false}
     >
-      <View className="">
+      <FadeInWrapper>
         <View className="justify-center items-center">
           <Image
             source={require("@/assets/logo/horizontal.png")}
@@ -26,7 +27,7 @@ export default function history() {
           <HistoryCard />
           <HistoryCard />
         </View>
-      </View>
+      </FadeInWrapper>
     </ScrollView>
   );
 }
