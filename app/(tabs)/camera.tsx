@@ -3,6 +3,7 @@ import Button from "@/components/Button";
 import { useTFLite } from "@/hooks/useTFLite";
 import { useFocusEffect, useRouter } from "expo-router";
 import * as ScreenOrientation from "expo-screen-orientation";
+import { useKeepAwake } from "expo-keep-awake";
 import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -19,6 +20,7 @@ import {
 } from "react-native-vision-camera";
 
 export default function CameraScreen() {
+  useKeepAwake();
   const router = useRouter();
   const { hasPermission, requestPermission } = useCameraPermission();
   const device = useCameraDevice("back");
