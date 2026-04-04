@@ -5,9 +5,9 @@ import HighRiskIcon from "@/assets/icons/HighRiskIcon";
 import LowRiskIcon from "@/assets/icons/LowRiskIcon";
 import MediumRiskIcon from "@/assets/icons/MediumRiskIcon";
 import {
-    HazardData as DBHazardData,
-    fetchDataFromDB,
-    markHazardAsAssessed,
+  HazardData as DBHazardData,
+  fetchDataFromDB,
+  markHazardAsAssessed,
 } from "@/db/db";
 import React, { useEffect, useState } from "react";
 import { Image, LayoutAnimation, Pressable, Text, View } from "react-native";

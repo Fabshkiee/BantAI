@@ -4,8 +4,11 @@ import HazardCard from "@/components/HazardCard";
 import HazardSortingButtons from "@/components/HazardSortingButons";
 import MascotReporter, { getRiskVariant } from "@/components/MascotReporter";
 import { getScanSessionDetails, type ScanSessionDetails } from "@/db/db";
-import { useLocalSearchParams, useRouter } from "expo-router";
+// import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
+// import { ActivityIndicator, ScrollView, Text, View } from "react-native";
+import { type DisasterType } from "@/db/hazards";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 
 export default function SafetyReport() {
@@ -21,9 +24,16 @@ export default function SafetyReport() {
   const [session, setSession] = useState<ScanSessionDetails | null>(null);
   const [isLoadingSession, setIsLoadingSession] = useState(hasSession);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [activeDisasterTab, setActiveDisasterTab] = useState<
+    DisasterType | "all"
+  >("all");
 
-  const executeDatabaseSearch = () => {
-    // Sorting buttons are still placeholder UI in this screen.
+  // const executeDatabaseSearch = () => {
+  //   // Sorting buttons are still placeholder UI in this screen.
+  // };
+
+  const executeDatabaseSearch = (_sqlCommand: string, filterId: string) => {
+    setActiveDisasterTab(filterId as DisasterType | "all");
   };
 
   useEffect(() => {
@@ -78,6 +88,11 @@ export default function SafetyReport() {
   const riskVariant = getRiskVariant(roomScore);
   const hazardCount = hasSession ? (session?.hazardCount ?? 0) : 3;
   const hazards = hasSession ? (session?.hazards ?? []) : undefined;
+  const filteredHazards = hazards
+    ? activeDisasterTab === "all"
+      ? hazards
+      : hazards.filter((h) => h.disasterTypes.includes(activeDisasterTab))
+    : undefined;
 
   return (
     <ScrollView
@@ -131,7 +146,12 @@ export default function SafetyReport() {
               </Text>
             </View>
           ) : (
-            <HazardCard hazards={hazards} showResolutionAction={hasSession} />
+            // <HazardCard hazards={hazards} showResolutionAction={hasSession} />
+
+            <HazardCard
+              hazards={filteredHazards}
+              showResolutionAction={hasSession}
+            />
           )}
         </View>
 

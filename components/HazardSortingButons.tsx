@@ -32,7 +32,7 @@ const HAZARD_OPTIONS = [
 // Define the props to pass the SQL command back to your parent screen
 type HazardSortingProps = {
   tableName?: string;
-  onSortQueryChange: (sqlCommand: string) => void;
+  onSortQueryChange: (sqlCommand: string, filterId: string) => void;
 };
 
 export default function HazardSortingButtons({
@@ -52,7 +52,7 @@ export default function HazardSortingButtons({
       sqlCommand = `SELECT * FROM ${tableName} WHERE category = '${option.sqlFilter}' ORDER BY created_at DESC;`;
     }
 
-    onSortQueryChange(sqlCommand);
+    onSortQueryChange(sqlCommand, option.id);
   };
 
   return (

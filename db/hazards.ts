@@ -1,3 +1,5 @@
+export type DisasterType = "earthquake" | "typhoon" | "fire";
+
 export const HAZARD_LABELS = {
   OVERLOADED_SOCKET: "overloaded_socket",
   DAMAGED_WIRE: "damaged_wire",
@@ -22,6 +24,7 @@ export type HazardTypeSeed = {
   default_severity: "low" | "medium" | "high" | "critical";
   description: string;
   recommendation: string;
+  disasterTypes: DisasterType[];
 };
 
 export const SEVERITY_SCORES = {
@@ -32,10 +35,10 @@ export const SEVERITY_SCORES = {
 } as const;
 
 export const CATEGORY_WEIGHTS: Record<string, number> = {
-  fire: 0.30,
+  fire: 0.3,
   structural: 0.25,
   electrical: 0.25,
-  trip: 0.20,
+  trip: 0.2,
 };
 
 export const HAZARD_DISPLAY_NAMES: Record<HazardLabel, string> = {
@@ -63,6 +66,7 @@ export const HAZARD_TYPES: HazardTypeSeed[] = [
       "Too many devices plugged into a single socket or extension strip.",
     recommendation:
       "Distribute devices across outlets and avoid overloading a single socket.",
+    disasterTypes: ["fire"],
   },
   {
     name: HAZARD_LABELS.DAMAGED_WIRE,
@@ -71,6 +75,7 @@ export const HAZARD_TYPES: HazardTypeSeed[] = [
     description: "Bare, frayed, or visibly damaged wiring is present.",
     recommendation:
       "Replace or isolate damaged wiring immediately and consult an electrician.",
+    disasterTypes: ["fire", "earthquake"],
   },
   {
     name: HAZARD_LABELS.FLOOR_APPLIANCE,
@@ -79,6 +84,7 @@ export const HAZARD_TYPES: HazardTypeSeed[] = [
     description:
       "An appliance or its cable is placed where people may trip over it.",
     recommendation: "Move the appliance and route cables away from walkways.",
+    disasterTypes: ["earthquake"],
   },
   {
     name: HAZARD_LABELS.MAJOR_CRACK,
@@ -88,6 +94,7 @@ export const HAZARD_TYPES: HazardTypeSeed[] = [
       "A large crack is visible in a wall, ceiling, or foundation surface.",
     recommendation:
       "Restrict access and have the structure assessed by a qualified professional.",
+    disasterTypes: ["earthquake"],
   },
   {
     name: HAZARD_LABELS.MINOR_CRACK,
@@ -96,6 +103,7 @@ export const HAZARD_TYPES: HazardTypeSeed[] = [
     description:
       "A smaller crack is visible and may require monitoring or repair.",
     recommendation: "Monitor the crack and repair it before it worsens.",
+    disasterTypes: ["earthquake"],
   },
   {
     name: HAZARD_LABELS.COLLAPSED_STRUCTURE,
@@ -104,6 +112,7 @@ export const HAZARD_TYPES: HazardTypeSeed[] = [
     description: "A structural element appears collapsed, broken, or unstable.",
     recommendation:
       "Keep clear of the area and contact emergency or structural support services.",
+    disasterTypes: ["earthquake"],
   },
   {
     name: HAZARD_LABELS.BROKEN_GLASS,
@@ -113,6 +122,7 @@ export const HAZARD_TYPES: HazardTypeSeed[] = [
       "Broken glass or sharp fragments are visible on the floor or surfaces.",
     recommendation:
       "Clean up the broken glass carefully and dispose of it safely.",
+    disasterTypes: ["earthquake", "typhoon"],
   },
   {
     name: HAZARD_LABELS.ELECTRONIC_HAZARD,
@@ -122,6 +132,7 @@ export const HAZARD_TYPES: HazardTypeSeed[] = [
       "An electronic device, charger, or power source looks unsafe or misused.",
     recommendation:
       "Disconnect the device and inspect it before using it again.",
+    disasterTypes: ["fire"],
   },
   {
     name: HAZARD_LABELS.ELEVATED_BREAKABLES,
@@ -130,6 +141,7 @@ export const HAZARD_TYPES: HazardTypeSeed[] = [
     description:
       "Breakable objects are stored in a high position where they may fall.",
     recommendation: "Move breakables to a secure, lower location.",
+    disasterTypes: ["earthquake"],
   },
   {
     name: HAZARD_LABELS.EXPOSED_BREAKER,
@@ -139,6 +151,7 @@ export const HAZARD_TYPES: HazardTypeSeed[] = [
       "A breaker panel or electrical distribution component is exposed.",
     recommendation:
       "Restrict access and have the electrical panel covered or repaired immediately.",
+    disasterTypes: ["fire", "earthquake"],
   },
   {
     name: HAZARD_LABELS.EXPOSED_CEILING_LIGHTS,
@@ -147,6 +160,7 @@ export const HAZARD_TYPES: HazardTypeSeed[] = [
     description: "Ceiling lights or fixtures are exposed, loose, or damaged.",
     recommendation:
       "Repair or cover the fixture before using the area normally.",
+    disasterTypes: ["earthquake"],
   },
   {
     name: HAZARD_LABELS.HEAVY_WOODEN_FURNITURE,
@@ -154,6 +168,7 @@ export const HAZARD_TYPES: HazardTypeSeed[] = [
     default_severity: "high",
     description: "Tall or heavy wooden furniture could tip over or fall.",
     recommendation: "Anchor the furniture securely to prevent tipping.",
+    disasterTypes: ["earthquake"],
   },
   {
     name: HAZARD_LABELS.OPEN_FLAME_HAZARD,
@@ -163,5 +178,6 @@ export const HAZARD_TYPES: HazardTypeSeed[] = [
       "An open flame or ignition source is present near combustibles.",
     recommendation:
       "Extinguish the flame and keep combustible materials away from heat sources.",
+    disasterTypes: ["fire"],
   },
 ];
