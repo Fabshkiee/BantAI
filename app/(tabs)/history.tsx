@@ -1,29 +1,108 @@
 import HistoryCard from "@/components/HistoryCard";
-import { Image, ScrollView, Text, View } from "react-native";
+import { getRecentScanSessions, type ScanSessionSummary } from "@/db/db";
+import { useFocusEffect } from "expo-router";
+import React, { useCallback, useState } from "react";
+import { ActivityIndicator, Image, ScrollView, Text, View } from "react-native";
 
-export default function history() {
+export default function HistoryScreen() {
+  const [sessions, setSessions] = useState<ScanSessionSummary[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true;
+
+      const loadSessions = async () => {
+        try {
+          setIsLoading(true);
+          setLoadError(null);
+
+          const recentSessions = await getRecentScanSessions();
+          if (isActive) {
+            setSessions(recentSessions);
+          }
+        } catch (error) {
+          if (isActive) {
+            setLoadError("We could not load the saved scan history.");
+            setSessions([]);
+          }
+          console.error("Failed to load scan history:", error);
+        } finally {
+          if (isActive) {
+            setIsLoading(false);
+          }
+        }
+      };
+
+      loadSessions();
+
+      return () => {
+        isActive = false;
+      };
+    }, []),
+  );
+
   return (
     <ScrollView
       className="flex-1 px-7 mt-9 bg-surface-default"
       contentContainerClassName="pb-40"
       showsVerticalScrollIndicator={false}
     >
-      <View className="justify-center items-center">
-        <Image
-          source={require("@/assets/logo/horizontal.png")}
-          className="flex w-52 h-14 mt-5 mb-4"
-          resizeMode="contain"
-        />
-      </View>
+      <View className="">
+        <View className="justify-center items-center">
+          <Image
+            source={require("@/assets/logo/horizontal.png")}
+            className="flex w-52 h-14 mt-5 mb-4"
+            resizeMode="contain"
+          />
+        </View>
 
-      <Text className="text-h2 font-bold mb-4">Recent Scans</Text>
-      <View className="flex gap-6">
-        <HistoryCard />
-        <HistoryCard />
-        <HistoryCard />
-        <HistoryCard />
-        <HistoryCard />
-        <HistoryCard />
+        <Text className="text-h2 font-bold mb-4">Recent Scans</Text>
+
+        {isLoading ? (
+          <View className="py-10 items-center justify-center">
+            <ActivityIndicator size="large" color="#0f172a" />
+            <Text className="text-text-subtle mt-4">
+              Loading saved scans...
+            </Text>
+          </View>
+        ) : loadError ? (
+          <View className="py-10 items-center justify-center rounded-2xl bg-surface-light px-6">
+            <Text className="text-lg font-semibold text-center">
+              Unable to load history
+            </Text>
+            <Text className="text-text-subtle text-center mt-2">
+              {loadError}
+            </Text>
+          </View>
+        ) : sessions.length === 0 ? (
+          <View className="py-10 items-center justify-center rounded-2xl bg-surface-light px-6">
+            <Text className="text-lg font-semibold text-center">
+              No scans saved yet
+            </Text>
+            <Text className="text-text-subtle text-center mt-2">
+              Your completed room checks will appear here once they are stored
+              in the database.
+            </Text>
+          </View>
+        ) : (
+          <View className="flex gap-6">
+            {sessions.map((session) => (
+              <HistoryCard
+                key={session.id}
+                id={session.id}
+                title={`Safety Scan #${session.id}`}
+                scannedAt={session.scannedAt}
+                roomScore={session.roomScore}
+                riskVariant={session.riskVariant}
+                photoPath={session.photoPath}
+                hazardCount={session.hazardCount}
+                status={session.status}
+              />
+            ))}
+          </View>
+        )}
       </View>
     </ScrollView>
   );

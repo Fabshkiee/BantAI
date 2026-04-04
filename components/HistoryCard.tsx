@@ -1,40 +1,82 @@
 import { router } from "expo-router";
 import React from "react";
 import { Image, Pressable, Text, View } from "react-native";
-import MascotReporter from "./MascotReporter";
+import MascotReporter, { type RiskVariant } from "./MascotReporter";
 
-// TO DO: Create props for historycard
-export default function HistoryCard() {
+type HistoryCardProps = {
+  id: number;
+  title: string;
+  scannedAt: number;
+  roomScore: number | null;
+  riskVariant: RiskVariant | null;
+  photoPath: string | null;
+  hazardCount: number;
+  status: string;
+};
+
+const formatScanDate = (timestamp: number) =>
+  new Date(timestamp * 1000).toLocaleDateString(undefined, {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+
+const formatStatus = (value: string) =>
+  value.charAt(0).toUpperCase() + value.slice(1);
+
+export default function HistoryCard({
+  id,
+  title,
+  scannedAt,
+  roomScore,
+  riskVariant,
+  photoPath,
+  hazardCount,
+  status,
+}: HistoryCardProps) {
+  const score = roomScore ?? 0;
+  const displayVariant = riskVariant ?? "critical";
+  const imageSource = photoPath
+    ? { uri: photoPath }
+    : require("@/assets/images/room.png");
+
   return (
     <Pressable
       className="flex-row p-3 gap-3 justify-between items-start bg-surface-light rounded-2xl shadow-xl shadow-border-default transition-all active:scale-[0.95]"
       onPress={() => {
-        router.push("/safetyReport");
-        {
-          /* TODO: Make it dynamic and locate to specific safety report id */
-        }
+        router.push({
+          pathname: "/safetyReport",
+          params: { sessionId: String(id) },
+        });
       }}
     >
       {/* Left Side: Image & Text Group */}
       <View className="flex-1 flex-row gap-4 items-center">
-        {/* TODO: Link image to specific report id */}
         <Image
-          source={require("@/assets/images/room.png")}
+          source={imageSource}
           resizeMode="cover"
           className="w-20 h-20 rounded-xl"
         />
 
-        {/* TODO: Link Title and date to specific report id */}
         <View className="flex-1 justify-center">
-          <Text className="text-2xl font-semibold">HazardNadadadme</Text>
-          <Text className="text-md text-text-subtle mt-1">March 24, 2026</Text>
+          <Text className="text-2xl font-semibold">{title}</Text>
+          <Text className="text-md text-text-subtle mt-1">
+            {formatScanDate(scannedAt)}
+          </Text>
+          <Text className="text-sm text-text-subtle mt-1">
+            {hazardCount} hazard{hazardCount === 1 ? "" : "s"} •{" "}
+            {formatStatus(status)}
+          </Text>
         </View>
       </View>
 
-      {/* TODO: Link report to specific report id */}
       <View className="w-16 h-16 items-center justify-center">
         <View className="scale-[0.25] mr-2">
-          <MascotReporter score="medium" value={47} hideStatus={true} />
+          <MascotReporter
+            score={displayVariant}
+            value={score}
+            hideStatus={true}
+          />
         </View>
       </View>
     </Pressable>

@@ -4,6 +4,13 @@ import * as Progress from "react-native-progress";
 
 export type RiskVariant = "low" | "medium" | "high" | "critical";
 
+export function getRiskVariant(score: number): RiskVariant {
+  if (score <= 15) return "critical";
+  if (score < 45) return "high";
+  if (score < 75) return "medium";
+  return "low";
+}
+
 type MascotReportProps = {
   score: RiskVariant;
   value: number;

@@ -4,7 +4,7 @@ import DropDownIcon from "@/assets/icons/DropDownIcon";
 import HighRiskIcon from "@/assets/icons/HighRiskIcon";
 import LowRiskIcon from "@/assets/icons/LowRiskIcon";
 import MediumRiskIcon from "@/assets/icons/MediumRiskIcon";
-import { fetchDataFromDB } from "@/db/db";
+import { fetchDataFromDB, markHazardAsAssessed } from "@/db/db";
 import React, { useEffect, useState } from "react";
 import { Image, Pressable, Text, View } from "react-native";
 import Animated, {
@@ -27,6 +27,12 @@ export type HazardData = {
   bbox?: [number, number, number, number];
 };
 
+export interface HazardCardProps {
+  hazards?: HazardData[];
+  imageUri?: string;
+  showResolutionAction?: boolean;
+}
+
 const riskIcons = {
   low: <LowRiskIcon size={36} />,
   medium: <MediumRiskIcon size={36} />,
@@ -44,11 +50,14 @@ const riskStatus = {
 function HazardCardDesign({
   data,
   imageUri,
+  showResolutionAction = false,
 }: {
   data: HazardData;
   imageUri?: string;
+  showResolutionAction?: boolean;
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isResolved, setIsResolved] = useState(false);
   const rotation = useSharedValue(0);
 
   const toggleExpand = () => {
@@ -185,31 +194,78 @@ function HazardCardDesign({
             <Text className="text-lg leading-6">{data.suggestedFix}</Text>
           </View>
 
-          <View>
-            <Button
-              label="Mark as Resolved"
-              variant="primary"
-              icon={<CheckIcon color="white" size={24} />}
-              iconPosition="right"
-              onPress={() => console.log(`Resolved hazard: ${data.id}`)}
-            />
-          </View>
+          {showResolutionAction ? (
+            <View>
+              <Button
+                label={isResolved ? "Resolved" : "Mark as Resolved"}
+                variant="primary"
+                icon={<CheckIcon color="white" size={24} />}
+                iconPosition="right"
+                onPress={async () => {
+                  if (isResolved) {
+                    return;
+                  }
+
+                  try {
+                    await markHazardAsAssessed(data.id as number);
+                    setIsResolved(true);
+                  } catch (error) {
+                    console.error("Failed to mark hazard as resolved:", error);
+                  }
+                }}
+              />
+            </View>
+          ) : null}
         </Animated.View>
       )}
     </Animated.View>
   );
 }
 
-export interface HazardCardProps {
-  hazards?: HazardData[];
-  imageUri?: string;
-}
+const HazardCard = ({
+  hazards,
+  imageUri,
+  showResolutionAction = false,
+}: HazardCardProps) => {
+  const [loadedHazards, setLoadedHazards] = useState<HazardData[]>([]);
+  const [isLoading, setIsLoading] = useState(hazards === undefined);
 
-const HazardCard = ({ hazards, imageUri }: HazardCardProps) => {
-  if (!hazards || hazards.length === 0) {
+  useEffect(() => {
+    if (hazards !== undefined) {
+      setLoadedHazards(hazards);
+      setIsLoading(false);
+      return;
+    }
+
+    const fetchHazards = async () => {
+      try {
+        setIsLoading(true);
+        const data = await fetchDataFromDB();
+        setLoadedHazards(data);
+      } catch (error) {
+        console.error("Failed to load hazards:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchHazards();
+  }, [hazards]);
+
+  if (isLoading) {
+    return (
+      <View className="items-center justify-center py-10">
+        <Text className="text-text-subtle">Loading hazards...</Text>
+      </View>
+    );
+  }
+
+  if (loadedHazards.length === 0) {
     return (
       <View className="bg-surface-light rounded-2xl p-8 items-center border-2 border-dashed border-border-secondary">
-        <Text className="text-xl font-semibold text-gray-500">No Hazards Detected</Text>
+        <Text className="text-xl font-semibold text-gray-500">
+          No Hazards Detected
+        </Text>
         <Text className="text-base text-gray-400 text-center mt-2">
           This area appears to be safe based on the current AI scan.
         </Text>
@@ -219,8 +275,13 @@ const HazardCard = ({ hazards, imageUri }: HazardCardProps) => {
 
   return (
     <View className="gap-4">
-      {hazards.map((hazard) => (
-        <HazardCardDesign key={hazard.id} data={hazard} imageUri={imageUri} />
+      {loadedHazards.map((hazard) => (
+        <HazardCardDesign
+          key={hazard.id}
+          data={hazard}
+          imageUri={imageUri}
+          showResolutionAction={showResolutionAction}
+        />
       ))}
     </View>
   );

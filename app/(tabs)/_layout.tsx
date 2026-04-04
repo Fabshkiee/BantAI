@@ -1,10 +1,28 @@
 import CameraIcon from "@/assets/icons/CameraIcon";
 import HistoryIcon from "@/assets/icons/HistoryIcon";
 import HomeIcon from "@/assets/icons/HomeIcon";
+import { createScanSession, insertDetectedHazards } from "@/db/db";
+import { HAZARD_LABELS, type HazardLabel } from "@/db/hazards";
 import * as ImagePicker from "expo-image-picker";
 import { router, Tabs } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import { Alert, Animated, Modal, Pressable, Text, View } from "react-native";
+
+const FALLBACK_HAZARDS: HazardLabel[] = [
+  HAZARD_LABELS.OVERLOADED_SOCKET,
+  HAZARD_LABELS.DAMAGED_WIRE,
+  HAZARD_LABELS.FLOOR_APPLIANCE,
+  HAZARD_LABELS.MAJOR_CRACK,
+  HAZARD_LABELS.MINOR_CRACK,
+  HAZARD_LABELS.BROKEN_GLASS,
+];
+
+const getFallbackPredictions = (): HazardLabel[] => {
+  const randomCount = 2 + Math.floor(Math.random() * 3);
+  return [...FALLBACK_HAZARDS]
+    .sort(() => Math.random() - 0.5)
+    .slice(0, randomCount);
+};
 
 // Static configurations
 const TAB_BAR_OPTIONS = {
@@ -63,7 +81,7 @@ const CameraActionModal = ({
         useNativeDriver: true,
       }).start();
     }
-  }, [isVisible]);
+  }, [isVisible, slideAnim]);
 
   const handleClose = (callback?: () => void) => {
     Animated.timing(slideAnim, {
@@ -80,22 +98,46 @@ const CameraActionModal = ({
 
   const handleOpenGallery = () => {
     handleClose(async () => {
-      const { status } =
-        await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== "granted") {
+      try {
+        const { status } =
+          await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== "granted") {
+          Alert.alert(
+            "Permission Needed",
+            "We need gallery permissions to select a photo.",
+          );
+          return;
+        }
+
+        const result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: true,
+          quality: 0.8,
+        });
+
+        if (result.canceled) {
+          return;
+        }
+
+        const uri = result.assets[0]?.uri;
+        if (!uri) {
+          throw new Error("Selected image does not include a URI.");
+        }
+
+        const sessionId = await createScanSession(uri);
+        await insertDetectedHazards(sessionId, getFallbackPredictions());
+
+        router.replace({
+          pathname: "/safetyReport",
+          params: { sessionId: String(sessionId) },
+        });
+      } catch (error) {
+        console.error("Failed to import image:", error);
         Alert.alert(
-          "Permission Needed",
-          "We need gallery permissions to select a photo.",
+          "Import failed",
+          "We could not process that image. Please try again.",
         );
-        return;
       }
-      let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        quality: 0.8,
-      });
-      if (!result.canceled)
-        console.log("Photo selected:", result.assets[0].uri);
     });
   };
 
@@ -179,7 +221,7 @@ export default function TabLayout() {
             tabBarButton: () => (
               <Pressable
                 onPress={() => setIsModalOpen(true)}
-                className="active:scale-95 transition-all flex-1 items-center justify-center"
+                className="flex-1 items-center justify-center"
                 style={{ top: -10 }}
               >
                 <View

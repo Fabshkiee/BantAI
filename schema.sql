@@ -19,8 +19,8 @@ CREATE TABLE IF NOT EXISTS scan_sessions (
     photo_path      TEXT NOT NULL,
 
     room_score      INTEGER,                    -- 0-100, shown in MascotReporter
-    risk_variant    TEXT                        -- 'low' | 'medium' | 'high' from getRiskVariant()
-                    CHECK (risk_variant IN ('low', 'medium', 'high', NULL)),
+    risk_variant    TEXT                        -- 'low' | 'medium' | 'high' | 'critical' from getRiskVariant()
+                    CHECK (risk_variant IN ('low', 'medium', 'high', 'critical')),
     status          TEXT NOT NULL DEFAULT 'pending'
                     CHECK (status IN ('pending', 'processing', 'completed', 'failed')),
     scanned_at      INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),

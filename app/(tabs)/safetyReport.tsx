@@ -3,12 +3,18 @@ import RefreshIcon from "@/assets/icons/RefreshIcon";
 import Button from "@/components/Button";
 import HazardCard, { HazardData } from "@/components/HazardCard";
 import HazardSortingButtons from "@/components/HazardSortingButons";
-import MascotReporter from "@/components/MascotReporter";
+import MascotReporter, { getRiskVariant } from "@/components/MascotReporter";
+import { getScanSessionDetails, type ScanSessionDetails } from "@/db/db";
 import { hazardDictionary } from "@/hazardDictionary";
 import { calculateRoomRisk, type Detection } from "@/lib/riskEngine";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
-import React, { useCallback, useRef } from "react";
-import { Animated, Text, View } from "react-native";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import {
+  ActivityIndicator,
+  Animated,
+  Text,
+  View
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const SEVERITY_PRIORITY: Record<string, number> = {
@@ -20,13 +26,75 @@ const SEVERITY_PRIORITY: Record<string, number> = {
 
 export default function SafetyReport() {
   const router = useRouter();
-  const { imageUri, detections: detectionsJson } = useLocalSearchParams();
+  const {
+    imageUri,
+    detections: detectionsJson,
+    sessionId: sessionIdParam,
+  } = useLocalSearchParams();
 
   const detections: Detection[] = detectionsJson
     ? JSON.parse(detectionsJson as string)
     : [];
 
-  // 1. Map and Enrich Hazards using the Dictionary
+  const sessionIdValue = Array.isArray(sessionIdParam)
+    ? sessionIdParam[0]
+    : sessionIdParam;
+  const sessionId = sessionIdValue ? Number(sessionIdValue) : null;
+  const hasSession =
+    Number.isFinite(sessionId ?? Number.NaN) && (sessionId ?? 0) > 0;
+
+  const [session, setSession] = useState<ScanSessionDetails | null>(null);
+  const [isLoadingSession, setIsLoadingSession] = useState(hasSession);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!hasSession || sessionId === null) {
+      setSession(null);
+      setIsLoadingSession(false);
+      setLoadError(null);
+      return;
+    }
+
+    let isActive = true;
+
+    const loadSession = async () => {
+      try {
+        setIsLoadingSession(true);
+        setLoadError(null);
+
+        const details = await getScanSessionDetails(sessionId);
+        if (!isActive) {
+          return;
+        }
+
+        if (!details) {
+          setSession(null);
+          setLoadError("We could not find that saved scan.");
+          return;
+        }
+
+        setSession(details);
+      } catch (error) {
+        if (isActive) {
+          setSession(null);
+          setLoadError("We could not load the saved scan details.");
+        }
+        console.error("Failed to load scan session:", error);
+      } finally {
+        if (isActive) {
+          setIsLoadingSession(false);
+        }
+      }
+    };
+
+    loadSession();
+
+    return () => {
+      isActive = false;
+    };
+  }, [hasSession, sessionId]);
+
+  // 1. Map and Enrich Hazards using the Dictionary (Fallback if NO session)
   const mappedHazards: HazardData[] = [];
   for (let i = 0; i < detections.length; i++) {
     const d = detections[i];
@@ -64,8 +132,11 @@ export default function SafetyReport() {
 
   const executeDatabaseSearch = (sqlCommand: string) => {};
 
-  const { safetyScore, mascotVariant, spatialInsights } =
-    calculateRoomRisk(detections);
+  const {
+    safetyScore: rawScore,
+    mascotVariant: rawMascot,
+    spatialInsights,
+  } = calculateRoomRisk(detections);
   const insets = useSafeAreaInsets();
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -81,6 +152,16 @@ export default function SafetyReport() {
     }, [fadeAnim]),
   );
 
+  const finalRoomScore = session?.roomScore ?? rawScore ?? 15;
+  const finalRiskVariant = hasSession
+    ? getRiskVariant(finalRoomScore)
+    : rawMascot;
+  const finalHazards = hasSession ? (session?.hazards ?? []) : mappedHazards;
+  const finalHazardCount = hasSession
+    ? (session?.hazardCount ?? 0)
+    : mappedHazards.length;
+  const finalImageUri = hasSession ? session?.photoPath : imageUri;
+
   return (
     <Animated.ScrollView
       className="flex-1 mt-9 pb-56 mb-14 bg-surface-default"
@@ -88,7 +169,7 @@ export default function SafetyReport() {
       contentContainerClassName="pb-14"
     >
       <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
-        <View className="absolute -top-9 left-0 px-6 pt-8">
+        <View className="absolute -top-9 left-0 px-6 pt-8 z-10">
           <Button
             label="Return"
             variant="return"
@@ -104,11 +185,18 @@ export default function SafetyReport() {
               Room Safety Report
             </Text>
             <View className="relative">
-              <MascotReporter score={mascotVariant} value={safetyScore} />
+              <MascotReporter score={finalRiskVariant} value={finalRoomScore} />
             </View>
           </View>
 
-          {spatialInsights.length > 0 && (
+          {hasSession && loadError ? (
+            <View className="rounded-2xl bg-surface-light px-4 py-3">
+              <Text className="font-semibold">Saved scan unavailable</Text>
+              <Text className="text-text-subtle mt-1">{loadError}</Text>
+            </View>
+          ) : null}
+
+          {spatialInsights && spatialInsights.length > 0 && (
             <View className="bg-surface-critical/10 border border-surface-critical p-4 rounded-xl gap-2">
               <Text className="text-text-critical font-bold text-lg">
                 ⚠️ Spatial Warnings
@@ -123,7 +211,7 @@ export default function SafetyReport() {
 
           <View>
             <Text className="text-2xl font-bold mt-10 mb-1">
-              Identified Hazards ({mappedHazards.length})
+              Identified Hazards ({finalHazardCount})
             </Text>
             <Text className="text-lg">
               After assessing each hazard, apply the recommended fix, and press
@@ -139,10 +227,20 @@ export default function SafetyReport() {
           </View>
 
           <View className="mt-7">
-            <HazardCard
-              hazards={mappedHazards}
-              imageUri={imageUri as string | undefined}
-            />
+            {hasSession && isLoadingSession ? (
+              <View className="items-center justify-center py-10">
+                <ActivityIndicator size="large" color="#0f172a" />
+                <Text className="text-text-subtle mt-4">
+                  Loading saved scan details...
+                </Text>
+              </View>
+            ) : (
+              <HazardCard
+                hazards={finalHazards as HazardData[]}
+                imageUri={finalImageUri as string | undefined}
+                showResolutionAction={hasSession}
+              />
+            )}
           </View>
 
           <View className="w-full gap-4">

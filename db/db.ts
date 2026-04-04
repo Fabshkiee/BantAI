@@ -1,4 +1,5 @@
 import * as SQLite from "expo-sqlite";
+import { calculateRisk } from "./engine";
 import { HAZARD_DISPLAY_NAMES, HAZARD_TYPES } from "./hazards";
 
 const dbPromise = SQLite.openDatabaseAsync("app.db");
@@ -13,6 +14,15 @@ const formatHazardTitle = (value: string) =>
         .join(" ")
     : value;
 
+const getRiskVariantFromScore = (
+  score: number,
+): "low" | "medium" | "high" | "critical" => {
+  if (score >= 0 && score <= 10) return "critical";
+  if (score > 10 && score < 40) return "high";
+  if (score >= 40 && score < 80) return "medium";
+  return "low";
+};
+
 export type HazardData = {
   id: number;
   title: string;
@@ -21,12 +31,52 @@ export type HazardData = {
   suggestedFix: string;
 };
 
+export type ScanStatus = "pending" | "processing" | "completed" | "failed";
+
+export type ScanSessionSummary = {
+  id: number;
+  photoPath: string;
+  roomScore: number | null;
+  riskVariant: HazardData["variant"] | null;
+  status: ScanStatus;
+  scannedAt: number;
+  completedAt: number | null;
+  hazardCount: number;
+  assessedCount: number;
+};
+
+export type ScanSessionDetails = ScanSessionSummary & {
+  hazards: HazardData[];
+};
+
 type HazardRow = {
   id: number;
   name: string;
   default_severity: "low" | "medium" | "high" | "critical";
   description: string | null;
   recommendation: string | null;
+};
+
+type ScanSessionRow = {
+  id: number;
+  photo_path: string;
+  room_score: number | null;
+  risk_variant: HazardData["variant"] | null;
+  status: ScanStatus;
+  scanned_at: number;
+  completed_at: number | null;
+  hazard_count: number;
+  assessed_count: number | null;
+};
+
+type SessionHazardRow = {
+  id: number;
+  severity: HazardData["variant"];
+  label: string;
+  description: string | null;
+  recommendation: string | null;
+  is_assessed: 0 | 1;
+  detected_at: number;
 };
 
 export async function initDatabase(): Promise<void> {
@@ -44,7 +94,7 @@ export async function initDatabase(): Promise<void> {
           id              INTEGER PRIMARY KEY AUTOINCREMENT,
           photo_path      TEXT NOT NULL,
           room_score      INTEGER,
-          risk_variant    TEXT CHECK (risk_variant IN ('low', 'medium', 'high', NULL)),
+          risk_variant    TEXT CHECK (risk_variant IN ('low', 'medium', 'high', 'critical')),
           status          TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'completed', 'failed')),
           scanned_at      INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
           completed_at    INTEGER
@@ -101,4 +151,220 @@ export async function fetchDataFromDB(): Promise<HazardData[]> {
     reason: row.description ?? "No reason available.",
     suggestedFix: row.recommendation ?? "No recommendation available.",
   }));
+}
+
+export async function createScanSession(photoPath: string): Promise<number> {
+  await initDatabase();
+  const db = await dbPromise;
+  const result = await db.runAsync(
+    "INSERT INTO scan_sessions (photo_path, status) VALUES (?, 'pending')",
+    photoPath,
+  );
+
+  return Number(result.lastInsertRowId);
+}
+
+export async function getRecentScanSessions(
+  limit = 10,
+): Promise<ScanSessionSummary[]> {
+  await initDatabase();
+  const db = await dbPromise;
+  const rows = await db.getAllAsync<ScanSessionRow>(
+    `
+      SELECT
+        s.id,
+        s.photo_path,
+        s.room_score,
+        s.risk_variant,
+        s.status,
+        s.scanned_at,
+        s.completed_at,
+        COUNT(d.id) AS hazard_count,
+        COALESCE(SUM(CASE WHEN d.is_assessed = 1 THEN 1 ELSE 0 END), 0) AS assessed_count
+      FROM scan_sessions s
+      LEFT JOIN detected_hazards d ON d.session_id = s.id
+      GROUP BY s.id
+      ORDER BY s.scanned_at DESC
+      LIMIT ?
+    `,
+    limit,
+  );
+
+  return rows.map((row) => ({
+    id: row.id,
+    photoPath: row.photo_path,
+    roomScore: row.room_score,
+    riskVariant: row.risk_variant,
+    status: row.status,
+    scannedAt: row.scanned_at,
+    completedAt: row.completed_at,
+    hazardCount: row.hazard_count,
+    assessedCount: row.assessed_count ?? 0,
+  }));
+}
+
+export async function getScanSessionDetails(
+  sessionId: number,
+): Promise<ScanSessionDetails | null> {
+  await initDatabase();
+  const db = await dbPromise;
+
+  const session = await db.getFirstAsync<ScanSessionRow>(
+    `
+      SELECT
+        s.id,
+        s.photo_path,
+        s.room_score,
+        s.risk_variant,
+        s.status,
+        s.scanned_at,
+        s.completed_at,
+        COUNT(d.id) AS hazard_count,
+        COALESCE(SUM(CASE WHEN d.is_assessed = 1 THEN 1 ELSE 0 END), 0) AS assessed_count
+      FROM scan_sessions s
+      LEFT JOIN detected_hazards d ON d.session_id = s.id
+      WHERE s.id = ?
+      GROUP BY s.id
+    `,
+    sessionId,
+  );
+
+  if (!session) {
+    return null;
+  }
+
+  const hazards = await db.getAllAsync<SessionHazardRow>(
+    `
+      SELECT
+        d.id,
+        d.severity,
+        d.label,
+        d.description,
+        d.recommendation,
+        d.is_assessed,
+        d.detected_at
+      FROM detected_hazards d
+      WHERE d.session_id = ?
+      ORDER BY d.detected_at DESC, d.id DESC
+    `,
+    sessionId,
+  );
+
+  return {
+    id: session.id,
+    photoPath: session.photo_path,
+    roomScore: session.room_score,
+    riskVariant: session.risk_variant,
+    status: session.status,
+    scannedAt: session.scanned_at,
+    completedAt: session.completed_at,
+    hazardCount: session.hazard_count,
+    assessedCount: session.assessed_count ?? 0,
+    hazards: hazards.map((row) => ({
+      id: row.id,
+      title: row.label,
+      variant: row.severity,
+      reason: row.description ?? "No reason available.",
+      suggestedFix: row.recommendation ?? "No recommendation available.",
+    })),
+  };
+}
+
+export async function getHazardsForSession(
+  sessionId: number,
+): Promise<HazardData[]> {
+  const session = await getScanSessionDetails(sessionId);
+  return session?.hazards ?? [];
+}
+
+export async function insertDetectedHazards(
+  sessionId: number,
+  hazardNames: string[],
+): Promise<ScanSessionDetails | null> {
+  await initDatabase();
+  const db = await dbPromise;
+
+  const uniqueHazards = hazardNames.filter(
+    (name, index) => hazardNames.indexOf(name) === index,
+  );
+  if (uniqueHazards.length === 0) {
+    await db.runAsync(
+      `
+        UPDATE scan_sessions
+        SET room_score = 0,
+            risk_variant = 'critical',
+            status = 'completed',
+            completed_at = strftime('%s', 'now')
+        WHERE id = ?
+      `,
+      sessionId,
+    );
+    return getScanSessionDetails(sessionId);
+  }
+
+  const roomScore = calculateRisk(uniqueHazards);
+  const riskVariant = getRiskVariantFromScore(roomScore);
+  const placeholders = uniqueHazards.map(() => "?").join(", ");
+  const hazardRows = await db.getAllAsync<{ id: number; name: string }>(
+    `SELECT id, name FROM hazard_types WHERE name IN (${placeholders})`,
+    ...uniqueHazards,
+  );
+  const hazardTypeIds = new Map(hazardRows.map((row) => [row.name, row.id]));
+
+  for (const name of uniqueHazards) {
+    const hazardTypeId = hazardTypeIds.get(name);
+    const seed = HAZARD_TYPES.find((hazard) => hazard.name === name);
+    const title =
+      HAZARD_DISPLAY_NAMES[name as keyof typeof HAZARD_DISPLAY_NAMES] ??
+      formatHazardTitle(name);
+
+    await db.runAsync(
+      `
+        INSERT INTO detected_hazards (
+          session_id,
+          hazard_type_id,
+          severity,
+          label,
+          description,
+          recommendation
+        ) VALUES (?, ?, ?, ?, ?, ?)
+      `,
+      sessionId,
+      hazardTypeId ?? null,
+      seed?.default_severity ?? "medium",
+      title,
+      seed?.description ?? null,
+      seed?.recommendation ?? null,
+    );
+  }
+
+  await db.runAsync(
+    `
+      UPDATE scan_sessions
+      SET room_score = ?,
+          risk_variant = ?,
+          status = 'completed',
+          completed_at = strftime('%s', 'now')
+      WHERE id = ?
+    `,
+    roomScore,
+    riskVariant,
+    sessionId,
+  );
+
+  return getScanSessionDetails(sessionId);
+}
+
+export async function markHazardAsAssessed(hazardId: number): Promise<void> {
+  await initDatabase();
+  const db = await dbPromise;
+  await db.runAsync(
+    `
+      UPDATE detected_hazards
+      SET is_assessed = 1,
+          assessed_at = strftime('%s', 'now')
+      WHERE id = ?
+    `,
+    hazardId,
+  );
 }
