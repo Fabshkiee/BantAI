@@ -7,7 +7,7 @@ import MascotReporter from "./MascotReporter";
 export default function HistoryCard() {
   return (
     <Pressable
-      className="flex-row p-3 gap-3 justify-between items-start bg-surface-light rounded-2xl border border-border-secondary transition-all active:scale-[0.95]"
+      className="flex-row p-3 gap-3 justify-between items-start bg-surface-light rounded-2xl shadow-xl shadow-border-default transition-all active:scale-[0.95]"
       onPress={() => {
         router.push("/safetyReport");
         {
