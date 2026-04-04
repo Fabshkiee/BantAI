@@ -1,15 +1,46 @@
 import ArrowIcon from "@/assets/icons/ArrowIcon";
 import Button from "@/components/Button";
+import { createScanSession, insertDetectedHazards } from "@/db/db";
+import { HAZARD_LABELS, type HazardLabel } from "@/db/hazards";
 import { CameraView, useCameraPermissions } from "expo-camera";
-import { useFocusEffect } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import * as ScreenOrientation from "expo-screen-orientation";
 import * as React from "react";
-import { useState } from "react";
-import { Image, Text, TouchableOpacity, View } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { Alert, Image, Text, TouchableOpacity, View } from "react-native";
+
+const FALLBACK_HAZARDS: HazardLabel[] = [
+  HAZARD_LABELS.OVERLOADED_SOCKET,
+  HAZARD_LABELS.DAMAGED_WIRE,
+  HAZARD_LABELS.FLOOR_APPLIANCE,
+  HAZARD_LABELS.MAJOR_CRACK,
+  HAZARD_LABELS.MINOR_CRACK,
+  HAZARD_LABELS.BROKEN_GLASS,
+];
 
 export default function CameraScreen() {
+  const router = useRouter();
   const [permission, requestPermission] = useCameraPermissions();
   const [showNotification, setShowNotification] = useState(true);
+  const [isCapturing, setIsCapturing] = useState(false);
+  const cameraRef = useRef<CameraView | null>(null);
+
+  const getFallbackPredictions = (): HazardLabel[] => {
+    const randomCount = 2 + Math.floor(Math.random() * 3);
+    return [...FALLBACK_HAZARDS]
+      .sort(() => Math.random() - 0.5)
+      .slice(0, randomCount);
+  };
+
+  const navigateToReportWithSession = async (photoPath: string) => {
+    const sessionId = await createScanSession(photoPath);
+    await insertDetectedHazards(sessionId, getFallbackPredictions());
+
+    router.replace({
+      pathname: "/safetyReport",
+      params: { sessionId: String(sessionId) },
+    });
+  };
 
   useFocusEffect(
     React.useCallback(() => {
@@ -25,16 +56,44 @@ export default function CameraScreen() {
     }, []),
   );
 
-  // Add to Function: "good lighting" camera logic
+  useEffect(() => {
+    if (!showNotification) {
+      return;
+    }
 
-  // useEffect(() => {
-  //   if (showNotification) {
-  //     const timer = setTimeout(() => {
-  //       setShowNotification(false);
-  //     }, 5000);
-  //     return () => clearTimeout(timer);
-  //   }
-  // }, [showNotification]);
+    const timer = setTimeout(() => {
+      setShowNotification(false);
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [showNotification]);
+
+  const handleCapture = async () => {
+    if (!cameraRef.current || isCapturing) {
+      return;
+    }
+
+    try {
+      setIsCapturing(true);
+      const photo = await cameraRef.current.takePictureAsync({
+        quality: 0.8,
+      });
+
+      if (!photo?.uri) {
+        throw new Error("Camera capture did not return a photo URI.");
+      }
+
+      await navigateToReportWithSession(photo.uri);
+    } catch (error) {
+      console.error("Failed to capture photo:", error);
+      Alert.alert(
+        "Capture failed",
+        "We could not capture the photo. Please try again.",
+      );
+    } finally {
+      setIsCapturing(false);
+    }
+  };
 
   if (!permission) {
     return <View className="flex-1 bg-black" />;
@@ -66,7 +125,7 @@ export default function CameraScreen() {
 
   return (
     <View className="flex-1 bg-black">
-      <CameraView style={{ flex: 1 }} facing="back">
+      <CameraView ref={cameraRef} style={{ flex: 1 }} facing="back">
         {/* Feedback Notification Popup */}
         {showNotification && (
           <View
@@ -103,13 +162,14 @@ export default function CameraScreen() {
         {/* Capture Button */}
         <View className="absolute right-20 top-0 bottom-0 justify-center items-center">
           <TouchableOpacity
-            className="w-[84px] h-[84px] rounded-full border-[3px] border-white items-center justify-center bg-transparent active:scale-95 transition-all"
+            className="w-[84px] h-[84px] rounded-full border-[3px] border-white items-center justify-center bg-transparent"
             activeOpacity={0.8}
-            onPress={() => {
-              // Handle photo capture in future logic
-            }}
+            disabled={isCapturing}
+            onPress={handleCapture}
           >
-            <View className="w-[72px] h-[72px] rounded-full bg-white shadow-sm" />
+            <View
+              className={`w-[72px] h-[72px] rounded-full shadow-sm ${isCapturing ? "bg-gray-300" : "bg-white"}`}
+            />
           </TouchableOpacity>
         </View>
       </CameraView>
