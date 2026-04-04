@@ -6,12 +6,9 @@ import HazardSortingButtons from "@/components/HazardSortingButons";
 import MascotReporter, { getRiskVariant } from "@/components/MascotReporter";
 import { useRouter } from "expo-router";
 import { ScrollView, Text, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function SafetyReport() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
-
   var executeDatabaseSearch; // TO DO: Create a function that searches the db (change to const)
 
   // TO DO: create a function to solve the room score */
