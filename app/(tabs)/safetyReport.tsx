@@ -3,10 +3,12 @@ import RefreshIcon from "@/assets/icons/RefreshIcon";
 import Button from "@/components/Button";
 import HazardCard, { HazardData } from "@/components/HazardCard";
 import HazardSortingButtons from "@/components/HazardSortingButons";
-import MascotReporter, { getRiskVariant } from "@/components/MascotReporter";
-import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router"; // Added useFocusEffect
+import MascotReporter from "@/components/MascotReporter";
+import { calculateRoomRisk } from "@/lib/riskEngine";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useRef } from "react";
 import { Animated, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export interface Detection {
   class: string;
@@ -48,9 +50,9 @@ export default function SafetyReport() {
 
   const executeDatabaseSearch = (sqlCommand: string) => {};
 
-  // 2. Room Score logic
-  const roomScore = 15;
-  const riskVariant = getRiskVariant(roomScore);
+  // Calculate the actual room score and variant using the new Risk Engine
+  const { safetyScore, mascotVariant } = calculateRoomRisk(detections);
+  const insets = useSafeAreaInsets();
 
   // 3. Animation logic (Using useFocusEffect from master to ensure it runs on every view)
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -86,12 +88,13 @@ export default function SafetyReport() {
         </View>
 
         <View className="mx-7 gap-7">
+          {/* Safety Report Header */}
           <View className="flex-1 justify-center items-center gap-4">
             <Text className="text-h2 font-bold text-center mt-14">
               Room Safety Report
             </Text>
             <View className="relative">
-              <MascotReporter score={riskVariant} value={roomScore} />
+              <MascotReporter score={mascotVariant} value={safetyScore} />
             </View>
           </View>
 
