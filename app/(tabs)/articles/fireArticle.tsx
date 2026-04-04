@@ -2,7 +2,7 @@ import ArrowIcon from "@/assets/icons/ArrowIcon";
 import ArrowLeftIcon from "@/assets/icons/ArrowLeftIcon";
 import Button from "@/components/Button";
 import { router } from "expo-router";
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { Animated, Image, Pressable, Text, View } from "react-native";
 
 const HEADER_HEIGHT = 80;
@@ -12,13 +12,26 @@ export default function earthquakeArticle() {
 
   const scrollYClamped = Animated.diffClamp(scrollY, 0, HEADER_HEIGHT);
 
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 400,
+      useNativeDriver: true,
+    }).start();
+  }, []);
+
   const translateY = scrollYClamped.interpolate({
     inputRange: [0, HEADER_HEIGHT],
     outputRange: [0, -HEADER_HEIGHT],
   });
 
   return (
-    <View className="bg-surface-default mt-9 mb-14">
+    <Animated.View
+      style={{ opacity: fadeAnim, flex: 1 }}
+      className="bg-surface-default mt-9 mb-14"
+    >
       {/* Animated Floating Pill Header */}
       <Animated.View
         style={{ transform: [{ translateY }] }}
@@ -31,7 +44,7 @@ export default function earthquakeArticle() {
             icon={<ArrowLeftIcon size={18} />}
             iconPosition="left"
             onPress={() => {
-              router.push("/");
+              router.back();
             }}
           />
         </View>
@@ -302,7 +315,7 @@ export default function earthquakeArticle() {
                 icon={<ArrowLeftIcon size={18} />}
                 iconPosition="left"
                 onPress={() => {
-                  router.push("/articles/typhoonArticle");
+                  router.navigate("/articles/typhoonArticle");
                 }}
               />
             </View>
@@ -313,13 +326,13 @@ export default function earthquakeArticle() {
                 icon={<ArrowIcon size={18} />}
                 iconPosition="right"
                 onPress={() => {
-                  router.push("/articles/earthquakeArticle");
+                  router.navigate("/articles/earthquakeArticle");
                 }}
               />
             </View>
           </View>
         </View>
       </Animated.ScrollView>
-    </View>
+    </Animated.View>
   );
 }
