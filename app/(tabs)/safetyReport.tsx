@@ -20,6 +20,15 @@ const SEVERITY_PRIORITY: Record<string, number> = {
   low: 1,
 };
 
+const BOOST_MESSAGES = [
+  "Risk Mitigated!",
+  "Room Secured!",
+  "Hazard Resolved!",
+  "Safety Improved!",
+  "BantAI Approved!",
+  "Well done!",
+];
+
 export default function SafetyReport() {
   const router = useRouter();
   const {
@@ -45,6 +54,39 @@ export default function SafetyReport() {
   const [activeDisasterTab, setActiveDisasterTab] = useState<
     DisasterType | "all"
   >("all");
+
+  // Boost Animation State
+  const [showBoost, setShowBoost] = useState(false);
+  const [boostScore, setBoostScore] = useState(0);
+  const [oldBoostScore, setOldBoostScore] = useState(0);
+  const [boostMessage, setBoostMessage] = useState("");
+  const boostAnim = useRef(new Animated.Value(0)).current;
+
+  const triggerBoost = (newScore: number, oldScore: number) => {
+    setBoostScore(newScore);
+    setOldBoostScore(oldScore);
+    setShowBoost(true);
+
+    const msg =
+      BOOST_MESSAGES[Math.floor(Math.random() * BOOST_MESSAGES.length)];
+    setBoostMessage(msg);
+
+    Animated.timing(boostAnim, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+    }).start(() => {
+      setTimeout(() => {
+        Animated.timing(boostAnim, {
+          toValue: 0,
+          duration: 500,
+          useNativeDriver: true,
+        }).start(() => {
+          setShowBoost(false);
+        });
+      }, 2500); // Dwell time for the score climb and message
+    });
+  };
 
   const executeDatabaseSearch = (_sqlCommand: string, filterId: string) => {
     setActiveDisasterTab(filterId as DisasterType | "all");
@@ -179,101 +221,156 @@ export default function SafetyReport() {
   );
 
   return (
-    <Animated.ScrollView
-      className="flex-1 mt-9 pb-56 mb-14 bg-surface-default"
-      showsVerticalScrollIndicator={false}
-      contentContainerClassName="pb-14"
-    >
-      <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
-        <View className="absolute -top-9 left-0 px-6 pt-8 z-10">
-          <Button
-            label="Return"
-            variant="return"
-            icon={<ArrowLeftIcon color="black" size={18} />}
-            iconPosition="left"
-            onPress={() => router.push("/history")}
-          />
-        </View>
-
-        <View className="mx-7 gap-7">
-          <View className="flex-1 justify-center items-center gap-4">
-            <Text className="text-h2 font-bold text-center mt-14">
-              Room Safety Report
-            </Text>
-            <View className="relative">
-              <MascotReporter score={finalRiskVariant} value={finalRoomScore} />
-            </View>
+    <View style={{ flex: 1 }}>
+      <Animated.ScrollView
+        className="flex-1 mt-9 pb-56 mb-14 bg-surface-default"
+        showsVerticalScrollIndicator={false}
+        contentContainerClassName="pb-14"
+      >
+        <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
+          <View className="absolute -top-9 left-0 px-6 pt-8 z-10">
+            <Button
+              label="Return"
+              variant="return"
+              icon={<ArrowLeftIcon color="black" size={18} />}
+              iconPosition="left"
+              onPress={() => router.push("/history")}
+            />
           </View>
 
-          {hasSession && loadError ? (
-            <View className="rounded-2xl bg-surface-light px-4 py-3">
-              <Text className="font-semibold">Saved scan unavailable</Text>
-              <Text className="text-text-subtle mt-1">{loadError}</Text>
-            </View>
-          ) : null}
-
-          {finalSpatialInsights && finalSpatialInsights.length > 0 && (
-            <View className="bg-surface-critical/10 border border-surface-critical p-4 rounded-xl gap-2">
-              <Text className="text-text-critical font-bold text-lg">
-                ⚠️ Spatial Warnings
+          <View className="mx-7 gap-7">
+            <View className="flex-1 justify-center items-center gap-4">
+              <Text className="text-h2 font-bold text-center mt-14">
+                Room Safety Report
               </Text>
-              {finalSpatialInsights.map((insight: string, idx: number) => (
-                <Text key={idx} className="text-text-default text-base">
-                  • {insight}
-                </Text>
-              ))}
-            </View>
-          )}
-
-          <View>
-            <Text className="text-2xl font-bold mt-10 mb-1">
-              Identified Hazards ({finalHazardCount})
-            </Text>
-            <Text className="text-lg">
-              After assessing each hazard, apply the recommended fix, and press
-              the hazard assessed button once finished.
-            </Text>
-          </View>
-
-          <View>
-            <HazardSortingButtons
-              tableName="test"
-              onSortQueryChange={executeDatabaseSearch}
-            />
-          </View>
-
-          <View className="mt-7">
-            {hasSession && isLoadingSession ? (
-              <View className="items-center justify-center py-10">
-                <ActivityIndicator size="large" color="#0f172a" />
-                <Text className="text-text-subtle mt-4">
-                  Loading saved scan details...
-                </Text>
+              <View className="relative">
+                <MascotReporter
+                  score={finalRiskVariant}
+                  value={finalRoomScore}
+                />
               </View>
-            ) : (
-              <HazardCard
-                hazards={filteredHazards as HazardData[]}
-                imageUri={finalImageUri as string | undefined}
-                showResolutionAction={hasSession}
-                onResolved={() => loadSession(true)}
-              />
-            )}
-          </View>
+            </View>
 
-          <View className="w-full gap-4">
-            <Button
-              label="Rescan Room"
-              onPress={() => router.push("/camera")}
-              icon={<RefreshIcon color="white" size={26} />}
-            />
-            <Button
-              label="Back to Home"
-              variant="secondary"
-              onPress={() => router.push("/")}
-            />
+            {hasSession && loadError ? (
+              <View className="rounded-2xl bg-surface-light px-4 py-3">
+                <Text className="font-semibold">Saved scan unavailable</Text>
+                <Text className="text-text-subtle mt-1">{loadError}</Text>
+              </View>
+            ) : null}
+
+            {finalSpatialInsights && finalSpatialInsights.length > 0 && (
+              <View className="bg-surface-critical/10 border border-surface-critical p-4 rounded-xl gap-2">
+                <Text className="text-text-critical font-bold text-lg">
+                  ⚠️ Spatial Warnings
+                </Text>
+                {finalSpatialInsights.map((insight: string, idx: number) => (
+                  <Text key={idx} className="text-text-default text-base">
+                    • {insight}
+                  </Text>
+                ))}
+              </View>
+            )}
+
+            <View>
+              <Text className="text-2xl font-bold mt-10 mb-1">
+                Identified Hazards ({finalHazardCount})
+              </Text>
+              <Text className="text-lg">
+                After assessing each hazard, apply the recommended fix, and
+                press the hazard assessed button once finished.
+              </Text>
+            </View>
+
+            <View>
+              <HazardSortingButtons
+                tableName="test"
+                onSortQueryChange={executeDatabaseSearch}
+              />
+            </View>
+
+            <View className="mt-7">
+              {hasSession && isLoadingSession ? (
+                <View className="items-center justify-center py-10">
+                  <ActivityIndicator size="large" color="#0f172a" />
+                  <Text className="text-text-subtle mt-4">
+                    Loading saved scan details...
+                  </Text>
+                </View>
+              ) : (
+                <HazardCard
+                  hazards={filteredHazards as HazardData[]}
+                  imageUri={finalImageUri as string | undefined}
+                  showResolutionAction={hasSession}
+                  onResolved={(updatedSession) => {
+                    if (updatedSession) {
+                      const oldScore = session?.roomScore ?? finalRoomScore;
+                      setSession(updatedSession);
+                      triggerBoost(updatedSession.roomScore || 0, oldScore);
+                    } else {
+                      loadSession(true);
+                    }
+                  }}
+                />
+              )}
+            </View>
+
+            <View className="w-full gap-4">
+              <Button
+                label="Rescan Room"
+                onPress={() => router.push("/camera")}
+                icon={<RefreshIcon color="white" size={26} />}
+              />
+              <Button
+                label="Back to Home"
+                variant="secondary"
+                onPress={() => router.push("/")}
+              />
+            </View>
           </View>
-        </View>
-      </Animated.View>
-    </Animated.ScrollView>
+        </Animated.View>
+      </Animated.ScrollView>
+
+      {showBoost && (
+        <Animated.View
+          pointerEvents="none"
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 1000,
+            backgroundColor: "rgba(0,0,0,0.7)",
+            alignItems: "center",
+            justifyContent: "center",
+            opacity: boostAnim,
+          }}
+        >
+          <Animated.View
+            style={{
+              transform: [
+                {
+                  scale: boostAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.5, 0.85],
+                  }),
+                },
+              ],
+            }}
+          >
+            <MascotReporter
+              value={boostScore}
+              initialValue={oldBoostScore}
+              score={getRiskVariant(boostScore)}
+            />
+            <View className="bg-surface-default px-10 py-4 rounded-full mt-10 shadow-2xl border-[3px] border-text-low">
+              <Text className="text-text-low font-bold text-3xl text-center">
+                {boostMessage} +{Math.max(0, boostScore - oldBoostScore)}
+              </Text>
+            </View>
+          </Animated.View>
+        </Animated.View>
+      )}
+    </View>
   );
 }

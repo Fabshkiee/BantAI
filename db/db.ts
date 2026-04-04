@@ -390,7 +390,9 @@ export async function insertDetectedHazards(
   return getScanSessionDetails(sessionId);
 }
 
-export async function markHazardAsAssessed(hazardId: number): Promise<void> {
+export async function markHazardAsAssessed(
+  hazardId: number,
+): Promise<ScanSessionDetails | null> {
   await initDatabase();
   const db = await dbPromise;
 
@@ -399,7 +401,7 @@ export async function markHazardAsAssessed(hazardId: number): Promise<void> {
     "SELECT session_id FROM detected_hazards WHERE id = ?",
     hazardId,
   );
-  if (!row) return;
+  if (!row) return null;
 
   const sessionId = row.session_id;
 
@@ -451,4 +453,6 @@ export async function markHazardAsAssessed(hazardId: number): Promise<void> {
     mascotVariant,
     sessionId,
   );
+
+  return getScanSessionDetails(sessionId);
 }
