@@ -34,15 +34,15 @@ export default function HomeScreen() {
             icon={<ScanIcon size={24} />}
             iconPosition="left"
             onPress={() => {
-              router.push("/camera");
+              router.push("/photoInstructions");
             }}
-            className="w-full"
+            className="w-full "
           />
         </View>
 
         {/* Articles */}
         <View>
-          <Text className="text-h3 font-bold mb-4">
+          <Text className="text-h3 font-bold mb-4 ">
             Disaster Risk Reduction Guides
           </Text>
           <ArticleCard />
