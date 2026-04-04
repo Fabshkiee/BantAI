@@ -21,15 +21,16 @@ export default function SafetyReport() {
     <ScrollView
       className="flex-1 mt-9 pb-56 bg-surface-default"
       showsVerticalScrollIndicator={false}
-      contentContainerClassName="pb-20"
+      contentContainerClassName="pb-16"
     >
-      <View className="mx-7 gap-7 ">
+      <View className="mx-7 gap-7">
         {/* Safety Report Header */}
         <View className="flex-1 justify-center items-center gap-4">
           <Text className="text-h2 font-bold text-center mt-10">
             Room Safety Report
           </Text>
           <View className="relative">
+            a
             <MascotReporter score={riskVariant} value={roomScore} />
           </View>
         </View>
