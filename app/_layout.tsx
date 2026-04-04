@@ -1,8 +1,18 @@
 import { initDatabase } from "@/db/db";
+import { DefaultTheme, ThemeProvider } from "@react-navigation/native";
 import { Stack } from "expo-router";
 import { useEffect } from "react";
-import { View } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import "../global.css";
+
+// Define default bg theme
+const BgTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    background: "#f5faff", // Defauly bg color
+  },
+};
 
 export default function RootLayout() {
   useEffect(() => {
@@ -12,16 +22,11 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <View className="flex-1">
-      <Stack
-        screenOptions={{
-          // Standard iOS/Android "Slide" feel
-          animation: "slide_from_right",
-          animationDuration: 250, // 250ms is the "Sweet Spot" for perceived speed
-          headerShown: false,
-          contentStyle: { backgroundColor: "transparent" },
-        }}
-      ></Stack>
-    </View>
+    // Apply theme
+    <ThemeProvider value={BgTheme}>
+      <SafeAreaProvider>
+        <Stack screenOptions={{ headerShown: false }} />
+      </SafeAreaProvider>
+    </ThemeProvider>
   );
 }

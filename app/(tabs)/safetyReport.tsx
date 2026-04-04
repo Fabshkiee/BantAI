@@ -9,19 +9,19 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function SafetyReport() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   var executeDatabaseSearch; // TO DO: Create a function that searches the db (change to const)
 
   // TO DO: create a function to solve the room score */
   const roomScore = 15;
   const riskVariant = getRiskVariant(roomScore);
-  const insets = useSafeAreaInsets();
 
   return (
     <ScrollView
-      className="flex-1 pt-9 pb-56 bg-surface-default"
+      className="flex-1 mt-9 pb-56 mb-14 bg-surface-default"
       showsVerticalScrollIndicator={false}
-      contentContainerClassName="pb-20"
+      contentContainerClassName="pb-14"
     >
       <View className="mx-7 gap-7">
         {/* Safety Report Header */}
@@ -30,6 +30,7 @@ export default function SafetyReport() {
             Room Safety Report
           </Text>
           <View className="relative">
+            a
             <MascotReporter score={riskVariant} value={roomScore} />
           </View>
         </View>

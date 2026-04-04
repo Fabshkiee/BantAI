@@ -18,11 +18,11 @@ export default function earthquakeArticle() {
   });
 
   return (
-    <View className="flex-1 bg-surface-default">
+    <View className=" bg-surface-default mt-9 mb-14">
       {/* Animated Floating Pill Header */}
       <Animated.View
         style={{ transform: [{ translateY }] }}
-        className="absolute top-0 left-0 right-0 z-10 pt-8 px-6"
+        className="absolute -top-3 left-0 right-0 z-10 pt-8 px-6"
       >
         <View className="rounded-full self-start overflow-hidden shadow-sm">
           <Button
