@@ -25,12 +25,16 @@ export type HazardData = {
   reason: string;
   suggestedFix: string;
   bbox?: [number, number, number, number];
+  isAssessed?: boolean;
+  internalName?: string;
+  disasterTypes?: string[];
 };
 
 export interface HazardCardProps {
   hazards?: HazardData[];
   imageUri?: string;
   showResolutionAction?: boolean;
+  onResolved?: () => void;
 }
 
 const riskIcons = {
@@ -51,13 +55,19 @@ function HazardCardDesign({
   data,
   imageUri,
   showResolutionAction = false,
+  onResolved,
 }: {
   data: HazardData;
   imageUri?: string;
   showResolutionAction?: boolean;
+  onResolved?: () => void;
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isResolved, setIsResolved] = useState(false);
+  const [isResolved, setIsResolved] = useState(data.isAssessed || false);
+
+  useEffect(() => {
+    setIsResolved(data.isAssessed || false);
+  }, [data.isAssessed]);
   const rotation = useSharedValue(0);
 
   const toggleExpand = () => {
@@ -198,8 +208,8 @@ function HazardCardDesign({
             <View>
               <Button
                 label={isResolved ? "Resolved" : "Mark as Resolved"}
-                variant="primary"
-                icon={<CheckIcon color="white" size={24} />}
+                variant={isResolved ? "secondary" : "primary"}
+                icon={<CheckIcon color={isResolved ? "black" : "white"} size={24} />}
                 iconPosition="right"
                 onPress={async () => {
                   if (isResolved) {
@@ -209,6 +219,7 @@ function HazardCardDesign({
                   try {
                     await markHazardAsAssessed(data.id as number);
                     setIsResolved(true);
+                    if (onResolved) onResolved();
                   } catch (error) {
                     console.error("Failed to mark hazard as resolved:", error);
                   }
@@ -226,6 +237,7 @@ const HazardCard = ({
   hazards,
   imageUri,
   showResolutionAction = false,
+  onResolved,
 }: HazardCardProps) => {
   const [loadedHazards, setLoadedHazards] = useState<HazardData[]>([]);
   const [isLoading, setIsLoading] = useState(hazards === undefined);
@@ -281,6 +293,7 @@ const HazardCard = ({
           data={hazard}
           imageUri={imageUri}
           showResolutionAction={showResolutionAction}
+          onResolved={onResolved}
         />
       ))}
     </View>

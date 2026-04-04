@@ -49,26 +49,20 @@ export default function SafetyReport() {
   const executeDatabaseSearch = (_sqlCommand: string, filterId: string) => {
     setActiveDisasterTab(filterId as DisasterType | "all");
   };
-  useEffect(() => {
-    if (!hasSession || sessionId === null) {
-      setSession(null);
-      setIsLoadingSession(false);
-      setLoadError(null);
-      return;
-    }
+  const loadSession = useCallback(
+    async (quiet = false) => {
+      if (!hasSession || sessionId === null) {
+        setSession(null);
+        setIsLoadingSession(false);
+        setLoadError(null);
+        return;
+      }
 
-    let isActive = true;
-
-    const loadSession = async () => {
       try {
-        setIsLoadingSession(true);
+        if (!quiet) setIsLoadingSession(true);
         setLoadError(null);
 
         const details = await getScanSessionDetails(sessionId);
-        if (!isActive) {
-          return;
-        }
-
         if (!details) {
           setSession(null);
           setLoadError("We could not find that saved scan.");
@@ -77,24 +71,19 @@ export default function SafetyReport() {
 
         setSession(details);
       } catch (error) {
-        if (isActive) {
-          setSession(null);
-          setLoadError("We could not load the saved scan details.");
-        }
+        setSession(null);
+        setLoadError("We could not load the saved scan details.");
         console.error("Failed to load scan session:", error);
       } finally {
-        if (isActive) {
-          setIsLoadingSession(false);
-        }
+        if (!quiet) setIsLoadingSession(false);
       }
-    };
+    },
+    [hasSession, sessionId],
+  );
 
+  useEffect(() => {
     loadSession();
-
-    return () => {
-      isActive = false;
-    };
-  }, [hasSession, sessionId]);
+  }, [loadSession]);
 
   // 1. Map and Enrich Hazards using the Dictionary (Fallback if NO session)
   const mappedHazards: HazardData[] = [];
@@ -135,10 +124,22 @@ export default function SafetyReport() {
   const {
     safetyScore: rawScore,
     mascotVariant: rawMascot,
-    spatialInsights,
+    spatialInsights: rawInsights,
   } = calculateRoomRisk(detections);
-  const insets = useSafeAreaInsets();
 
+  // Derive current session risk state (for spatial insights)
+  const sessionDetections: Detection[] = (session?.hazards ?? [])
+    .filter((h) => !h.isAssessed)
+    .map((h) => ({
+      class: h.internalName || "",
+      bbox: h.bbox || [0, 0, 0, 0],
+      confidence: 1.0,
+    }));
+
+  const { spatialInsights: sessionInsights } =
+    calculateRoomRisk(sessionDetections);
+
+  const insets = useSafeAreaInsets();
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useFocusEffect(
@@ -158,17 +159,17 @@ export default function SafetyReport() {
     : rawMascot;
   const finalHazards = (
     hasSession ? (session?.hazards ?? []) : mappedHazards
-  ) as any[];
-  const finalHazardCount = hasSession
-    ? (session?.hazardCount ?? 0)
-    : mappedHazards.length;
+  ) as HazardData[];
+
+  const finalHazardCount = finalHazards.length;
+  const finalSpatialInsights = hasSession ? sessionInsights : rawInsights;
   const finalImageUri = hasSession ? session?.photoPath : imageUri;
 
   const filteredHazards = (
     finalHazards
       ? activeDisasterTab === "all"
         ? finalHazards
-        : finalHazards.filter((h) =>
+        : (finalHazards as HazardData[]).filter((h) =>
             h.disasterTypes?.includes(activeDisasterTab),
           )
       : []
@@ -211,12 +212,12 @@ export default function SafetyReport() {
             </View>
           ) : null}
 
-          {spatialInsights && spatialInsights.length > 0 && (
+          {finalSpatialInsights && finalSpatialInsights.length > 0 && (
             <View className="bg-surface-critical/10 border border-surface-critical p-4 rounded-xl gap-2">
               <Text className="text-text-critical font-bold text-lg">
                 ⚠️ Spatial Warnings
               </Text>
-              {spatialInsights.map((insight, idx) => (
+              {finalSpatialInsights.map((insight: string, idx: number) => (
                 <Text key={idx} className="text-text-default text-base">
                   • {insight}
                 </Text>
@@ -254,6 +255,7 @@ export default function SafetyReport() {
                 hazards={filteredHazards as HazardData[]}
                 imageUri={finalImageUri as string | undefined}
                 showResolutionAction={hasSession}
+                onResolved={() => loadSession(true)}
               />
             )}
           </View>
