@@ -1,28 +1,12 @@
 import CameraIcon from "@/assets/icons/CameraIcon";
 import HistoryIcon from "@/assets/icons/HistoryIcon";
 import HomeIcon from "@/assets/icons/HomeIcon";
-import { createScanSession, insertDetectedHazards } from "@/db/db";
-import { HAZARD_LABELS, type HazardLabel } from "@/db/hazards";
 import * as ImagePicker from "expo-image-picker";
 import { router, Tabs } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import { Alert, Animated, Modal, Pressable, Text, View } from "react-native";
 
-const FALLBACK_HAZARDS: HazardLabel[] = [
-  HAZARD_LABELS.OVERLOADED_SOCKET,
-  HAZARD_LABELS.DAMAGED_WIRE,
-  HAZARD_LABELS.FLOOR_APPLIANCE,
-  HAZARD_LABELS.MAJOR_CRACK,
-  HAZARD_LABELS.MINOR_CRACK,
-  HAZARD_LABELS.BROKEN_GLASS,
-];
 
-const getFallbackPredictions = (): HazardLabel[] => {
-  const randomCount = 2 + Math.floor(Math.random() * 3);
-  return [...FALLBACK_HAZARDS]
-    .sort(() => Math.random() - 0.5)
-    .slice(0, randomCount);
-};
 
 // Static configurations
 const TAB_BAR_OPTIONS = {
@@ -124,12 +108,9 @@ const CameraActionModal = ({
           throw new Error("Selected image does not include a URI.");
         }
 
-        const sessionId = await createScanSession(uri);
-        await insertDetectedHazards(sessionId, getFallbackPredictions());
-
         router.replace({
-          pathname: "/safetyReport",
-          params: { sessionId: String(sessionId) },
+          pathname: "/loadingScreen",
+          params: { imageUri: uri },
         });
       } catch (error) {
         console.error("Failed to import image:", error);
