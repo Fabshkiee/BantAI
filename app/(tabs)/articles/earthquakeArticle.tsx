@@ -40,7 +40,7 @@ export default function earthquakeArticle() {
       {/* Main Scrolling Content */}
       <Animated.ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerClassName="px-9 pb-12 gap-4"
+        contentContainerClassName="px-9 pb-12 gap-6"
         onScroll={Animated.event(
           [{ nativeEvent: { contentOffset: { y: scrollY } } }],
           { useNativeDriver: true },
@@ -71,8 +71,8 @@ export default function earthquakeArticle() {
         </View>
 
         {/* Main Article */}
-        <View className="gap-4">
-          <Text className="leading-7">
+        <View className="gap-10">
+          <Text className="leading-7 text-xl">
             Living in an earthquake-prone area requires proactive preparation.
             Earthquakes strike without warning, but taking these straightforward
             steps can significantly reduce risks to your home and protect your
@@ -81,10 +81,10 @@ export default function earthquakeArticle() {
 
           {/* 1. Lock Your Cabinets */}
           <View className="gap-2">
-            <Text className="text-xl font-medium leading-7">
+            <Text className="text-2xl font-medium leading-7">
               1. Lock Your Cabinets
             </Text>
-            <Text className="leading-7">
+            <Text className="leading-7 text-xl">
               Unsecured cabinets can swing open during a quake, spilling their
               contents. Install safety latches on your cabinet doors to keep
               everything securely inside and prevent injuries or broken
@@ -94,10 +94,10 @@ export default function earthquakeArticle() {
 
           {/* 2. Keep Exits Clear */}
           <View className="gap-2">
-            <Text className="text-xl font-medium leading-7">
+            <Text className="text-2xl font-medium leading-7">
               2. Keep Exits Clear
             </Text>
-            <Text className="leading-7">
+            <Text className="leading-7 text-xl">
               A quick, unobstructed escape is crucial during an emergency.
               Regularly check the paths to all your doors and windows and keep
               them completely free of clutter and tripping hazards.
@@ -106,10 +106,10 @@ export default function earthquakeArticle() {
 
           {/* 3. Know How to Protect Yourself */}
           <View className="gap-2">
-            <Text className="text-xl font-medium leading-7">
+            <Text className="text-2xl font-medium leading-7">
               3. Know How to Protect Yourself
             </Text>
-            <Text className="leading-7">
+            <Text className="leading-7 text-xl">
               Teach your family the “Drop, Cover, and Hold On” method and
               practice drills periodically. Identify safe spots in every room,
               such as under sturdy furniture or against an interior wall, far
@@ -119,10 +119,10 @@ export default function earthquakeArticle() {
 
           {/* 4. Anchor Heavy Furniture */}
           <View className="gap-2">
-            <Text className="text-xl font-medium leading-7">
+            <Text className="text-2xl font-medium leading-7">
               4. Anchor Heavy Furniture
             </Text>
-            <Text className="leading-7">
+            <Text className="leading-7 text-xl">
               Tall, heavy items like bookcases, dressers, and shelving units
               should be securely anchored directly to the walls. Relocate heavy
               objects to lower shelves, and make sure to secure items like TVs
@@ -132,10 +132,10 @@ export default function earthquakeArticle() {
 
           {/* 5. Secure Utilities & Flammables */}
           <View className="gap-2">
-            <Text className="text-xl font-medium leading-7">
+            <Text className="text-2xl font-medium leading-7">
               5. Secure Utilities & Flammables
             </Text>
-            <Text className="leading-7">
+            <Text className="leading-7 text-xl">
               Water heaters, gas fixtures, and other utilities should be
               anchored and fitted with flexible connectors to prevent dangerous
               leaks. Store flammable or toxic substances (like cleaning supplies
@@ -145,10 +145,10 @@ export default function earthquakeArticle() {
 
           {/* 6. Secure Small Hazards */}
           <View className="gap-2">
-            <Text className="text-xl font-medium leading-7">
+            <Text className="text-2xl font-medium leading-7">
               6. Secure Small Hazards
             </Text>
-            <Text className="leading-7">
+            <Text className="leading-7 text-xl">
               Pay attention to smaller fixtures that can cause damage or break.
               Secure picture frames, mirrors, and lamps. Organize loose cables
               to prevent tripping, and consider applying safety film to your
@@ -161,10 +161,10 @@ export default function earthquakeArticle() {
 
           {/* Source Information */}
           <View className="bg-surface-light p-4 rounded-xl border border-border-secondary/30 gap-1 mb-2">
-            <Text className="text-xs font-bold text-text-subtle uppercase tracking-wider mb-1">
+            <Text className="text-lg font-bold text-text-subtle uppercase tracking-wider mb-1">
               Source Information
             </Text>
-            <Text className="leading-6">
+            <Text className="leading-6 text-lg">
               This content was originally published by GeoVera.
             </Text>
 
@@ -176,7 +176,7 @@ export default function earthquakeArticle() {
                 );
               }}
             >
-              <Text className="leading-6 text-blue-600 font-semibold">
+              <Text className="leading-6 text-blue-600 font-semibold text-lg">
                 Read original article ↗
               </Text>
             </Pressable>

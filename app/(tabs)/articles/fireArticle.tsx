@@ -40,7 +40,7 @@ export default function earthquakeArticle() {
       {/* Main Scrolling Content */}
       <Animated.ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerClassName="px-9 pb-12 gap-4"
+        contentContainerClassName="px-9 pb-12 gap-6"
         onScroll={Animated.event(
           [{ nativeEvent: { contentOffset: { y: scrollY } } }],
           { useNativeDriver: true },
@@ -71,8 +71,8 @@ export default function earthquakeArticle() {
         </View>
 
         {/* Main Article */}
-        <View className="gap-4">
-          <Text className="leading-7">
+        <View className="gap-10">
+          <Text className="leading-7 text-xl">
             A fire can become life-threatening in just two minutes, and a
             residence can be completely engulfed in flames in five.
             Understanding fire behavior and taking simple preventative steps can
@@ -80,17 +80,17 @@ export default function earthquakeArticle() {
           </Text>
 
           {/* Understanding Fire */}
-          <View className="gap-2">
-            <Text className="text-xl font-medium leading-7">
+          <View className="gap-4">
+            <Text className="text-2xl font-medium leading-7">
               Understanding Fire
             </Text>
 
             {/* Fire is FAST */}
             <View>
-              <Text className="leading-7 font-medium">
+              <Text className="leading-7 font-medium text-xl">
                 {"\u2022"} Fire is FAST:
               </Text>
-              <Text className="leading-7 ml-4">
+              <Text className="leading-7 ml-4 text-xl">
                 A small flame can turn into a major fire in less than 30
                 seconds.
               </Text>
@@ -98,10 +98,10 @@ export default function earthquakeArticle() {
 
             {/* Fire is HOT */}
             <View>
-              <Text className="leading-7 font-medium">
+              <Text className="leading-7 font-medium text-xl">
                 {"\u2022"} Fire is HOT:
               </Text>
-              <Text className="leading-7 ml-4">
+              <Text className="leading-7 ml-4 text-xl">
                 Heat is more threatening than flames. Room temperatures can
                 reach 600 degrees at eye level, which can instantly scorch your
                 lungs.
@@ -110,10 +110,10 @@ export default function earthquakeArticle() {
 
             {/* Fire is DARK & DEADLY */}
             <View>
-              <Text className="leading-7 font-medium">
+              <Text className="leading-7 font-medium text-xl">
                 {"\u2022"} Fire is DARK & DEADLY:
               </Text>
-              <Text className="leading-7 ml-4">
+              <Text className="leading-7 ml-4 text-xl">
                 Fire quickly produces thick black smoke and toxic gases. These
                 gases kill more people than actual flames by causing
                 disorientation and drowsiness.
@@ -122,15 +122,15 @@ export default function earthquakeArticle() {
           </View>
 
           {/* Preparation */}
-          <View className="gap-2">
-            <Text className="text-xl font-medium leading-7">Preparation</Text>
+          <View className="gap-4">
+            <Text className="text-2xl font-medium leading-7">Preparation</Text>
 
             {/* Map Two Exits */}
             <View>
-              <Text className="leading-7 font-medium">
+              <Text className="leading-7 font-medium text-xl">
                 {"\u2022"} Map Two Exits:
               </Text>
-              <Text className="leading-7 ml-4">
+              <Text className="leading-7 ml-4 text-xl">
                 Find two ways out of every room in case the primary exit is
                 blocked. Ensure windows and security bars can be opened quickly.
               </Text>
@@ -138,10 +138,10 @@ export default function earthquakeArticle() {
 
             {/* Practice the Escape */}
             <View>
-              <Text className="leading-7 font-medium">
+              <Text className="leading-7 font-medium text-xl">
                 {"\u2022"} Practice the Escape:
               </Text>
-              <Text className="leading-7 ml-4">
+              <Text className="leading-7 ml-4 text-xl">
                 Practice your fire escape plan twice a year, including feeling
                 your way out in the dark with your eyes closed.
               </Text>
@@ -149,10 +149,10 @@ export default function earthquakeArticle() {
 
             {/* Sleep Safely */}
             <View>
-              <Text className="leading-7 font-medium">
+              <Text className="leading-7 font-medium text-xl">
                 {"\u2022"} Sleep Safely:
               </Text>
-              <Text className="leading-7 ml-4">
+              <Text className="leading-7 ml-4 text-xl">
                 Always sleep with your bedroom door closed to slow the spread of
                 smoke and heat, and keep a fire extinguisher in the kitchen.
               </Text>
@@ -160,17 +160,17 @@ export default function earthquakeArticle() {
           </View>
 
           {/* Everyday Fire Prevention */}
-          <View className="gap-2">
-            <Text className="text-xl font-medium leading-7">
+          <View className="gap-4">
+            <Text className="text-2xl font-medium leading-7">
               Everyday Fire Prevention
             </Text>
 
             {/* Safe Cooking */}
             <View>
-              <Text className="leading-7 font-medium">
+              <Text className="leading-7 font-medium text-xl">
                 {"\u2022"} Safe Cooking:
               </Text>
-              <Text className="leading-7 ml-4">
+              <Text className="leading-7 ml-4 text-xl">
                 Never leave a frying or broiling stove unattended. Keep outdoor
                 barbecue grills at least 10 feet away from your home's siding
                 and deck railings.
@@ -179,10 +179,10 @@ export default function earthquakeArticle() {
 
             {/* Electrical Safety */}
             <View>
-              <Text className="leading-7 font-medium">
+              <Text className="leading-7 font-medium text-xl">
                 {"\u2022"} Electrical Safety:
               </Text>
-              <Text className="leading-7 ml-4">
+              <Text className="leading-7 ml-4 text-xl">
                 Replace frayed or damaged appliance cords immediately. Never run
                 cords under rugs, and never overload extension cords.
               </Text>
@@ -190,10 +190,10 @@ export default function earthquakeArticle() {
 
             {/* Protect Children */}
             <View>
-              <Text className="leading-7 font-medium">
+              <Text className="leading-7 font-medium text-xl">
                 {"\u2022"} Protect Children:
               </Text>
-              <Text className="leading-7 ml-4">
+              <Text className="leading-7 ml-4 text-xl">
                 Store matches and lighters in locked cabinets out of reach.
                 Teach children early on that fire is a tool, not a toy.
               </Text>
@@ -201,17 +201,17 @@ export default function earthquakeArticle() {
           </View>
 
           {/* During a Fire: How to Survive */}
-          <View className="gap-2">
-            <Text className="text-xl font-medium leading-7">
+          <View className="gap-4">
+            <Text className="text-2xl font-medium leading-7">
               During a Fire: How to Survive
             </Text>
 
             {/* Crawl Low */}
             <View>
-              <Text className="leading-7 font-medium">
+              <Text className="leading-7 font-medium text-xl">
                 {"\u2022"} Crawl Low:
               </Text>
-              <Text className="leading-7 ml-4">
+              <Text className="leading-7 ml-4 text-xl">
                 Heavy smoke and poisonous gases collect at the ceiling first.
                 Drop to the floor and crawl under the smoke to your exit.
               </Text>
@@ -219,10 +219,10 @@ export default function earthquakeArticle() {
 
             {/* Feel the Doors */}
             <View>
-              <Text className="leading-7 font-medium">
+              <Text className="leading-7 font-medium text-xl">
                 {"\u2022"} Feel the Doors:
               </Text>
-              <Text className="leading-7 ml-4">
+              <Text className="leading-7 ml-4 text-xl">
                 Before opening any door, feel the doorknob and the door itself.
                 If either is hot, leave it closed and use your second way out.
               </Text>
@@ -230,10 +230,10 @@ export default function earthquakeArticle() {
 
             {/* If You Are Trapped */}
             <View>
-              <Text className="leading-7 font-medium">
+              <Text className="leading-7 font-medium text-xl">
                 {"\u2022"} If You Are Trapped:
               </Text>
-              <Text className="leading-7 ml-4">
+              <Text className="leading-7 ml-4 text-xl">
                 Close the door and cover vents and door cracks with cloth or
                 tape to keep smoke out. Call emergency services and signal for
                 help from a window using a flashlight or light-colored cloth.
@@ -242,7 +242,7 @@ export default function earthquakeArticle() {
 
             {/* Stop, Drop, and Roll */}
             <View>
-              <Text className="leading-7 font-medium">
+              <Text className="leading-7 font-medium text-xl">
                 {"\u2022"} Stop, Drop, and Roll:
               </Text>
               <Text className="leading-7 ml-4">
@@ -253,13 +253,13 @@ export default function earthquakeArticle() {
             </View>
           </View>
           <View className="gap-4">
-            <Text>
+            <Text className="leading-7 text-xl">
               When it comes to home fires, every second counts. Make fire
               prevention a daily habit, test your alarms regularly, and ensure
               your family knows exactly what to do when the alarms sound.
             </Text>
-            <Text className="leading-4 italic">
-              Stay prepared, stay calm, and stay safe!.
+            <Text className="leading-7 italic text-xl">
+              Stay prepared, stay calm, and stay safe!
             </Text>
           </View>
 
@@ -268,10 +268,10 @@ export default function earthquakeArticle() {
 
           {/* Source Information */}
           <View className="bg-surface-light p-4 rounded-xl border border-border-secondary/30 gap-1 mb-2">
-            <Text className="text-xs font-bold text-text-subtle uppercase tracking-wider mb-1">
+            <Text className="text-xl font-bold text-text-subtle uppercase tracking-wider mb-1">
               Source Information
             </Text>
-            <Text className="leading-6">
+            <Text className="leading-6 text-xl">
               This content was originally published by Ready.
             </Text>
 
@@ -281,7 +281,7 @@ export default function earthquakeArticle() {
                 router.push("https://www.ready.gov/home-fires");
               }}
             >
-              <Text className="leading-6 text-blue-600 font-semibold">
+              <Text className="leading-6 text-blue-600 font-semibold text-xl">
                 Read original article ↗
               </Text>
             </Pressable>

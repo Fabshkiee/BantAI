@@ -7,7 +7,7 @@ import MascotReporter from "./MascotReporter";
 export default function HistoryCard() {
   return (
     <Pressable
-      className="flex-row p-3 justify-between items-center bg-surface-light rounded-2xl border border-border-secondary transition-all active:scale-[0.95]"
+      className="flex-row p-3 gap-3 justify-between items-start bg-surface-light rounded-2xl border border-border-secondary transition-all active:scale-[0.95]"
       onPress={() => {
         router.push("/safetyReport");
         {
@@ -16,7 +16,7 @@ export default function HistoryCard() {
       }}
     >
       {/* Left Side: Image & Text Group */}
-      <View className="flex-row gap-4 items-center">
+      <View className="flex-1 flex-row gap-4 items-center">
         {/* TODO: Link image to specific report id */}
         <Image
           source={require("@/assets/images/room.png")}
@@ -25,15 +25,15 @@ export default function HistoryCard() {
         />
 
         {/* TODO: Link Title and date to specific report id */}
-        <View className="justify-center">
-          <Text className="text-lg font-semibold">Shelf Hazards</Text>
-          <Text className="text-sm text-text-subtle mt-1">March 24, 2026</Text>
+        <View className="flex-1 justify-center">
+          <Text className="text-2xl font-semibold">HazardNadadadme</Text>
+          <Text className="text-md text-text-subtle mt-1">March 24, 2026</Text>
         </View>
       </View>
 
       {/* TODO: Link report to specific report id */}
-      <View className="w-20 h-20 items-center justify-center -mt-4">
-        <View className="scale-[0.25]">
+      <View className="w-16 h-16 items-center justify-center">
+        <View className="scale-[0.25] mr-2">
           <MascotReporter score="medium" value={47} hideStatus={true} />
         </View>
       </View>

@@ -37,6 +37,7 @@ const TAB_BAR_OPTIONS = {
 const HIDDEN_SCREENS = [
   "landscapeOrientation",
   "camera",
+  "photoInstructions",
   "loadingScreen",
   "safetyReport",
   "articles/earthquakeArticle",
@@ -172,7 +173,6 @@ export default function TabLayout() {
 
         {/* Action Button (Center Tab) */}
         <Tabs.Screen
-          name="photoInstructions"
           options={{
             title: "",
             tabBarButton: () => (
