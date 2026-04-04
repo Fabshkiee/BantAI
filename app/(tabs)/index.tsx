@@ -42,7 +42,7 @@ export default function HomeScreen() {
 
         {/* Articles */}
         <View>
-          <Text className="text-h3 font-bold text-center">
+          <Text className="text-h3 font-bold">
             Disaster Risk Reduction Guides
           </Text>
           <ArticleCard />
