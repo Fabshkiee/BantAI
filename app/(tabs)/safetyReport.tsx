@@ -5,16 +5,12 @@ import HazardCard, { HazardData } from "@/components/HazardCard";
 import HazardSortingButtons from "@/components/HazardSortingButons";
 import MascotReporter, { getRiskVariant } from "@/components/MascotReporter";
 import { getScanSessionDetails, type ScanSessionDetails } from "@/db/db";
+import { type DisasterType } from "@/db/hazards";
 import { hazardDictionary } from "@/hazardDictionary";
 import { calculateRoomRisk, type Detection } from "@/lib/riskEngine";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import {
-  ActivityIndicator,
-  Animated,
-  Text,
-  View
-} from "react-native";
+import { ActivityIndicator, Animated, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const SEVERITY_PRIORITY: Record<string, number> = {
@@ -46,7 +42,13 @@ export default function SafetyReport() {
   const [session, setSession] = useState<ScanSessionDetails | null>(null);
   const [isLoadingSession, setIsLoadingSession] = useState(hasSession);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [activeDisasterTab, setActiveDisasterTab] = useState<
+    DisasterType | "all"
+  >("all");
 
+  const executeDatabaseSearch = (_sqlCommand: string, filterId: string) => {
+    setActiveDisasterTab(filterId as DisasterType | "all");
+  };
   useEffect(() => {
     if (!hasSession || sessionId === null) {
       setSession(null);
@@ -130,8 +132,6 @@ export default function SafetyReport() {
       (SEVERITY_PRIORITY[b.variant] || 0) - (SEVERITY_PRIORITY[a.variant] || 0),
   );
 
-  const executeDatabaseSearch = (sqlCommand: string) => {};
-
   const {
     safetyScore: rawScore,
     mascotVariant: rawMascot,
@@ -156,11 +156,19 @@ export default function SafetyReport() {
   const finalRiskVariant = hasSession
     ? getRiskVariant(finalRoomScore)
     : rawMascot;
-  const finalHazards = hasSession ? (session?.hazards ?? []) : mappedHazards;
+  const finalHazards = (
+    hasSession ? (session?.hazards ?? []) : mappedHazards
+  ) as any[];
   const finalHazardCount = hasSession
     ? (session?.hazardCount ?? 0)
     : mappedHazards.length;
   const finalImageUri = hasSession ? session?.photoPath : imageUri;
+
+  const filteredHazards = finalHazards
+    ? activeDisasterTab === "all"
+      ? finalHazards
+      : finalHazards.filter((h) => h.disasterTypes?.includes(activeDisasterTab))
+    : undefined;
 
   return (
     <Animated.ScrollView
@@ -236,7 +244,7 @@ export default function SafetyReport() {
               </View>
             ) : (
               <HazardCard
-                hazards={finalHazards as HazardData[]}
+                hazards={filteredHazards as HazardData[]}
                 imageUri={finalImageUri as string | undefined}
                 showResolutionAction={hasSession}
               />

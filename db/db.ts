@@ -1,6 +1,6 @@
 import * as SQLite from "expo-sqlite";
 import { calculateRisk } from "./engine";
-import { HAZARD_DISPLAY_NAMES, HAZARD_TYPES } from "./hazards";
+import { DisasterType, HAZARD_DISPLAY_NAMES, HAZARD_TYPES } from "./hazards";
 
 const dbPromise = SQLite.openDatabaseAsync("app.db");
 let initPromise: Promise<void> | null = null;
@@ -29,6 +29,7 @@ export type HazardData = {
   variant: "low" | "medium" | "high" | "critical";
   reason: string;
   suggestedFix: string;
+  disasterTypes: DisasterType[];
 };
 
 export type ScanStatus = "pending" | "processing" | "completed" | "failed";
@@ -150,6 +151,8 @@ export async function fetchDataFromDB(): Promise<HazardData[]> {
     variant: row.default_severity,
     reason: row.description ?? "No reason available.",
     suggestedFix: row.recommendation ?? "No recommendation available.",
+    disasterTypes:
+      HAZARD_TYPES.find((h) => h.name === row.name)?.disasterTypes ?? [],
   }));
 }
 
@@ -266,6 +269,11 @@ export async function getScanSessionDetails(
       variant: row.severity,
       reason: row.description ?? "No reason available.",
       suggestedFix: row.recommendation ?? "No recommendation available.",
+      disasterTypes:
+        HAZARD_TYPES.find(
+          (h) =>
+            HAZARD_DISPLAY_NAMES[h.name] === row.label || h.name === row.label,
+        )?.disasterTypes ?? [],
     })),
   };
 }
