@@ -1,4 +1,5 @@
 import ArrowIcon from "@/assets/icons/ArrowIcon";
+import ArrowLeftIcon from "@/assets/icons/ArrowLeftIcon";
 import Button from "@/components/Button";
 import { router } from "expo-router";
 import { Image, Text, View } from "react-native";
@@ -6,6 +7,18 @@ import { Image, Text, View } from "react-native";
 export default function PhotoInstructionsScreen() {
   return (
     <View className="flex-1 bg-surface-default px-8 pt-36">
+      <View className="absolute top-0 left-0 px-6 pt-8">
+        <Button
+          label="Return"
+          variant="return"
+          icon={<ArrowLeftIcon color="black" size={18} />}
+          iconPosition="left"
+          onPress={() => {
+            router.push("/");
+          }}
+        />
+      </View>
+
       <View className="items-center w-full">
         <Text className="text-h2 font-display font-bold text-center mb-3 leading-tight">
           How to Take the Photo
