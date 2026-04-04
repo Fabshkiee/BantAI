@@ -5,7 +5,7 @@ export default function history() {
   return (
     <ScrollView
       className="flex-1 px-7 mt-9 bg-surface-default"
-      contentContainerClassName="pb-32"
+      contentContainerClassName="pb-40"
       showsVerticalScrollIndicator={false}
     >
       <View className="">
