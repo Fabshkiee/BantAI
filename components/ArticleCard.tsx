@@ -43,7 +43,7 @@ export default function ArticleCard() {
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
-      contentContainerClassName="gap-4 px-4 py-2"
+      contentContainerClassName="gap-4"
     >
       {articleProps.map((article, index) => (
         <Pressable
