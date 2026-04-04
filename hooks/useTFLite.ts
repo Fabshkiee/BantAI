@@ -146,16 +146,15 @@ export function useTFLite() {
 
   const loadModel = async () => {
     try {
-      const modelSource =
-        Platform.OS === "android"
-          ? { url: "bantai_model" }
-          : require("@/model/bantai_model.tflite");
-
-      const loadedModel = await loadTensorflowModel(modelSource);
+      console.log("⏳ Loading TFLite model...");
+      const loadedModel = await loadTensorflowModel(
+        require("@/model/bantai_model.tflite"),
+      );
       setModel(loadedModel);
       setModelLoaded(true);
       console.log("✓ YOLO26s Model Loaded");
     } catch (err) {
+      console.error("✗ MODEL LOAD FAILED:", String(err));
       setError(err instanceof Error ? err.message : String(err));
     }
   };
