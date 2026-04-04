@@ -1,5 +1,6 @@
 import RefreshIcon from "@/assets/icons/RefreshIcon";
 import Button from "@/components/Button";
+import FadeInWrapper from "@/components/FadeInWrapper";
 import HazardCard from "@/components/HazardCard";
 import HazardSortingButtons from "@/components/HazardSortingButons";
 import MascotReporter, { getRiskVariant } from "@/components/MascotReporter";
@@ -18,67 +19,69 @@ export default function SafetyReport() {
   const riskVariant = getRiskVariant(roomScore);
 
   return (
-    <ScrollView
-      className="flex-1 mt-9 pb-56 mb-14 bg-surface-default"
-      showsVerticalScrollIndicator={false}
-      contentContainerClassName="pb-14"
-    >
-      <View className="mx-7 gap-7">
-        {/* Safety Report Header */}
-        <View className="flex-1 justify-center items-center gap-4">
-          <Text className="text-h2 font-bold text-center mt-10">
-            Room Safety Report
-          </Text>
-          <View className="relative">
-            a
-            <MascotReporter score={riskVariant} value={roomScore} />
+    <FadeInWrapper>
+      <ScrollView
+        className="flex-1 mt-9 pb-56 mb-14 bg-surface-default"
+        showsVerticalScrollIndicator={false}
+        contentContainerClassName="pb-14"
+      >
+        <View className="mx-7 gap-7">
+          {/* Safety Report Header */}
+          <View className="flex-1 justify-center items-center gap-4">
+            <Text className="text-h2 font-bold text-center mt-10">
+              Room Safety Report
+            </Text>
+            <View className="relative">
+              a
+              <MascotReporter score={riskVariant} value={roomScore} />
+            </View>
+          </View>
+
+          {/* No. of identified hazard and instructions */}
+          <View>
+            {/* TO DO: create a function with regards to the hazard card to determine its number */}
+            <Text className="text-2xl font-bold mt-10 mb-1">
+              Identified Hazards (3)
+            </Text>
+            <Text className="text-lg">
+              After assessing each hazard, apply the recommended fix, and press
+              the hazard assessed button once finished.
+            </Text>
+          </View>
+
+          <View>
+            {/* TO DO: define parameters */}
+            <HazardSortingButtons
+              tableName="test"
+              onSortQueryChange={executeDatabaseSearch}
+            />
+          </View>
+
+          {/* TO DO: modify hazard card to determine risks */}
+          {/* Hazard Cards */}
+          <View>
+            <HazardCard />
+          </View>
+
+          {/* Return Buttons */}
+          <View className="w-full gap-4">
+            <Button
+              label="Rescan Room"
+              onPress={() => {
+                router.push("/camera");
+              }}
+              icon={<RefreshIcon color="white" size={26} />}
+            />
+            <Button
+              label="Back to Home"
+              variant="secondary"
+              onPress={() => {
+                router.push("/");
+              }}
+            />
           </View>
         </View>
-
-        {/* No. of identified hazard and instructions */}
-        <View>
-          {/* TO DO: create a function with regards to the hazard card to determine its number */}
-          <Text className="text-2xl font-bold mt-10 mb-1">
-            Identified Hazards (3)
-          </Text>
-          <Text className="text-lg">
-            After assessing each hazard, apply the recommended fix, and press
-            the hazard assessed button once finished.
-          </Text>
-        </View>
-
-        <View>
-          {/* TO DO: define parameters */}
-          <HazardSortingButtons
-            tableName="test"
-            onSortQueryChange={executeDatabaseSearch}
-          />
-        </View>
-
-        {/* TO DO: modify hazard card to determine risks */}
-        {/* Hazard Cards */}
-        <View>
-          <HazardCard />
-        </View>
-
-        {/* Return Buttons */}
-        <View className="w-full gap-4">
-          <Button
-            label="Rescan Room"
-            onPress={() => {
-              router.push("/camera");
-            }}
-            icon={<RefreshIcon color="white" size={26} />}
-          />
-          <Button
-            label="Back to Home"
-            variant="secondary"
-            onPress={() => {
-              router.push("/");
-            }}
-          />
-        </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </FadeInWrapper>
   );
 }
