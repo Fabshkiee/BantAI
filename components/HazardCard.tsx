@@ -36,7 +36,7 @@ function HazardCardDesign({ data }: { data: HazardData }) {
   };
 
   return (
-    <View className="bg-surface-light rounded-2xl flex-col border-2 border-border-secondary p-4 overflow-hidden">
+    <View className="bg-surface-light rounded-2xl flex-col shadow-lg shadow-border-default p-4 overflow-hidden">
       <Pressable className="flex-row items-center gap-4" onPress={toggleExpand}>
         {/* Read from data.variant */}
         {riskIcons[data.variant]}
