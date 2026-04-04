@@ -18,7 +18,7 @@ export default function earthquakeArticle() {
   });
 
   return (
-    <View className="flex-1 bg-surface-default">
+    <View className="bg-surface-default mt-9">
       {/* Animated Floating Pill Header */}
       <Animated.View
         style={{ transform: [{ translateY }] }}
