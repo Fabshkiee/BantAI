@@ -251,6 +251,12 @@ export default function SafetyReport() {
               </View>
             </View>
 
+            <Text className="text-text-subtle -mt-5 text-center text-sm">
+              BantAI scans provide directional and informational guidance.
+              Results are purely advisory and each must be validated by your own
+              physical inspection.
+            </Text>
+
             {hasSession && loadError ? (
               <View className="rounded-2xl bg-surface-light px-4 py-3">
                 <Text className="font-semibold">Saved scan unavailable</Text>
