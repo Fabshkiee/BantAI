@@ -4,7 +4,11 @@ import DropDownIcon from "@/assets/icons/DropDownIcon";
 import HighRiskIcon from "@/assets/icons/HighRiskIcon";
 import LowRiskIcon from "@/assets/icons/LowRiskIcon";
 import MediumRiskIcon from "@/assets/icons/MediumRiskIcon";
-import { fetchDataFromDB, markHazardAsAssessed } from "@/db/db";
+import {
+  fetchDataFromDB,
+  markHazardAsAssessed,
+  type ScanSessionDetails,
+} from "@/db/db";
 import React, { useEffect, useState } from "react";
 import { Image, Pressable, Text, View } from "react-native";
 import Animated, {
@@ -34,7 +38,7 @@ export interface HazardCardProps {
   hazards?: HazardData[];
   imageUri?: string;
   showResolutionAction?: boolean;
-  onResolved?: () => void;
+  onResolved?: (updatedSession?: ScanSessionDetails | null) => void;
 }
 
 const riskIcons = {
@@ -60,7 +64,7 @@ function HazardCardDesign({
   data: HazardData;
   imageUri?: string;
   showResolutionAction?: boolean;
-  onResolved?: () => void;
+  onResolved?: (updatedSession?: ScanSessionDetails | null) => void;
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isResolved, setIsResolved] = useState(data.isAssessed || false);
@@ -217,9 +221,11 @@ function HazardCardDesign({
                   }
 
                   try {
-                    await markHazardAsAssessed(data.id as number);
+                    const freshSession = await markHazardAsAssessed(
+                      data.id as number,
+                    );
                     setIsResolved(true);
-                    if (onResolved) onResolved();
+                    if (onResolved) onResolved(freshSession);
                   } catch (error) {
                     console.error("Failed to mark hazard as resolved:", error);
                   }
