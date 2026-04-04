@@ -28,14 +28,12 @@ const progressBarStates: progressBarState[] = [
   { progressValue: 1, percentage: 100, subtext: "Analysis Complete!" },
 ];
 
-export default function ProgressBar() {
+export default function ProgressBar({ index = 0 }: { index?: number }) {
   // NOTE: Back-end Logic may be placed here.
   // use index locations when changing conditions at each phase.
   // refer to the map above.
 
-  // index default by 0
-  const indexProgress = 0;
-  const currentState = progressBarStates[indexProgress];
+  const currentState = progressBarStates[index];
 
   // progress bar logic
   return (

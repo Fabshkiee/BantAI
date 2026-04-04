@@ -1,15 +1,28 @@
 import ArrowIcon from "@/assets/icons/ArrowIcon";
 import Button from "@/components/Button";
-import { CameraView, useCameraPermissions } from "expo-camera";
-import { useFocusEffect } from "expo-router";
+import { useTFLite } from "@/hooks/useTFLite";
+import { router, useFocusEffect } from "expo-router";
 import * as ScreenOrientation from "expo-screen-orientation";
-import * as React from "react";
-import { useState } from "react";
-import { Image, Text, TouchableOpacity, View } from "react-native";
+import React, { useRef, useState } from "react";
+import {
+  ActivityIndicator,
+  Image,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import {
+  Camera,
+  useCameraDevice,
+  useCameraPermission,
+} from "react-native-vision-camera";
 
 export default function CameraScreen() {
-  const [permission, requestPermission] = useCameraPermissions();
+  const { hasPermission, requestPermission } = useCameraPermission();
+  const device = useCameraDevice("back");
   const [showNotification, setShowNotification] = useState(true);
+  const cameraRef = useRef<Camera>(null);
+  const { modelLoaded, error: modelError } = useTFLite();
 
   useFocusEffect(
     React.useCallback(() => {
@@ -25,22 +38,34 @@ export default function CameraScreen() {
     }, []),
   );
 
-  // Add to Function: "good lighting" camera logic
+  const takePhoto = async () => {
+    if (!cameraRef.current || !modelLoaded || !device) return;
 
-  // useEffect(() => {
-  //   if (showNotification) {
-  //     const timer = setTimeout(() => {
-  //       setShowNotification(false);
-  //     }, 5000);
-  //     return () => clearTimeout(timer);
-  //   }
-  // }, [showNotification]);
+    try {
+      // 1. Take the photo FIRST while the camera is still active!
+      const photo = await cameraRef.current.takePhoto({
+        flash: "off",
+        enableShutterSound: false,
+      });
 
-  if (!permission) {
-    return <View className="flex-1 bg-black" />;
-  }
+      if (!photo) return;
 
-  if (!permission.granted) {
+      const fileUri = photo.path.startsWith("file://")
+        ? photo.path
+        : `file://${photo.path}`;
+
+      router.push({
+        pathname: "/loadingScreen",
+        params: {
+          imageUri: fileUri,
+        },
+      });
+    } catch (err) {
+      console.error("Camera error:", err);
+    }
+  };
+
+  if (!hasPermission) {
     return (
       <View className="flex-1 justify-center items-center bg-surface-default px-8">
         <Image
@@ -64,55 +89,108 @@ export default function CameraScreen() {
     );
   }
 
+  if (device == null) {
+    return (
+      <View className="flex-1 justify-center items-center bg-surface-default px-8">
+        <Text className="text-center font-text font-semibold text-lg mt-3 mb-4 text-text-default">
+          No camera device found.
+        </Text>
+      </View>
+    );
+  }
+
+  if (modelError) {
+    return (
+      <View className="flex-1 justify-center items-center bg-surface-default px-8">
+        <Image
+          source={require("@/assets/mascot/MascotPhone.png")}
+          style={{
+            width: 160,
+            height: 180,
+          }}
+        />
+        <Text className="text-center font-text font-semibold text-lg mt-3 mb-4 text-text-default">
+          Model Loading Failed
+        </Text>
+        <Text className="text-center text-gray-600 mb-6 text-sm">
+          {modelError}
+        </Text>
+        <Button
+          label="Back to Home"
+          onPress={() => router.push("/")}
+          className="w-56"
+          icon={<ArrowIcon color="white" size={18} />}
+          iconPosition="right"
+        />
+      </View>
+    );
+  }
+
+  if (!modelLoaded) {
+    return (
+      <View className="flex-1 justify-center items-center bg-surface-default px-8">
+        <ActivityIndicator size="large" color="#0077cc" />
+        <Text className="text-center font-text font-semibold text-lg mt-4 text-text-default">
+          Loading AI Model...
+        </Text>
+      </View>
+    );
+  }
+
   return (
     <View className="flex-1 bg-black">
-      <CameraView style={{ flex: 1 }} facing="back">
-        {/* Feedback Notification Popup */}
-        {showNotification && (
+      <Camera
+        ref={cameraRef}
+        style={{ flex: 1 }}
+        device={device}
+        isActive={true}
+        photo={true}
+      />
+
+      {/* Feedback Notification Popup */}
+      {showNotification && (
+        <View
+          className="absolute top-8 left-0 items-center right-0 px-6"
+          style={{ zIndex: 50, overflow: "visible" }}
+        >
           <View
-            className="absolute top-8 left-0 items-center right-0 px-6"
-            style={{ zIndex: 50, overflow: "visible" }}
+            className="flex-row items-center"
+            style={{ overflow: "visible" }}
           >
             <View
-              className="flex-row items-center"
-              style={{ overflow: "visible" }}
+              className="bg-white rounded-full py-4 pr-6 pl-12 shadow-lg border border-gray-100 w-fit"
+              style={{ minHeight: 64, justifyContent: "center" }}
             >
-              <View
-                className="bg-white rounded-full py-4 pr-6 pl-12 shadow-lg border border-gray-100 w-fit"
-                style={{ minHeight: 64, justifyContent: "center" }}
-              >
-                <Text className="font-text text-md font-medium text-text-default ml-10">
-                  Perfect, you may now take the photo.
-                </Text>
-              </View>
+              <Text className="font-text text-md font-medium text-text-default ml-10">
+                Perfect, you may now take the photo.
+              </Text>
+            </View>
 
-              <View
-                className="absolute left-0 w-[64px] h-[64px] rounded-full bg-[#bde0fe] items-center justify-center shadow-sm"
-                style={{ zIndex: 100, elevation: 10 }} // Elevation forces it above the white box on Android
-              >
-                <Image
-                  source={require("@/assets/mascot/MascotSmile.png")}
-                  className="w-12 h-12"
-                  resizeMode="contain"
-                />
-              </View>
+            <View
+              className="absolute left-0 w-[64px] h-[64px] rounded-full bg-[#bde0fe] items-center justify-center shadow-sm"
+              style={{ zIndex: 100, elevation: 10 }}
+            >
+              <Image
+                source={require("@/assets/mascot/MascotSmile.png")}
+                className="w-12 h-12"
+                resizeMode="contain"
+              />
             </View>
           </View>
-        )}
-
-        {/* Capture Button */}
-        <View className="absolute right-20 top-0 bottom-0 justify-center items-center">
-          <TouchableOpacity
-            className="w-[84px] h-[84px] rounded-full border-[3px] border-white items-center justify-center bg-transparent active:scale-95 transition-all"
-            activeOpacity={0.8}
-            onPress={() => {
-              // Handle photo capture in future logic
-            }}
-          >
-            <View className="w-[72px] h-[72px] rounded-full bg-white shadow-sm" />
-          </TouchableOpacity>
         </View>
-      </CameraView>
+      )}
+
+      {/* Capture Button */}
+      <View className="absolute right-20 top-0 bottom-0 justify-center items-center">
+        <TouchableOpacity
+          disabled={!modelLoaded}
+          className="w-[84px] h-[84px] rounded-full border-[3px] border-white items-center justify-center bg-transparent active:scale-95 transition-all"
+          activeOpacity={0.8}
+          onPress={takePhoto}
+        >
+          <View className="w-[72px] h-[72px] rounded-full bg-white shadow-sm" />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }

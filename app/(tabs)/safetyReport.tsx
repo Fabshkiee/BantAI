@@ -1,27 +1,63 @@
 import ArrowLeftIcon from "@/assets/icons/ArrowLeftIcon";
 import RefreshIcon from "@/assets/icons/RefreshIcon";
 import Button from "@/components/Button";
-import HazardCard from "@/components/HazardCard";
+import HazardCard, { HazardData } from "@/components/HazardCard";
 import HazardSortingButtons from "@/components/HazardSortingButons";
 import MascotReporter, { getRiskVariant } from "@/components/MascotReporter";
-import { useFocusEffect, useRouter } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router"; // Added useFocusEffect
 import React, { useCallback, useRef } from "react";
 import { Animated, Text, View } from "react-native";
 
+export interface Detection {
+  class: string;
+  confidence: number;
+  bbox: [number, number, number, number];
+}
+
 export default function SafetyReport() {
   const router = useRouter();
-  var executeDatabaseSearch; // TO DO: Create a function that searches the db (change to const)
+  const { imageUri, detections: detectionsJson } = useLocalSearchParams();
 
-  // TO DO: create a function to solve the room score */
+  // 1. Logic for parsing and mapping hazards
+  const detections: Detection[] = detectionsJson
+    ? JSON.parse(detectionsJson as string)
+    : [];
+
+  const mappedHazards: HazardData[] = detections.map((d, index) => {
+    const title = d.class
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+
+    let variant: "low" | "medium" | "high" | "critical" = "low";
+    if (d.confidence >= 0.8) variant = "critical";
+    else if (d.confidence >= 0.6) variant = "high";
+    else if (d.confidence >= 0.4) variant = "medium";
+    else variant = "low";
+
+    return {
+      id: index,
+      title: title,
+      variant: variant,
+      reason: `AI detected this hazard with ${(d.confidence * 100).toFixed(1)}% confidence.`,
+      suggestedFix:
+        "Please inspect the area and resolve the hazard to ensure safety.",
+      bbox: d.bbox,
+    };
+  });
+
+  const executeDatabaseSearch = (sqlCommand: string) => {};
+
+  // 2. Room Score logic
   const roomScore = 15;
   const riskVariant = getRiskVariant(roomScore);
 
+  // 3. Animation logic (Using useFocusEffect from master to ensure it runs on every view)
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useFocusEffect(
     useCallback(() => {
       fadeAnim.setValue(0);
-
       Animated.timing(fadeAnim, {
         toValue: 1,
         duration: 400,
@@ -48,8 +84,8 @@ export default function SafetyReport() {
             }}
           />
         </View>
+
         <View className="mx-7 gap-7">
-          {/* Safety Report Header */}
           <View className="flex-1 justify-center items-center gap-4">
             <Text className="text-h2 font-bold text-center mt-14">
               Room Safety Report
@@ -59,11 +95,10 @@ export default function SafetyReport() {
             </View>
           </View>
 
-          {/* No. of identified hazard and instructions */}
           <View>
-            {/* TO DO: create a function with regards to the hazard card to determine its number */}
             <Text className="text-2xl font-bold mt-10 mb-1">
-              Identified Hazards (3)
+              Identified Hazards (
+              {mappedHazards.length > 0 ? mappedHazards.length : 3})
             </Text>
             <Text className="text-lg">
               After assessing each hazard, apply the recommended fix, and press
@@ -72,20 +107,19 @@ export default function SafetyReport() {
           </View>
 
           <View>
-            {/* TO DO: define parameters */}
             <HazardSortingButtons
               tableName="test"
               onSortQueryChange={executeDatabaseSearch}
             />
           </View>
 
-          {/* TO DO: modify hazard card to determine risks */}
-          {/* Hazard Cards */}
-          <View>
-            <HazardCard />
+          <View className="mt-7">
+            <HazardCard
+              hazards={mappedHazards.length > 0 ? mappedHazards : undefined}
+              imageUri={imageUri as string | undefined}
+            />
           </View>
 
-          {/* Return Buttons */}
           <View className="w-full gap-4">
             <Button
               label="Rescan Room"

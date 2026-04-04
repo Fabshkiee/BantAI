@@ -4,10 +4,9 @@ import DropDownIcon from "@/assets/icons/DropDownIcon";
 import HighRiskIcon from "@/assets/icons/HighRiskIcon";
 import LowRiskIcon from "@/assets/icons/LowRiskIcon";
 import MediumRiskIcon from "@/assets/icons/MediumRiskIcon";
-import { HazardData as DBHazardData, fetchDataFromDB } from "@/db/db";
+import { fetchDataFromDB } from "@/db/db";
 import React, { useEffect, useState } from "react";
 import { Image, Pressable, Text, View } from "react-native";
-
 import Animated, {
   FadeInUp,
   FadeOutUp,
@@ -18,7 +17,15 @@ import Animated, {
 import Button from "./Button";
 import RiskStatus from "./RiskStatus";
 
-export type HazardData = DBHazardData;
+// Change to database connection
+export type HazardData = {
+  id: string | number;
+  title: string;
+  variant: "low" | "medium" | "high" | "critical";
+  reason: string;
+  suggestedFix: string;
+  bbox?: [number, number, number, number];
+};
 
 const riskIcons = {
   low: <LowRiskIcon size={36} />,
@@ -34,9 +41,14 @@ const riskStatus = {
   critical: <RiskStatus variants="critical" />,
 };
 
-function HazardCardDesign({ data }: { data: HazardData }) {
+function HazardCardDesign({
+  data,
+  imageUri,
+}: {
+  data: HazardData;
+  imageUri?: string;
+}) {
   const [isExpanded, setIsExpanded] = useState(false);
-
   const rotation = useSharedValue(0);
 
   const toggleExpand = () => {
@@ -75,13 +87,92 @@ function HazardCardDesign({ data }: { data: HazardData }) {
           exiting={FadeOutUp.duration(200)}
           className="flex-col gap-7 mt-4"
         >
-          <View>
-            <Text className="text-xl font-semibold">Identified Hazard:</Text>
-            <Image
-              source={require("@/assets/images/room.png")}
-              className="rounded-2xl mt-2 w-full h-[160px]"
-              resizeMode="cover"
-            />
+          <View className="relative w-full h-64 mt-2 rounded-2xl overflow-hidden bg-gray-100 border border-border-secondary">
+            {(() => {
+              // Zoom logic: Calculate transform based on bbox
+              const hasBbox = data.bbox && data.bbox.length === 4;
+              let transformStyles = {};
+              if (hasBbox) {
+                const [x1, y1, x2, y2] = data.bbox!;
+                const centerX = (x1 + x2) / 2;
+                const centerY = (y1 + y2) / 2;
+                const width = x2 - x1;
+                const height = y2 - y1;
+                // Calculate scale: we want the box to take up ~60% of the view height/width
+                const scale = Math.min(
+                  2.5,
+                  Math.max(1, 0.6 / Math.max(width, height)),
+                );
+                // Calculate translation to center the bbox
+                // (0.5 - center) * 100%
+                const translateX = (0.5 - centerX) * 100;
+                const translateY = (0.5 - centerY) * 100;
+                transformStyles = {
+                  transform: [
+                    { scale: scale },
+                    { translateX: `${translateX}%` as any },
+                    { translateY: `${translateY}%` as any },
+                  ],
+                };
+              }
+              return (
+                <View className="w-full h-full" style={transformStyles}>
+                  <Image
+                    source={
+                      imageUri
+                        ? { uri: imageUri }
+                        : require("@/assets/images/room.png")
+                    }
+                    className="absolute inset-0 w-full h-full"
+                    resizeMode="stretch"
+                  />
+                  {hasBbox && (
+                    <View
+                      className="absolute border-[2.5px]"
+                      style={{
+                        left: `${data.bbox![0] * 100}%`,
+                        top: `${data.bbox![1] * 100}%`,
+                        width: `${(data.bbox![2] - data.bbox![0]) * 100}%`,
+                        height: `${(data.bbox![3] - data.bbox![1]) * 100}%`,
+                        borderColor:
+                          data.variant === "critical"
+                            ? "#b40000"
+                            : data.variant === "high"
+                              ? "#c56400"
+                              : data.variant === "medium"
+                                ? "#d89700"
+                                : "#00ad14",
+                        backgroundColor: "rgba(255,255,255,0.05)",
+                      }}
+                    >
+                      {/* Risk Label Tag */}
+                      <View
+                        className="absolute -top-[18px] -left-[2px] px-1.5 py-0.5 rounded-t-sm"
+                        style={{
+                          backgroundColor:
+                            data.variant === "critical"
+                              ? "#b40000"
+                              : data.variant === "high"
+                                ? "#c56400"
+                                : data.variant === "medium"
+                                  ? "#d89700"
+                                  : "#00ad14",
+                          minWidth: 40,
+                        }}
+                      >
+                        <Text
+                          className="text-[9px] font-bold text-white text-center"
+                          numberOfLines={1}
+                          adjustsFontSizeToFit
+                        >
+                          {data.variant.toUpperCase()}
+                        </Text>
+                      </View>
+                    </View>
+                  )}
+                </View>
+              );
+            })()}
           </View>
 
           <View>
@@ -109,10 +200,19 @@ function HazardCardDesign({ data }: { data: HazardData }) {
   );
 }
 
-export default function HazardCard() {
-  const [hazards, setHazards] = useState<HazardData[]>([]);
+export interface HazardCardProps {
+  hazards?: HazardData[];
+  imageUri?: string;
+}
+
+const HazardCard = ({ hazards: propHazards, imageUri }: HazardCardProps) => {
+  const [hazards, setHazards] = useState<HazardData[]>(propHazards || []);
 
   useEffect(() => {
+    if (propHazards) {
+      setHazards(propHazards);
+      return;
+    }
     const fetchHazards = async () => {
       try {
         const data = await fetchDataFromDB();
@@ -123,13 +223,15 @@ export default function HazardCard() {
     };
 
     fetchHazards();
-  }, []);
+  }, [propHazards]);
 
   return (
     <View className="gap-4">
       {hazards.map((hazard) => (
-        <HazardCardDesign key={hazard.id} data={hazard} />
+        <HazardCardDesign key={hazard.id} data={hazard} imageUri={imageUri} />
       ))}
     </View>
   );
-}
+};
+
+export default HazardCard;
