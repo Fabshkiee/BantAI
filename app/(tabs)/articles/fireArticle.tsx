@@ -22,7 +22,7 @@ export default function earthquakeArticle() {
       {/* Animated Floating Pill Header */}
       <Animated.View
         style={{ transform: [{ translateY }] }}
-        className="absolute top-0 left-0 right-0 z-10 pt-8 px-6"
+        className="absolute -top-3 left-0 right-0 z-10 pt-8 px-6"
       >
         <View className="rounded-full self-start overflow-hidden shadow-sm">
           <Button
