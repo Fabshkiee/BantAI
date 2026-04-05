@@ -98,6 +98,7 @@ export default function HistoryScreen() {
                 riskVariant={session.riskVariant}
                 photoPath={session.photoPath}
                 hazardCount={session.hazardCount}
+                assessedCount={session.assessedCount}
                 status={session.status}
               />
             ))}

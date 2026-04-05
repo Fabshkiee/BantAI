@@ -188,7 +188,7 @@ function HazardCardDesign({
               <Button
                 label={isResolved ? "Resolved" : "Mark as Resolved"}
                 variant={isResolved ? "secondary" : "primary"}
-                icon={<CheckIcon color={isResolved ? "black" : "white"} size={24} />}
+                icon={<CheckIcon color={isResolved ? "#006ec2" : "white"} size={24} />}
                 iconPosition="right"
                 onPress={async () => {
                   if (isResolved) return;
