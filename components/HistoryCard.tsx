@@ -11,6 +11,7 @@ type HistoryCardProps = {
   riskVariant: RiskVariant | null;
   photoPath: string | null;
   hazardCount: number;
+  assessedCount: number;
   status: string;
 };
 
@@ -21,9 +22,6 @@ const formatScanDate = (timestamp: number) =>
     year: "numeric",
   });
 
-const formatStatus = (value: string) =>
-  value.charAt(0).toUpperCase() + value.slice(1);
-
 export default function HistoryCard({
   id,
   title,
@@ -32,6 +30,7 @@ export default function HistoryCard({
   riskVariant,
   photoPath,
   hazardCount,
+  assessedCount,
   status,
 }: HistoryCardProps) {
   const score = roomScore ?? 0;
@@ -39,6 +38,15 @@ export default function HistoryCard({
   const imageSource = photoPath
     ? { uri: photoPath }
     : require("@/assets/images/room.png");
+
+  // Logic for the descriptive status label
+  const getStatusLabel = () => {
+    if (hazardCount === 0) {
+      return "No hazards";
+    }
+    
+    return `${assessedCount}/${hazardCount} Hazards Resolved`;
+  };
 
   return (
     <Pressable
@@ -64,8 +72,7 @@ export default function HistoryCard({
             {formatScanDate(scannedAt)}
           </Text>
           <Text className="text-sm text-text-subtle mt-1">
-            {hazardCount} hazard{hazardCount === 1 ? "" : "s"} •{" "}
-            {formatStatus(status)}
+            {getStatusLabel()}
           </Text>
         </View>
       </View>
