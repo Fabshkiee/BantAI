@@ -151,6 +151,7 @@ export default function SafetyReport() {
             <HazardCard
               hazards={filteredHazards}
               showResolutionAction={hasSession}
+              activeDisasterTab={activeDisasterTab}
             />
           )}
         </View>

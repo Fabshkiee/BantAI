@@ -20,6 +20,7 @@ export type HazardData = DBHazardData;
 type HazardCardProps = {
   hazards?: HazardData[];
   showResolutionAction?: boolean;
+  activeDisasterTab?: "all" | "earthquake" | "typhoon" | "fire";
 };
 
 const riskIcons = {
@@ -39,12 +40,18 @@ const riskStatus = {
 function HazardCardDesign({
   data,
   showResolutionAction = false,
+  activeDisasterTab = "all",
 }: {
   data: HazardData;
   showResolutionAction?: boolean;
+  activeDisasterTab?: "all" | "earthquake" | "typhoon" | "fire";
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isResolved, setIsResolved] = useState(false);
+
+  const tab = activeDisasterTab === "all" ? "earthquake" : activeDisasterTab;
+  const reason = data[`${tab}_reason` as keyof HazardData] as string;
+  const fixes = data[`${tab}_fixes` as keyof HazardData] as string[];
 
   const toggleExpand = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -82,14 +89,17 @@ function HazardCardDesign({
 
           <View>
             <Text className="text-xl font-semibold mb-2">Reason:</Text>
-            {/* Read from data.reason */}
-            <Text className="text-lg">{data.reason}</Text>
+            <Text className="text-lg">{reason}</Text>
           </View>
 
           <View>
-            <Text className="text-xl font-semibold mb-2">Suggested Fix:</Text>
-            {/* Read from data.suggestedFix */}
-            <Text className="text-lg">{data.suggestedFix}</Text>
+            <Text className="text-xl font-semibold mb-2">Suggested Fixes:</Text>
+            {fixes.map((fix, index) => (
+              <View key={index} className="flex-row gap-2 mb-2">
+                <Text className="text-lg font-bold">{index + 1}.</Text>
+                <Text className="text-lg flex-1">{fix}</Text>
+              </View>
+            ))}
           </View>
 
           {showResolutionAction ? (
@@ -123,6 +133,7 @@ function HazardCardDesign({
 const HazardCard = ({
   hazards,
   showResolutionAction = false,
+  activeDisasterTab = "all",
 }: HazardCardProps) => {
   const [loadedHazards, setLoadedHazards] = useState<HazardData[]>([]);
   const [isLoading, setIsLoading] = useState(hazards === undefined);
@@ -172,6 +183,7 @@ const HazardCard = ({
             key={hazard.id}
             data={hazard}
             showResolutionAction={showResolutionAction}
+            activeDisasterTab={activeDisasterTab}
           />
         ))
       )}
