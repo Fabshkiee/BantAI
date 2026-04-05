@@ -1,22 +1,49 @@
+import ArrowLeftIcon from "@/assets/icons/ArrowLeftIcon";
 import RefreshIcon from "@/assets/icons/RefreshIcon";
 import Button from "@/components/Button";
-import HazardCard from "@/components/HazardCard";
+import HazardCard, { HazardData } from "@/components/HazardCard";
 import HazardSortingButtons from "@/components/HazardSortingButons";
 import MascotReporter, { getRiskVariant } from "@/components/MascotReporter";
 import { getScanSessionDetails, type ScanSessionDetails } from "@/db/db";
-// import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
-// import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 import { type DisasterType } from "@/db/hazards";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { ActivityIndicator, ScrollView, Text, View } from "react-native";
+import { hazardDictionary } from "@/hazardDictionary";
+import { calculateRoomRisk, type Detection } from "@/lib/riskEngine";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { ActivityIndicator, Animated, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+const SEVERITY_PRIORITY: Record<string, number> = {
+  critical: 4,
+  high: 3,
+  medium: 2,
+  low: 1,
+};
+
+const BOOST_MESSAGES = [
+  "Risk Mitigated!",
+  "Room Secured!",
+  "Hazard Resolved!",
+  "Safety Improved!",
+  "BantAI Approved!",
+  "Well done!",
+];
 
 export default function SafetyReport() {
   const router = useRouter();
-  const params = useLocalSearchParams<{ sessionId?: string | string[] }>();
-  const sessionIdValue = Array.isArray(params.sessionId)
-    ? params.sessionId[0]
-    : params.sessionId;
+  const {
+    imageUri,
+    detections: detectionsJson,
+    sessionId: sessionIdParam,
+  } = useLocalSearchParams();
+
+  const detections: Detection[] = detectionsJson
+    ? JSON.parse(detectionsJson as string)
+    : [];
+
+  const sessionIdValue = Array.isArray(sessionIdParam)
+    ? sessionIdParam[0]
+    : sessionIdParam;
   const sessionId = sessionIdValue ? Number(sessionIdValue) : null;
   const hasSession =
     Number.isFinite(sessionId ?? Number.NaN) && (sessionId ?? 0) > 0;
@@ -28,34 +55,56 @@ export default function SafetyReport() {
     DisasterType | "all"
   >("all");
 
-  // const executeDatabaseSearch = () => {
-  //   // Sorting buttons are still placeholder UI in this screen.
-  // };
+  // Boost Animation State
+  const [showBoost, setShowBoost] = useState(false);
+  const [boostScore, setBoostScore] = useState(0);
+  const [oldBoostScore, setOldBoostScore] = useState(0);
+  const [boostMessage, setBoostMessage] = useState("");
+  const boostAnim = useRef(new Animated.Value(0)).current;
+
+  const triggerBoost = (newScore: number, oldScore: number) => {
+    setBoostScore(newScore);
+    setOldBoostScore(oldScore);
+    setShowBoost(true);
+
+    const msg =
+      BOOST_MESSAGES[Math.floor(Math.random() * BOOST_MESSAGES.length)];
+    setBoostMessage(msg);
+
+    Animated.timing(boostAnim, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+    }).start(() => {
+      setTimeout(() => {
+        Animated.timing(boostAnim, {
+          toValue: 0,
+          duration: 500,
+          useNativeDriver: true,
+        }).start(() => {
+          setShowBoost(false);
+        });
+      }, 2500); // Dwell time for the score climb and message
+    });
+  };
 
   const executeDatabaseSearch = (_sqlCommand: string, filterId: string) => {
     setActiveDisasterTab(filterId as DisasterType | "all");
   };
+  const loadSession = useCallback(
+    async (quiet = false) => {
+      if (!hasSession || sessionId === null) {
+        setSession(null);
+        setIsLoadingSession(false);
+        setLoadError(null);
+        return;
+      }
 
-  useEffect(() => {
-    if (!hasSession || sessionId === null) {
-      setSession(null);
-      setIsLoadingSession(false);
-      setLoadError(null);
-      return;
-    }
-
-    let isActive = true;
-
-    const loadSession = async () => {
       try {
-        setIsLoadingSession(true);
+        if (!quiet) setIsLoadingSession(true);
         setLoadError(null);
 
         const details = await getScanSessionDetails(sessionId);
-        if (!isActive) {
-          return;
-        }
-
         if (!details) {
           setSession(null);
           setLoadError("We could not find that saved scan.");
@@ -64,116 +113,270 @@ export default function SafetyReport() {
 
         setSession(details);
       } catch (error) {
-        if (isActive) {
-          setSession(null);
-          setLoadError("We could not load the saved scan details.");
-        }
+        setSession(null);
+        setLoadError("We could not load the saved scan details.");
         console.error("Failed to load scan session:", error);
       } finally {
-        if (isActive) {
-          setIsLoadingSession(false);
-        }
+        if (!quiet) setIsLoadingSession(false);
       }
-    };
+    },
+    [hasSession, sessionId],
+  );
 
+  useEffect(() => {
     loadSession();
+  }, [loadSession]);
 
-    return () => {
-      isActive = false;
-    };
-  }, [hasSession, sessionId]);
+  // 1. Map and Enrich Hazards using the Dictionary (Fallback if NO session)
+  const mappedHazards: HazardData[] = [];
+  for (let i = 0; i < detections.length; i++) {
+    const d = detections[i];
+    const dictId = `HAZARD_LABELS.${d.class.toUpperCase()}`;
+    const entry = hazardDictionary.find((h) => h.id === dictId);
 
-  // TO DO: create a function to solve the room score */
-  const roomScore = session?.roomScore ?? 15;
-  const riskVariant = getRiskVariant(roomScore);
-  const hazardCount = hasSession ? (session?.hazardCount ?? 0) : 3;
-  const hazards = hasSession ? (session?.hazards ?? []) : undefined;
-  const filteredHazards = hazards
-    ? activeDisasterTab === "all"
-      ? hazards
-      : hazards.filter((h) => h.disasterTypes.includes(activeDisasterTab))
-    : undefined;
+    const title = entry
+      ? entry.title
+      : d.class
+          .split("_")
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" ");
+
+    const variant = entry ? entry.default_severity : "low";
+
+    mappedHazards.push({
+      id: i.toString(),
+      title: title,
+      variant: variant as "low" | "medium" | "high" | "critical",
+      reason:
+        entry?.description ||
+        `AI detected this hazard with ${(d.confidence * 100).toFixed(1)}% confidence.`,
+      suggestedFix:
+        entry?.fire_fixes?.[0] ||
+        "Please inspect the area and resolve the hazard to ensure safety.",
+      bbox: d.bbox,
+    });
+  }
+
+  // 2. Sort by urgency (Priority)
+  mappedHazards.sort(
+    (a, b) =>
+      (SEVERITY_PRIORITY[b.variant] || 0) - (SEVERITY_PRIORITY[a.variant] || 0),
+  );
+
+  const {
+    safetyScore: rawScore,
+    mascotVariant: rawMascot,
+    spatialInsights: rawInsights,
+  } = calculateRoomRisk(detections);
+
+  // Derive current session risk state (for spatial insights)
+  const sessionDetections: Detection[] = (session?.hazards ?? [])
+    .filter((h) => !h.isAssessed)
+    .map((h) => ({
+      class: h.internalName || "",
+      bbox: h.bbox || [0, 0, 0, 0],
+      confidence: 1.0,
+    }));
+
+  const { spatialInsights: sessionInsights } =
+    calculateRoomRisk(sessionDetections);
+
+  const insets = useSafeAreaInsets();
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  useFocusEffect(
+    useCallback(() => {
+      fadeAnim.setValue(0);
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 400,
+        useNativeDriver: true,
+      }).start();
+    }, [fadeAnim]),
+  );
+
+  const finalRoomScore = session?.roomScore ?? rawScore ?? 15;
+  const finalRiskVariant = hasSession
+    ? getRiskVariant(finalRoomScore)
+    : rawMascot;
+  const finalHazards = (
+    hasSession ? (session?.hazards ?? []) : mappedHazards
+  ) as HazardData[];
+
+  const finalHazardCount = finalHazards.length;
+  const finalSpatialInsights = hasSession ? sessionInsights : rawInsights;
+  const finalImageUri = hasSession ? session?.photoPath : imageUri;
+
+  const filteredHazards = (
+    finalHazards
+      ? activeDisasterTab === "all"
+        ? finalHazards
+        : (finalHazards as HazardData[]).filter((h) =>
+            h.disasterTypes?.includes(activeDisasterTab),
+          )
+      : []
+  ).sort(
+    (a, b) =>
+      (SEVERITY_PRIORITY[b.variant] || 0) - (SEVERITY_PRIORITY[a.variant] || 0),
+  );
 
   return (
-    <ScrollView
-      className="flex-1 mt-9 pb-56 mb-14 bg-surface-default"
-      showsVerticalScrollIndicator={false}
-      contentContainerClassName="pb-14"
-    >
-      <View className="mx-7 gap-7">
-        {/* Safety Report Header */}
-        <View className="flex-1 justify-center items-center gap-4">
-          <Text className="text-h2 font-bold text-center mt-10">
-            Room Safety Report
-          </Text>
-          <View className="relative">
-            <MascotReporter score={riskVariant} value={roomScore} />
+    <View style={{ flex: 1 }}>
+      <Animated.ScrollView
+        className="flex-1 mt-9 pb-56 mb-14 bg-surface-default"
+        showsVerticalScrollIndicator={false}
+        contentContainerClassName="pb-14"
+      >
+        <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
+          <View className="absolute -top-9 left-0 px-6 pt-8 z-10">
+            <Button
+              label="Return"
+              variant="return"
+              icon={<ArrowLeftIcon color="black" size={18} />}
+              iconPosition="left"
+              onPress={() => router.push("/history")}
+            />
           </View>
-        </View>
 
-        {hasSession && loadError ? (
-          <View className="rounded-2xl bg-surface-light px-4 py-3">
-            <Text className="font-semibold">Saved scan unavailable</Text>
-            <Text className="text-text-subtle mt-1">{loadError}</Text>
-          </View>
-        ) : null}
+          <View className="mx-7 gap-7">
+            <View className="flex-1 justify-center items-center gap-4">
+              <Text className="text-h2 font-bold text-center mt-14">
+                Room Safety Report
+              </Text>
+              <View className="relative">
+                <MascotReporter
+                  score={finalRiskVariant}
+                  value={finalRoomScore}
+                />
+              </View>
+            </View>
 
-        {/* No. of identified hazard and instructions */}
-        <View>
-          <Text className="text-2xl font-bold mt-10 mb-1">
-            Identified Hazards ({hazardCount})
-          </Text>
-          <Text className="text-lg">
-            After assessing each hazard, apply the recommended fix, and press
-            the hazard assessed button once finished.
-          </Text>
-        </View>
+            <Text className="text-text-subtle -mt-5 text-center text-sm">
+              BantAI scans provide directional and informational guidance.
+              Results are purely advisory and each must be validated by your own
+              physical inspection.
+            </Text>
 
-        <View>
-          {/* TO DO: define parameters */}
-          <HazardSortingButtons
-            tableName="test"
-            onSortQueryChange={executeDatabaseSearch}
-          />
-        </View>
+            {hasSession && loadError ? (
+              <View className="rounded-2xl bg-surface-light px-4 py-3">
+                <Text className="font-semibold">Saved scan unavailable</Text>
+                <Text className="text-text-subtle mt-1">{loadError}</Text>
+              </View>
+            ) : null}
 
-        <View>
-          {hasSession && isLoadingSession ? (
-            <View className="items-center justify-center py-10">
-              <ActivityIndicator size="large" color="#0f172a" />
-              <Text className="text-text-subtle mt-4">
-                Loading saved scan details...
+            {finalSpatialInsights && finalSpatialInsights.length > 0 && (
+              <View className="bg-surface-critical/10 border border-surface-critical p-4 rounded-xl gap-2">
+                <Text className="text-text-critical font-bold text-lg">
+                  ⚠️ Spatial Warnings
+                </Text>
+                {finalSpatialInsights.map((insight: string, idx: number) => (
+                  <Text key={idx} className="text-text-default text-base">
+                    • {insight}
+                  </Text>
+                ))}
+              </View>
+            )}
+
+            <View>
+              <Text className="text-2xl font-bold mt-10 mb-1">
+                Identified Hazards ({finalHazardCount})
+              </Text>
+              <Text className="text-lg">
+                After assessing each hazard, apply the recommended fix, and
+                press the hazard assessed button once finished.
               </Text>
             </View>
-          ) : (
-            // <HazardCard hazards={hazards} showResolutionAction={hasSession} />
 
-            <HazardCard
-              hazards={filteredHazards}
-              showResolutionAction={hasSession}
-              activeDisasterTab={activeDisasterTab}
+            <View>
+              <HazardSortingButtons
+                tableName="test"
+                onSortQueryChange={executeDatabaseSearch}
+              />
+            </View>
+
+            <View className="mt-7">
+              {hasSession && isLoadingSession ? (
+                <View className="items-center justify-center py-10">
+                  <ActivityIndicator size="large" color="#0f172a" />
+                  <Text className="text-text-subtle mt-4">
+                    Loading saved scan details...
+                  </Text>
+                </View>
+              ) : (
+                <HazardCard
+                  hazards={filteredHazards as HazardData[]}
+                  imageUri={finalImageUri as string | undefined}
+                  showResolutionAction={hasSession}
+                  onResolved={(updatedSession) => {
+                    if (updatedSession) {
+                      const oldScore = session?.roomScore ?? finalRoomScore;
+                      setSession(updatedSession);
+                      triggerBoost(updatedSession.roomScore || 0, oldScore);
+                    } else {
+                      loadSession(true);
+                    }
+                  }}
+                />
+              )}
+            </View>
+
+            <View className="w-full gap-4">
+              <Button
+                label="Rescan Room"
+                onPress={() => router.push("/camera")}
+                icon={<RefreshIcon color="white" size={26} />}
+              />
+              <Button
+                label="Back to Home"
+                variant="secondary"
+                onPress={() => router.push("/")}
+              />
+            </View>
+          </View>
+        </Animated.View>
+      </Animated.ScrollView>
+
+      {showBoost && (
+        <Animated.View
+          pointerEvents="none"
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 1000,
+            backgroundColor: "rgba(0,0,0,0.7)",
+            alignItems: "center",
+            justifyContent: "center",
+            opacity: boostAnim,
+          }}
+        >
+          <Animated.View
+            style={{
+              transform: [
+                {
+                  scale: boostAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.5, 0.85],
+                  }),
+                },
+              ],
+            }}
+          >
+            <MascotReporter
+              value={boostScore}
+              initialValue={oldBoostScore}
+              score={getRiskVariant(boostScore)}
             />
-          )}
-        </View>
-
-        {/* Return Buttons */}
-        <View className="w-full gap-4">
-          <Button
-            label="Rescan Room"
-            onPress={() => {
-              router.push("/camera");
-            }}
-            icon={<RefreshIcon color="white" size={26} />}
-          />
-          <Button
-            label="Back to Home"
-            variant="secondary"
-            onPress={() => {
-              router.push("/");
-            }}
-          />
-        </View>
-      </View>
-    </ScrollView>
+            <View className="bg-surface-default px-10 py-4 rounded-full mt-10 shadow-2xl border-[3px] border-text-low">
+              <Text className="text-text-low font-bold text-3xl text-center">
+                {boostMessage} +{Math.max(0, boostScore - oldBoostScore)}
+              </Text>
+            </View>
+          </Animated.View>
+        </Animated.View>
+      )}
+    </View>
   );
 }
