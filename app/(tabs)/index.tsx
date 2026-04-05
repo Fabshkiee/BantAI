@@ -1,7 +1,6 @@
 import ScanIcon from "@/assets/icons/ScanIcon";
 import ArticleCard from "@/components/ArticleCard";
 import Button from "@/components/Button";
-import MascotLoader from "@/components/MascotLoader";
 import { useRouter } from "expo-router";
 import { Image, ScrollView, Text, View } from "react-native";
 
@@ -14,7 +13,6 @@ export default function HomeScreen() {
       contentContainerClassName="pb-40"
       showsVerticalScrollIndicator={false}
     >
-      <MascotLoader />
       <View className="gap-14">
         {/* Hero Section */}
         <View className="justify-center items-center gap-4">
