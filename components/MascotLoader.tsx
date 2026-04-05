@@ -16,9 +16,9 @@ export default function MascotLoader() {
 
   useEffect(() => {
     scale.value = withSequence(
-      withSpring(1, { damping: 14, stiffness: 120 }),
+      withSpring(1, { damping: 40, stiffness: 350 }),
 
-      withDelay(500, withTiming(1.15, { duration: 600 })),
+      withDelay(300, withTiming(1.15, { duration: 200 })),
     );
     spinnerOpacity.value = withDelay(1200, withTiming(1, { duration: 400 }));
   }, []);
