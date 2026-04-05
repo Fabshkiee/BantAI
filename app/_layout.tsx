@@ -1,6 +1,8 @@
+import MascotLoader from "@/components/MascotLoader";
 import { initDatabase } from "@/db/db";
 import { DefaultTheme, ThemeProvider } from "@react-navigation/native";
 import { Stack } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import {
   configureReanimatedLogger,
@@ -8,6 +10,9 @@ import {
 } from "react-native-reanimated";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import "../global.css";
+
+// Prevent the native splash screen from auto-hiding before our loader mounts
+SplashScreen.preventAutoHideAsync();
 
 configureReanimatedLogger({
   level: ReanimatedLogLevel.warn,
@@ -23,11 +28,19 @@ const BgTheme = {
 };
 
 export default function RootLayout() {
-  // Initialize DB
+  // Initialize DB and hide splash when ready
   useEffect(() => {
-    initDatabase().catch((error) => {
-      console.error("Database initialization failed:", error);
-    });
+    async function prepare() {
+      try {
+        await initDatabase();
+      } catch (e) {
+        console.warn("Database initialization failed:", e);
+      } finally {
+        // We're ready to show our custom React Native UI
+        await SplashScreen.hideAsync();
+      }
+    }
+    prepare();
   }, []);
 
   return (
@@ -41,6 +54,7 @@ export default function RootLayout() {
             contentStyle: { backgroundColor: "transparent" },
           }}
         />
+        <MascotLoader />
       </SafeAreaProvider>
     </ThemeProvider>
   );
