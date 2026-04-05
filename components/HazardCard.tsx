@@ -10,7 +10,7 @@ import {
   type ScanSessionDetails,
 } from "@/db/db";
 import React, { useEffect, useState } from "react";
-import { Image, Pressable, Text, View } from "react-native";
+import { ActivityIndicator, Image, Pressable, Text, View } from "react-native";
 import Animated, {
   FadeInUp,
   FadeOutUp,
