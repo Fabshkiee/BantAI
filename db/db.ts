@@ -1,4 +1,5 @@
 import * as SQLite from "expo-sqlite";
+import { hazardDictionary } from "../hazardDictionary";
 import { calculateRoomRisk, type Detection } from "@/lib/riskEngine";
 import { type DisasterType, HAZARD_DISPLAY_NAMES, HAZARD_TYPES } from "./hazards";
 
@@ -27,9 +28,15 @@ export type HazardData = {
   id: number;
   title: string;
   variant: "low" | "medium" | "high" | "critical";
+  disasterTypes: DisasterType[];
   reason: string;
   suggestedFix: string;
-  disasterTypes: DisasterType[];
+  earthquake_reason?: string;
+  typhoon_reason?: string;
+  fire_reason?: string;
+  earthquake_fixes?: string[];
+  typhoon_fixes?: string[];
+  fire_fixes?: string[];
   bbox?: [number, number, number, number];
   isAssessed?: boolean;
   internalName?: string;
@@ -85,6 +92,7 @@ type SessionHazardRow = {
   y1: number | null;
   x2: number | null;
   y2: number | null;
+  internalName?: string;
 };
 
 export async function initDatabase(): Promise<void> {
@@ -140,7 +148,7 @@ export async function initDatabase(): Promise<void> {
       CREATE INDEX IF NOT EXISTS idx_sessions_status     ON scan_sessions (status);
 
         INSERT OR IGNORE INTO hazard_types (name, category, default_severity, description, recommendation) VALUES
-          ${HAZARD_TYPES.map((hazard) => `('${sqlQuote(hazard.name)}', '${sqlQuote(hazard.category)}', '${sqlQuote(hazard.default_severity)}', '${sqlQuote(hazard.description)}', '${sqlQuote(hazard.recommendation)}')`).join(",\n          ")};
+          ${HAZARD_TYPES.map((hazard) => `('${sqlQuote(hazard.name)}', '${sqlQuote(hazard.category)}', '${sqlQuote(hazard.default_severity)}', '${sqlQuote(hazard.description ?? "")}', '${sqlQuote(hazard.recommendation ?? "")}')`).join(",\n          ")};
     `);
   })();
 
@@ -151,20 +159,32 @@ export async function fetchDataFromDB(): Promise<HazardData[]> {
   await initDatabase();
   const db = await dbPromise;
   const rows = await db.getAllAsync<HazardRow>(
-    "SELECT id, name, default_severity, description, recommendation FROM hazard_types",
+    "SELECT id, name, default_severity FROM hazard_types",
   );
 
-  return rows.map((row) => ({
-    id: row.id,
-    title:
-      HAZARD_DISPLAY_NAMES[row.name as keyof typeof HAZARD_DISPLAY_NAMES] ??
-      formatHazardTitle(row.name),
-    variant: row.default_severity,
-    reason: row.description ?? "No reason available.",
-    suggestedFix: row.recommendation ?? "No recommendation available.",
-    disasterTypes:
-      HAZARD_TYPES.find((h) => h.name === row.name)?.disasterTypes ?? [],
-  }));
+  return rows.map((row) => {
+    const entry = hazardDictionary.find(
+      (h: { id: string }) => h.id === `HAZARD_LABELS.${row.name.toUpperCase()}`,
+    );
+    return {
+      id: row.id,
+      title:
+        HAZARD_DISPLAY_NAMES[row.name as keyof typeof HAZARD_DISPLAY_NAMES] ??
+        formatHazardTitle(row.name),
+      variant: row.default_severity,
+      reason: entry?.description ?? "No reason available.",
+      suggestedFix: entry?.fire_fixes?.[0] ?? "No recommendation available.",
+      disasterTypes:
+        HAZARD_TYPES.find((h) => h.name === row.name)?.disasterTypes ?? [],
+      earthquake_reason:
+        entry?.earthquake_reason ?? "No information available.",
+      typhoon_reason: entry?.typhoon_reason ?? "No information available.",
+      fire_reason: entry?.fire_reason ?? "No information available.",
+      earthquake_fixes: entry?.earthquake_fixes ?? [],
+      typhoon_fixes: entry?.typhoon_fixes ?? [],
+      fire_fixes: entry?.fire_fixes ?? [],
+    };
+  });
 }
 
 export async function createScanSession(photoPath: string): Promise<number> {
@@ -280,27 +300,40 @@ export async function getScanSessionDetails(
     completedAt: session.completed_at,
     hazardCount: session.hazard_count,
     assessedCount: session.assessed_count ?? 0,
-    hazards: (hazards as any[]).map((row) => ({
-      id: row.id,
-      title: row.label,
-      variant: row.severity,
-      reason: row.description ?? "No reason available.",
-      suggestedFix: row.recommendation ?? "No recommendation available.",
-      isAssessed: !!row.is_assessed,
-      internalName: row.internalName,
-      bbox:
-        row.x1 !== null &&
-        row.y1 !== null &&
-        row.x2 !== null &&
-        row.y2 !== null
-          ? [row.x1, row.y1, row.x2, row.y2]
-          : undefined,
-      disasterTypes:
-        HAZARD_TYPES.find(
-          (h) =>
-            HAZARD_DISPLAY_NAMES[h.name] === row.label || h.name === row.label,
-        )?.disasterTypes ?? [],
-    })),
+    hazards: hazards.map((row) => {
+      const seed = HAZARD_TYPES.find(
+        (h) =>
+          HAZARD_DISPLAY_NAMES[h.name as keyof typeof HAZARD_DISPLAY_NAMES] === row.label || h.name === row.label,
+      );
+      const entry = hazardDictionary.find(
+        (h: { id: string }) =>
+          h.id === `HAZARD_LABELS.${seed?.name.toUpperCase()}`,
+      );
+
+      return {
+        id: row.id,
+        title: row.label,
+        variant: row.severity,
+        reason: row.description ?? entry?.description ?? "No reason available.",
+        suggestedFix: row.recommendation ?? entry?.fire_fixes?.[0] ?? "No recommendation available.",
+        isAssessed: !!row.is_assessed,
+        internalName: row.internalName,
+        bbox:
+          row.x1 !== null &&
+          row.y1 !== null &&
+          row.x2 !== null &&
+          row.y2 !== null
+            ? [row.x1, row.y1, row.x2, row.y2]
+            : undefined,
+        disasterTypes: seed?.disasterTypes ?? [],
+        earthquake_reason: entry?.earthquake_reason ?? "No information available.",
+        typhoon_reason: entry?.typhoon_reason ?? "No information available.",
+        fire_reason: entry?.fire_reason ?? "No information available.",
+        earthquake_fixes: entry?.earthquake_fixes ?? [],
+        typhoon_fixes: entry?.typhoon_fixes ?? [],
+        fire_fixes: entry?.fire_fixes ?? [],
+      };
+    }),
   };
 }
 
