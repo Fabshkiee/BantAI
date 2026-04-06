@@ -76,7 +76,9 @@ export default function CameraScreen() {
 
       router.replace({
         pathname: "/loadingScreen",
-        params: { imageUri: fileUri },
+        params: {
+          imageUri: fileUri,
+        },
       });
     } catch (err) {
       console.error("Camera error:", err);
@@ -218,6 +220,7 @@ export default function CameraScreen() {
             }`}
           />
         </TouchableOpacity>
+
       </View>
     </View>
   );

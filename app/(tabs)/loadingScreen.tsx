@@ -5,45 +5,62 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Image, View } from "react-native";
 
+/** Maps SAHI slice progress to user-facing status messages */
+function getStatusText(progress: number): string {
+  if (progress < 0.05) return "Initializing AI engine...";
+  if (progress < 0.15) return "Running global scan...";
+  if (progress < 0.5) return "Scanning room quadrants...";
+  if (progress < 0.8) return "Analyzing hazard details...";
+  if (progress < 0.95) return "Generating safety report...";
+  return "Analysis Complete!";
+}
+
 export default function LoadingScreen() {
   const router = useRouter();
   const { imageUri } = useLocalSearchParams();
   const { modelLoaded, runInference } = useTFLite();
-  const [progressIndex, setProgressIndex] = useState(0);
+  const [progress, setProgress] = useState(0);
+  const [statusText, setStatusText] = useState("Initializing AI engine...");
 
   useEffect(() => {
     async function performAnalysis() {
-      if (!modelLoaded || !imageUri) return;
+      if (!modelLoaded) return;
+
+      const primaryUri = Array.isArray(imageUri) ? imageUri[0] : imageUri;
+
+      if (!primaryUri) return;
 
       try {
-        // Step 1: Initializing (index 0)
-        setProgressIndex(0);
-        await new Promise((resolve) => setTimeout(resolve, 800));
+        // Phase 1: Init (0% -> 5%)
+        setProgress(0.05);
+        setStatusText(getStatusText(0.05));
+        await new Promise((resolve) => setTimeout(resolve, 400));
 
-        // Step 2: Detecting layout (index 1)
-        setProgressIndex(1);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        // Phase 2: Primary Inference
+        const detections = await runInference(primaryUri, (step, total) => {
+          const inferenceProgress = 0.05 + (step / total) * 0.8;
+          setProgress(inferenceProgress);
+          setStatusText(getStatusText(inferenceProgress));
+        });
 
-        // Step 3: Analyzing (index 2) - ACTUAL inference here
-        setProgressIndex(2);
-        const detections = await runInference(imageUri as string);
-
-        // Step 4: Saving to Database (index 3)
-        setProgressIndex(3);
-        const sessionId = await createScanSession(imageUri as string);
+        // Phase 3: Saving to database (85% -> 95%)
+        setProgress(0.9);
+        setStatusText("Generating safety report...");
+        const sessionId = await createScanSession(primaryUri);
         await insertDetectedHazards(sessionId, detections);
 
-        // Step 5: Complete! (index 4)
-        setProgressIndex(4);
-        await new Promise((resolve) => setTimeout(resolve, 500));
+        // Phase 4: Complete (100%)
+        setProgress(1);
+        setStatusText("Analysis Complete!");
+        await new Promise((resolve) => setTimeout(resolve, 400));
 
-        // Navigate to Safety Report with the sessionId
+        // Navigate to Safety Report
         router.replace({
           pathname: "/safetyReport",
           params: {
             sessionId: String(sessionId),
-            imageUri: imageUri, // Keep for quick display
-            detections: JSON.stringify(detections), // Keep for immediate rendering
+            imageUri: primaryUri,
+            detections: JSON.stringify(detections),
           },
         });
       } catch (error) {
@@ -66,8 +83,8 @@ export default function LoadingScreen() {
         />
       </View>
 
-      {/* Progress Bar component */}
-      <ProgressBar index={progressIndex} />
+      {/* Progress Bar — driven by real SAHI inference progress */}
+      <ProgressBar progress={progress} statusText={statusText} />
     </View>
   );
 }
