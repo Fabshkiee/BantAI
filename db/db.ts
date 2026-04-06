@@ -2,9 +2,9 @@ import { calculateRoomRisk, type Detection } from "@/lib/riskEngine";
 import * as SQLite from "expo-sqlite";
 import { hazardDictionary } from "../hazardDictionary";
 import {
-    type DisasterType,
-    HAZARD_DISPLAY_NAMES,
-    HAZARD_TYPES,
+  type DisasterType,
+  HAZARD_DISPLAY_NAMES,
+  HAZARD_TYPES,
 } from "./hazards";
 
 const dbPromise = SQLite.openDatabaseAsync("app.db");
@@ -18,6 +18,24 @@ const formatHazardTitle = (value: string) =>
         .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
         .join(" ")
     : value;
+
+function mergeDisasterTypes(
+  seedDisasterTypes: DisasterType[] | undefined,
+  entry:
+    | {
+        disaster_filters?: DisasterType[];
+        highest_risk_disaster?: DisasterType;
+      }
+    | undefined,
+): DisasterType[] {
+  return Array.from(
+    new Set<DisasterType>([
+      ...(seedDisasterTypes ?? []),
+      ...(entry?.disaster_filters ?? []),
+      ...(entry?.highest_risk_disaster ? [entry.highest_risk_disaster] : []),
+    ]),
+  );
+}
 
 const getRiskVariantFromScore = (
   score: number,
@@ -35,6 +53,8 @@ export type HazardData = {
   disasterTypes: DisasterType[];
   reason: string;
   suggestedFix: string;
+  general_reason?: string;
+  general_fixes?: string[];
   earthquake_reason?: string;
   typhoon_reason?: string;
   fire_reason?: string;
@@ -218,16 +238,21 @@ export async function fetchDataFromDB(): Promise<HazardData[]> {
     const entry = hazardDictionary.find(
       (h: { id: string }) => h.id === `HAZARD_LABELS.${row.name.toUpperCase()}`,
     );
+    const seed = HAZARD_TYPES.find((h) => h.name === row.name);
     return {
       id: row.id,
       title:
         HAZARD_DISPLAY_NAMES[row.name as keyof typeof HAZARD_DISPLAY_NAMES] ??
         formatHazardTitle(row.name),
       variant: row.default_severity,
-      reason: entry?.description ?? "No reason available.",
-      suggestedFix: entry?.fire_fixes?.[0] ?? "No recommendation available.",
-      disasterTypes:
-        HAZARD_TYPES.find((h) => h.name === row.name)?.disasterTypes ?? [],
+      reason: seed?.description ?? entry?.description ?? "No reason available.",
+      suggestedFix:
+        seed?.recommendation ??
+        entry?.fire_fixes?.[0] ??
+        "No recommendation available.",
+      general_reason: entry?.general_reason,
+      general_fixes: entry?.general_fixes ?? [],
+      disasterTypes: mergeDisasterTypes(seed?.disasterTypes, entry),
       earthquake_reason:
         entry?.earthquake_reason ?? "No information available.",
       typhoon_reason: entry?.typhoon_reason ?? "No information available.",
@@ -372,6 +397,8 @@ export async function getScanSessionDetails(
           row.recommendation ??
           entry?.fire_fixes?.[0] ??
           "No recommendation available.",
+        general_reason: entry?.general_reason,
+        general_fixes: entry?.general_fixes ?? [],
         isAssessed: !!row.is_assessed,
         internalName: row.internalName,
         bbox:
@@ -381,7 +408,7 @@ export async function getScanSessionDetails(
           row.y2 !== null
             ? [row.x1, row.y1, row.x2, row.y2]
             : undefined,
-        disasterTypes: seed?.disasterTypes ?? [],
+        disasterTypes: mergeDisasterTypes(seed?.disasterTypes, entry),
         earthquake_reason:
           entry?.earthquake_reason ?? "No information available.",
         typhoon_reason: entry?.typhoon_reason ?? "No information available.",
@@ -512,6 +539,35 @@ export async function markHazardAsAssessed(
   );
 
   // 3. Re-calculate room risk based on remaining confirmed hazards
+  await recalculateSessionRisk(sessionId);
+
+  return getScanSessionDetails(sessionId);
+}
+
+export async function markHazardAsUnassessed(
+  hazardId: number,
+): Promise<ScanSessionDetails | null> {
+  await initDatabase();
+  const db = await dbPromise;
+
+  const row = await db.getFirstAsync<{ session_id: number }>(
+    "SELECT session_id FROM detected_hazards WHERE id = ?",
+    hazardId,
+  );
+  if (!row) return null;
+
+  const sessionId = row.session_id;
+
+  await db.runAsync(
+    `
+      UPDATE detected_hazards
+      SET is_assessed = 0,
+          assessed_at = NULL
+      WHERE id = ?
+    `,
+    hazardId,
+  );
+
   await recalculateSessionRisk(sessionId);
 
   return getScanSessionDetails(sessionId);
