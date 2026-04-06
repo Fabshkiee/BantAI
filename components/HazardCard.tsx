@@ -7,6 +7,7 @@ import MediumRiskIcon from "@/assets/icons/MediumRiskIcon";
 import {
     fetchDataFromDB,
     markHazardAsAssessed,
+    markHazardAsUnassessed,
     type ScanSessionDetails,
 } from "@/db/db";
 import React, { useEffect, useState } from "react";
@@ -27,6 +28,8 @@ export type HazardData = {
   variant: "low" | "medium" | "high" | "critical";
   reason: string;
   suggestedFix: string;
+  general_reason?: string;
+  general_fixes?: string[];
   bbox?: [number, number, number, number];
   isAssessed?: boolean;
   internalName?: string;
@@ -77,19 +80,39 @@ function HazardCardDesign({
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isResolved, setIsResolved] = useState(data.isAssessed || false);
+  const [isTogglingResolution, setIsTogglingResolution] = useState(false);
   const rotation = useSharedValue(0);
 
   useEffect(() => {
     setIsResolved(data.isAssessed || false);
   }, [data.isAssessed]);
 
-  // Disaster Sorting Logic: Determine which text to show
-  const tab = activeDisasterTab === "all" ? "earthquake" : activeDisasterTab;
+  // Use generic class-level guidance on "All" and disaster-specific guidance on selected tabs.
+  const selectedReason =
+    activeDisasterTab !== "all"
+      ? (data[`${activeDisasterTab}_reason` as keyof HazardData] as string)
+      : undefined;
+  const selectedFixes =
+    activeDisasterTab !== "all"
+      ? (data[`${activeDisasterTab}_fixes` as keyof HazardData] as string[])
+      : undefined;
+
   const reason =
-    (data[`${tab}_reason` as keyof HazardData] as string) || data.reason;
-  const fixes = (data[`${tab}_fixes` as keyof HazardData] as string[]) || [
-    data.suggestedFix,
-  ];
+    selectedReason ||
+    `${activeDisasterTab[0].toUpperCase()}${activeDisasterTab.slice(1)}-specific reason is currently unavailable for this hazard.`;
+  const fixes =
+    activeDisasterTab === "all"
+      ? data.general_fixes && data.general_fixes.length > 0
+        ? data.general_fixes
+        : [data.suggestedFix]
+      : selectedFixes && selectedFixes.length > 0
+        ? selectedFixes
+        : [
+            `${activeDisasterTab[0].toUpperCase()}${activeDisasterTab.slice(1)}-specific fix is currently unavailable. Secure the area first and request a manual safety check.`,
+          ];
+
+  const displayedReason =
+    activeDisasterTab === "all" ? data.general_reason || data.reason : reason;
 
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
@@ -107,10 +130,8 @@ function HazardCardDesign({
       <Pressable className="flex-row items-center gap-4" onPress={toggleExpand}>
         {riskIcons[data.variant]}
         <Text
-          className="text-2xl font-semibold flex-1"
-          numberOfLines={1}
-          adjustsFontSizeToFit
-          minimumFontScale={0.7}
+          className="text-2xl leading-7 font-semibold flex-1 pr-2"
+          numberOfLines={2}
         >
           {data.title}
         </Text>
@@ -238,7 +259,7 @@ function HazardCardDesign({
               Reason:
             </Text>
             <Text className="text-lg leading-6 text-text-default">
-              {reason}
+              {displayedReason}
             </Text>
           </View>
 
@@ -260,25 +281,29 @@ function HazardCardDesign({
           {showResolutionAction && (
             <View>
               <Button
-                label={isResolved ? "Resolved" : "Mark as Resolved"}
-                variant={isResolved ? "secondary" : "primary"}
+                label={isResolved ? "Unmark as Resolved" : "Mark as Resolved"}
+                variant={isResolved ? "cancel" : "primary"}
                 icon={
                   <CheckIcon
-                    color={isResolved ? "#006ec2" : "white"}
+                    color={isResolved ? "#b40000" : "white"}
                     size={24}
                   />
                 }
                 iconPosition="right"
+                loading={isTogglingResolution}
                 onPress={async () => {
-                  if (isResolved) return;
+                  if (isTogglingResolution) return;
                   try {
-                    const freshSession = await markHazardAsAssessed(
-                      data.id as number,
-                    );
-                    setIsResolved(true);
+                    setIsTogglingResolution(true);
+                    const freshSession = isResolved
+                      ? await markHazardAsUnassessed(data.id as number)
+                      : await markHazardAsAssessed(data.id as number);
+                    setIsResolved(!isResolved);
                     if (onResolved) onResolved(freshSession);
                   } catch (error) {
-                    console.error("Failed to mark hazard as resolved:", error);
+                    console.error("Failed to update hazard resolution:", error);
+                  } finally {
+                    setIsTogglingResolution(false);
                   }
                 }}
               />
