@@ -1,7 +1,11 @@
+import { calculateRoomRisk, type Detection } from "@/lib/riskEngine";
 import * as SQLite from "expo-sqlite";
 import { hazardDictionary } from "../hazardDictionary";
-import { calculateRoomRisk, type Detection } from "@/lib/riskEngine";
-import { type DisasterType, HAZARD_DISPLAY_NAMES, HAZARD_TYPES } from "./hazards";
+import {
+    type DisasterType,
+    HAZARD_DISPLAY_NAMES,
+    HAZARD_TYPES,
+} from "./hazards";
 
 const dbPromise = SQLite.openDatabaseAsync("app.db");
 let initPromise: Promise<void> | null = null;
@@ -351,7 +355,8 @@ export async function getScanSessionDetails(
     hazards: hazards.map((row) => {
       const seed = HAZARD_TYPES.find(
         (h) =>
-          HAZARD_DISPLAY_NAMES[h.name as keyof typeof HAZARD_DISPLAY_NAMES] === row.label || h.name === row.label,
+          HAZARD_DISPLAY_NAMES[h.name as keyof typeof HAZARD_DISPLAY_NAMES] ===
+            row.label || h.name === row.label,
       );
       const entry = hazardDictionary.find(
         (h: { id: string }) =>
@@ -363,7 +368,10 @@ export async function getScanSessionDetails(
         title: row.label,
         variant: row.severity,
         reason: row.description ?? entry?.description ?? "No reason available.",
-        suggestedFix: row.recommendation ?? entry?.fire_fixes?.[0] ?? "No recommendation available.",
+        suggestedFix:
+          row.recommendation ??
+          entry?.fire_fixes?.[0] ??
+          "No recommendation available.",
         isAssessed: !!row.is_assessed,
         internalName: row.internalName,
         bbox:
@@ -374,7 +382,8 @@ export async function getScanSessionDetails(
             ? [row.x1, row.y1, row.x2, row.y2]
             : undefined,
         disasterTypes: seed?.disasterTypes ?? [],
-        earthquake_reason: entry?.earthquake_reason ?? "No information available.",
+        earthquake_reason:
+          entry?.earthquake_reason ?? "No information available.",
         typhoon_reason: entry?.typhoon_reason ?? "No information available.",
         fire_reason: entry?.fire_reason ?? "No information available.",
         earthquake_fixes: entry?.earthquake_fixes ?? [],

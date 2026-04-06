@@ -1,9 +1,9 @@
 import ArrowIcon from "@/assets/icons/ArrowIcon";
 import Button from "@/components/Button";
 import { useTFLite } from "@/hooks/useTFLite";
+import { useKeepAwake } from "expo-keep-awake";
 import { useFocusEffect, useRouter } from "expo-router";
 import * as ScreenOrientation from "expo-screen-orientation";
-import { useKeepAwake } from "expo-keep-awake";
 import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -220,7 +220,6 @@ export default function CameraScreen() {
             }`}
           />
         </TouchableOpacity>
-
       </View>
     </View>
   );

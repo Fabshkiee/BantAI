@@ -5,18 +5,18 @@ import HighRiskIcon from "@/assets/icons/HighRiskIcon";
 import LowRiskIcon from "@/assets/icons/LowRiskIcon";
 import MediumRiskIcon from "@/assets/icons/MediumRiskIcon";
 import {
-  fetchDataFromDB,
-  markHazardAsAssessed,
-  type ScanSessionDetails,
+    fetchDataFromDB,
+    markHazardAsAssessed,
+    type ScanSessionDetails,
 } from "@/db/db";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Image, Pressable, Text, View } from "react-native";
 import Animated, {
-  FadeInUp,
-  FadeOutUp,
-  LinearTransition,
-  useSharedValue,
-  withSpring,
+    FadeInUp,
+    FadeOutUp,
+    LinearTransition,
+    useSharedValue,
+    withSpring,
 } from "react-native-reanimated";
 import Button from "./Button";
 import RiskStatus from "./RiskStatus";
@@ -85,8 +85,11 @@ function HazardCardDesign({
 
   // Disaster Sorting Logic: Determine which text to show
   const tab = activeDisasterTab === "all" ? "earthquake" : activeDisasterTab;
-  const reason = (data[`${tab}_reason` as keyof HazardData] as string) || data.reason;
-  const fixes = (data[`${tab}_fixes` as keyof HazardData] as string[]) || [data.suggestedFix];
+  const reason =
+    (data[`${tab}_reason` as keyof HazardData] as string) || data.reason;
+  const fixes = (data[`${tab}_fixes` as keyof HazardData] as string[]) || [
+    data.suggestedFix,
+  ];
 
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
@@ -114,7 +117,9 @@ function HazardCardDesign({
 
         <View className="flex-row items-center gap-3">
           {riskStatus[data.variant]}
-          <Animated.View style={{ transform: [{ rotate: `${isExpanded ? 180 : 0}deg` }] }}>
+          <Animated.View
+            style={{ transform: [{ rotate: `${isExpanded ? 180 : 0}deg` }] }}
+          >
             <DropDownIcon size={26} />
           </Animated.View>
         </View>
@@ -137,7 +142,10 @@ function HazardCardDesign({
                 const centerY = (y1 + y2) / 2;
                 const width = x2 - x1;
                 const height = y2 - y1;
-                const scale = Math.min(2.5, Math.max(1, 0.6 / Math.max(width, height)));
+                const scale = Math.min(
+                  2.5,
+                  Math.max(1, 0.6 / Math.max(width, height)),
+                );
                 const translateX = (0.5 - centerX) * 100;
                 const translateY = (0.5 - centerY) * 100;
                 transformStyles = {
@@ -151,51 +159,74 @@ function HazardCardDesign({
               return (
                 <View className="w-full h-full" style={transformStyles}>
                   <Image
-                    source={imageUri ? { uri: imageUri } : require("@/assets/images/room.png")}
+                    source={
+                      imageUri
+                        ? { uri: imageUri }
+                        : require("@/assets/images/room.png")
+                    }
                     className="absolute inset-0 w-full h-full"
                     resizeMode="stretch"
                   />
-                  {hasBbox && (() => {
-                    const bboxColor = data.variant === "critical" ? "#b40000" : data.variant === "high" ? "#c56400" : data.variant === "medium" ? "#d89700" : "#00ad14";
-                    const severityLabel = data.variant.charAt(0).toUpperCase() + data.variant.slice(1);
-                    const bboxW = (data.bbox![2] - data.bbox![0]) * 100;
-                    const bboxH = (data.bbox![3] - data.bbox![1]) * 100;
-                    // Scale font relative to box size, clamped between 7-14px
-                    const fontSize = Math.max(7, Math.min(14, Math.min(bboxW, bboxH) * 0.3));
-                    return (
-                      <>
-                        {/* Severity label — top-left, above the border */}
-                        <View
-                          style={{
-                            position: "absolute",
-                            left: `${data.bbox![0] * 100}%`,
-                            top: `${data.bbox![1] * 100 - (fontSize + 6) / 2.56}%`,
-                            backgroundColor: bboxColor,
-                            paddingHorizontal: 4,
-                            paddingVertical: 1,
-                            borderRadius: 2,
-                            zIndex: 10,
-                          }}
-                        >
-                          <Text style={{ color: "#fff", fontSize, fontWeight: "700" }}>
-                            {severityLabel}
-                          </Text>
-                        </View>
-                        {/* Bounding box */}
-                        <View
-                          className="absolute border-[2.5px]"
-                          style={{
-                            left: `${data.bbox![0] * 100}%`,
-                            top: `${data.bbox![1] * 100}%`,
-                            width: `${bboxW}%`,
-                            height: `${bboxH}%`,
-                            borderColor: bboxColor,
-                            backgroundColor: "rgba(255,255,255,0.05)",
-                          }}
-                        />
-                      </>
-                    );
-                  })()}
+                  {hasBbox &&
+                    (() => {
+                      const bboxColor =
+                        data.variant === "critical"
+                          ? "#b40000"
+                          : data.variant === "high"
+                            ? "#c56400"
+                            : data.variant === "medium"
+                              ? "#d89700"
+                              : "#00ad14";
+                      const severityLabel =
+                        data.variant.charAt(0).toUpperCase() +
+                        data.variant.slice(1);
+                      const bboxW = (data.bbox![2] - data.bbox![0]) * 100;
+                      const bboxH = (data.bbox![3] - data.bbox![1]) * 100;
+                      // Scale font relative to box size, clamped between 7-14px
+                      const fontSize = Math.max(
+                        7,
+                        Math.min(14, Math.min(bboxW, bboxH) * 0.3),
+                      );
+                      return (
+                        <>
+                          {/* Severity label — top-left, above the border */}
+                          <View
+                            style={{
+                              position: "absolute",
+                              left: `${data.bbox![0] * 100}%`,
+                              top: `${data.bbox![1] * 100 - (fontSize + 6) / 2.56}%`,
+                              backgroundColor: bboxColor,
+                              paddingHorizontal: 4,
+                              paddingVertical: 1,
+                              borderRadius: 2,
+                              zIndex: 10,
+                            }}
+                          >
+                            <Text
+                              style={{
+                                color: "#fff",
+                                fontSize,
+                                fontWeight: "700",
+                              }}
+                            >
+                              {severityLabel}
+                            </Text>
+                          </View>
+                          {/* Bounding box */}
+                          <View
+                            className="absolute border-[2.5px]"
+                            style={{
+                              left: `${data.bbox![0] * 100}%`,
+                              top: `${data.bbox![1] * 100}%`,
+                              width: `${bboxW}%`,
+                              height: `${bboxH}%`,
+                              borderColor: bboxColor,
+                              backgroundColor: "rgba(255,255,255,0.05)",
+                            }}
+                          />
+                        </>
+                      );
+                    })()}
                 </View>
               );
             })()}
@@ -203,16 +234,24 @@ function HazardCardDesign({
 
           {/* Dynamic Reason based on Tab */}
           <View>
-            <Text className="text-xl font-semibold mb-2 text-text-default">Reason:</Text>
-            <Text className="text-lg leading-6 text-text-default">{reason}</Text>
+            <Text className="text-xl font-semibold mb-2 text-text-default">
+              Reason:
+            </Text>
+            <Text className="text-lg leading-6 text-text-default">
+              {reason}
+            </Text>
           </View>
 
           {/* Dynamic Fixes based on Tab */}
           <View>
-            <Text className="text-xl font-semibold mb-2 text-text-default">Suggested Fixes:</Text>
+            <Text className="text-xl font-semibold mb-2 text-text-default">
+              Suggested Fixes:
+            </Text>
             {fixes.map((fix, index) => (
               <View key={index} className="flex-row gap-2 mb-2">
-                <Text className="text-lg font-bold text-text-default">{index + 1}.</Text>
+                <Text className="text-lg font-bold text-text-default">
+                  {index + 1}.
+                </Text>
                 <Text className="text-lg flex-1 text-text-default">{fix}</Text>
               </View>
             ))}
@@ -233,7 +272,9 @@ function HazardCardDesign({
                 onPress={async () => {
                   if (isResolved) return;
                   try {
-                    const freshSession = await markHazardAsAssessed(data.id as number);
+                    const freshSession = await markHazardAsAssessed(
+                      data.id as number,
+                    );
                     setIsResolved(true);
                     if (onResolved) onResolved(freshSession);
                   } catch (error) {
@@ -291,7 +332,9 @@ const HazardCard = ({
   if (loadedHazards.length === 0) {
     return (
       <View className="bg-surface-light rounded-2xl p-8 items-center border-2 border-dashed border-border-secondary">
-        <Text className="text-xl font-semibold text-gray-500 text-center">No Hazards Detected</Text>
+        <Text className="text-xl font-semibold text-gray-500 text-center">
+          No Hazards Detected
+        </Text>
         <Text className="text-base text-gray-400 text-center mt-2">
           This area appears to be safe based on the current scan.
         </Text>
