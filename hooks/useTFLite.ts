@@ -1,7 +1,7 @@
 import { Detection, performNMS } from "@/lib/spatialMath";
 import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
 import { useCallback, useEffect, useState } from "react";
-import { Image, Platform } from "react-native";
+import { Image } from "react-native";
 import {
   loadTensorflowModel,
   type TensorflowModel,
@@ -35,13 +35,25 @@ const CLASS_NAMES = [
 const INPUT_SIZE = 640;
 const CONF_THRESHOLD = 0.4;
 const NMS_THRESHOLD = 0.45;
+const EDGE_MARGIN = 0.02; // 2% edge margin — discard partial detections at slice borders
 
-/** 2x2 Grid with 20% overlap */
+/**
+ * 3x3 Grid with larger tiles (0.45x0.45) for more context per slice.
+ * Positions are staggered to maintain full coverage with ~27% overlap.
+ */
 const SAHI_SLICES = [
-  { x: 0, y: 0, w: 0.6, h: 0.6 }, // Top-Left
-  { x: 0.4, y: 0, w: 0.6, h: 0.6 }, // Top-Right
-  { x: 0, y: 0.4, w: 0.6, h: 0.6 }, // Bottom-Left
-  { x: 0.4, y: 0.4, w: 0.6, h: 0.6 }, // Bottom-Right
+  // Row 1
+  { x: 0, y: 0, w: 0.45, h: 0.45 },
+  { x: 0.275, y: 0, w: 0.45, h: 0.45 },
+  { x: 0.55, y: 0, w: 0.45, h: 0.45 },
+  // Row 2
+  { x: 0, y: 0.275, w: 0.45, h: 0.45 },
+  { x: 0.275, y: 0.275, w: 0.45, h: 0.45 },
+  { x: 0.55, y: 0.275, w: 0.45, h: 0.45 },
+  // Row 3
+  { x: 0, y: 0.55, w: 0.45, h: 0.45 },
+  { x: 0.275, y: 0.55, w: 0.45, h: 0.45 },
+  { x: 0.55, y: 0.55, w: 0.45, h: 0.45 },
 ];
 
 async function getOriginalSize(
@@ -87,13 +99,33 @@ async function prepareTensor(
   }
 }
 
+/**
+ * Checks if a detection's bbox sits at the edge of the slice (in local 0-1 space).
+ * If it does, it's likely a partial object — the neighboring slice will have the full one.
+ */
+function isEdgeDetection(
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+): boolean {
+  return (
+    x1 < EDGE_MARGIN ||
+    y1 < EDGE_MARGIN ||
+    x2 > 1 - EDGE_MARGIN ||
+    y2 > 1 - EDGE_MARGIN
+  );
+}
+
 function parseDetections(
   output: ArrayLike<number | bigint>,
-  offsetParams: { x: number; y: number; scale: number } = {
+  offsetParams: { x: number; y: number; scaleX: number; scaleY: number } = {
     x: 0,
     y: 0,
-    scale: 1,
+    scaleX: 1,
+    scaleY: 1,
   },
+  isSlice = false,
 ): Detection[] {
   const readValue = (index: number) => Number(output[index]);
   const detections: Detection[] = [];
@@ -114,11 +146,16 @@ function parseDetections(
       classIdx >= 0 &&
       classIdx < CLASS_NAMES.length
     ) {
-      // Map local slice coordinates back to global normalized space (0-1)
-      const x1 = offsetParams.x + x1_raw * offsetParams.scale;
-      const y1 = offsetParams.y + y1_raw * offsetParams.scale;
-      const x2 = offsetParams.x + x2_raw * offsetParams.scale;
-      const y2 = offsetParams.y + y2_raw * offsetParams.scale;
+      // For slice passes: filter out detections that are cut off at the slice border
+      if (isSlice && isEdgeDetection(x1_raw, y1_raw, x2_raw, y2_raw)) {
+        continue;
+      }
+
+      // Model outputs normalized 0-1 coordinates — map directly to global space
+      const x1 = offsetParams.x + x1_raw * offsetParams.scaleX;
+      const y1 = offsetParams.y + y1_raw * offsetParams.scaleY;
+      const x2 = offsetParams.x + x2_raw * offsetParams.scaleX;
+      const y2 = offsetParams.y + y2_raw * offsetParams.scaleY;
 
       detections.push({
         class: CLASS_NAMES[classIdx],
@@ -146,27 +183,28 @@ export function useTFLite() {
 
   const loadModel = async () => {
     try {
-      console.log("⏳ Loading TFLite model...");
+      console.log("Loading TFLite model...");
       const loadedModel = await loadTensorflowModel(
         require("@/model/bantai_model.tflite"),
       );
       setModel(loadedModel);
       setModelLoaded(true);
-      console.log("✓ YOLO26s Model Loaded");
+      console.log("YOLO26s Model Loaded");
     } catch (err) {
-      console.error("✗ MODEL LOAD FAILED:", String(err));
+      console.error("MODEL LOAD FAILED:", String(err));
       setError(err instanceof Error ? err.message : String(err));
     }
   };
 
   const runSinglePass = async (
     uri: string,
-    offset = { x: 0, y: 0, scale: 1 },
+    offset = { x: 0, y: 0, scaleX: 1, scaleY: 1 },
+    isSlice = false,
   ): Promise<Detection[]> => {
     if (!model) return [];
     const tensor = await prepareTensor(uri, model.inputs[0].dataType);
     const outputs = await model.run([tensor]);
-    return parseDetections(outputs[0], offset);
+    return parseDetections(outputs[0], offset, isSlice);
   };
 
   const runInference = useCallback(
@@ -177,9 +215,9 @@ export function useTFLite() {
         const { width, height } = await getOriginalSize(imageUri);
         const allResults: Detection[] = [];
 
-        console.log("--- Starting SAHI Scan ---");
+        console.log("--- Starting 10-Pass SAHI Scan (3x3) ---");
 
-        // Pass 1: Global Scan
+        // Pass 1: Global Scan (full context, no edge filtering)
         const globalResized = await manipulateAsync(
           imageUri,
           [{ resize: { width: INPUT_SIZE, height: INPUT_SIZE } }],
@@ -187,9 +225,9 @@ export function useTFLite() {
         );
         const globalDetections = await runSinglePass(globalResized.uri);
         allResults.push(...globalDetections);
-        console.log(`Global Pass: Found ${globalDetections.length}`);
+        console.log(`Global Pass: ${globalDetections.length} detections`);
 
-        // Pass 2-5: Detailed Slices (2x2 Grid)
+        // Pass 2-10: Detailed Slices (3x3 Grid, edge-filtered)
         for (let idx = 0; idx < SAHI_SLICES.length; idx++) {
           const s = SAHI_SLICES[idx];
           const crop = await manipulateAsync(
@@ -208,19 +246,19 @@ export function useTFLite() {
             { format: SaveFormat.JPEG },
           );
 
-          const sliceDetections = await runSinglePass(crop.uri, {
-            x: s.x,
-            y: s.y,
-            scale: s.w,
-          });
+          const sliceDetections = await runSinglePass(
+            crop.uri,
+            { x: s.x, y: s.y, scaleX: s.w, scaleY: s.h },
+            true, // enable edge filtering for slices
+          );
           allResults.push(...sliceDetections);
-          console.log(`Slice ${idx + 1} Pass: Found ${sliceDetections.length}`);
+          console.log(`Slice ${idx + 1}: ${sliceDetections.length} detections`);
         }
 
-        // Final Step: NMS to merge overlapping detections
+        // Final: NMS to merge duplicate detections from overlapping slices
         const mergedResults = performNMS(allResults, NMS_THRESHOLD);
         console.log(
-          `SAHI Complete: ${mergedResults.length} unique hazards found.`,
+          `SAHI Complete: ${allResults.length} raw -> ${mergedResults.length} unique hazards`,
         );
 
         return mergedResults;
