@@ -10,7 +10,7 @@ import {
   performNMS,
 } from "@/lib/spatialMath";
 import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Image } from "react-native";
 import {
   loadTensorflowModel,
@@ -45,6 +45,9 @@ const CLASS_NAMES = [
 const INPUT_SIZE = 640;
 const GLOBAL_CONF = 0.5;
 const SLICE_CONF = 0.4; // zoomed crops have less context, permissive filter
+const RELAXED_GLOBAL_CONF = 0.42;
+const RELAXED_SLICE_CONF = 0.32;
+const RELAXED_CLASS_FLOOR_DELTA = 0.08;
 const NMS_THRESHOLD = 0.45;
 const MIN_BBOX_AREA = 0.001; // Minimum 0.1% of image area — filters noise-level hallucinations
 const MIN_BBOX_SIDE = 0.02; // Minimum 2% width/height
@@ -53,6 +56,8 @@ const MIN_STRUCTURAL_BBOX_SIDE = 0.008; // Allow thin crack boxes
 const STRUCTURAL_MAX_ASPECT_RATIO = 30; // Cracks can be long and thin
 const SUPPORT_IOU = 0.35;
 const CRITICAL_SUPPORT_MIN = 3;
+const RELAXED_SUPPORT_IOU = 0.22;
+const RELAXED_CLASS_FLOOR_DELTA_CONSENSUS = 0.04;
 const NON_CRITICAL_SUPER_STRONG_FLOOR = 0.92;
 const EXCLUSIVE_DUPLICATE_IOU = 0.42;
 const SAME_CLASS_CONTAINMENT_THRESHOLD = 0.86;
@@ -112,6 +117,26 @@ const SAHI_SLICES = [
   { x: 0.6, y: 0.6, w: 0.4, h: 0.4 },
 ];
 
+function getSafeSliceCrop(
+  slice: { x: number; y: number; w: number; h: number },
+  width: number,
+  height: number,
+): { originX: number; originY: number; width: number; height: number } {
+  const originX = Math.max(0, Math.min(width - 1, Math.floor(slice.x * width)));
+  const originY = Math.max(
+    0,
+    Math.min(height - 1, Math.floor(slice.y * height)),
+  );
+
+  const desiredWidth = Math.max(1, Math.round(slice.w * width));
+  const desiredHeight = Math.max(1, Math.round(slice.h * height));
+
+  const safeWidth = Math.max(1, Math.min(desiredWidth, width - originX));
+  const safeHeight = Math.max(1, Math.min(desiredHeight, height - originY));
+
+  return { originX, originY, width: safeWidth, height: safeHeight };
+}
+
 async function getOriginalSize(
   uri: string,
 ): Promise<{ width: number; height: number }> {
@@ -164,6 +189,7 @@ function parseDetections(
     scaleY: 1,
   },
   confThreshold = GLOBAL_CONF,
+  classFloorDelta = 0,
 ): Detection[] {
   const readValue = (index: number) => Number(output[index]);
   const detections: Detection[] = [];
@@ -187,7 +213,8 @@ function parseDetections(
     ) {
       const className = CLASS_NAMES[classIdx];
       const isStructural = STRUCTURAL_CLASSES.has(className);
-      const classConfFloor = MIN_CLASS_CONFIDENCE[className] ?? confThreshold;
+      const classConfFloor =
+        (MIN_CLASS_CONFIDENCE[className] ?? confThreshold) - classFloorDelta;
       if (confidence < classConfFloor) continue;
 
       // Guard against swapped coordinates and malformed outputs.
@@ -328,8 +355,13 @@ function suppressSemanticDuplicates(detections: Detection[]): Detection[] {
   return sorted.filter((_, idx) => !removed.has(idx));
 }
 
-function applyConsensusFilter(candidates: DetectionCandidate[]): Detection[] {
+function applyConsensusFilter(
+  candidates: DetectionCandidate[],
+  options: { relaxed?: boolean } = {},
+): Detection[] {
   if (candidates.length === 0) return [];
+  const relaxed = options.relaxed ?? false;
+  const supportIou = relaxed ? RELAXED_SUPPORT_IOU : SUPPORT_IOU;
 
   const merged = performNMS(candidates, NMS_THRESHOLD);
 
@@ -337,7 +369,7 @@ function applyConsensusFilter(candidates: DetectionCandidate[]): Detection[] {
   for (const det of merged) {
     const supporters = candidates.filter(
       (cand) =>
-        cand.class === det.class && getIoU(cand.bbox, det.bbox) >= SUPPORT_IOU,
+        cand.class === det.class && getIoU(cand.bbox, det.bbox) >= supportIou,
     );
 
     const supportCount = supporters.length;
@@ -348,8 +380,11 @@ function applyConsensusFilter(candidates: DetectionCandidate[]): Detection[] {
     const isCritical = CRITICAL_CLASSES.has(det.class);
     const isStructural = STRUCTURAL_CLASSES.has(det.class);
     const className = det.class as (typeof CLASS_NAMES)[number];
-    const classFloor = MIN_CLASS_CONFIDENCE[className] ?? GLOBAL_CONF;
-    const strongFloor = STRONG_CONFIDENCE[className] ?? 0.8;
+    const baseClassFloor = MIN_CLASS_CONFIDENCE[className] ?? GLOBAL_CONF;
+    const classFloor =
+      baseClassFloor - (relaxed ? RELAXED_CLASS_FLOOR_DELTA_CONSENSUS : 0);
+    const strongFloor =
+      (STRONG_CONFIDENCE[className] ?? 0.8) - (relaxed ? 0.05 : 0);
     const peakConfidence = Math.max(
       ...supporters.map((s) => s.confidence),
       det.confidence,
@@ -367,16 +402,25 @@ function applyConsensusFilter(candidates: DetectionCandidate[]): Detection[] {
       supportCount >= 2 &&
       (globalSupport > 0 || strongConf || meanConfidence >= classFloor + 0.05);
 
+    const relaxedSupportedEnough =
+      supportCount >= 1 &&
+      (globalSupport > 0 ||
+        peakConfidence >= classFloor + 0.02 ||
+        meanConfidence >= classFloor);
+
     const structuralSinglePassAccepted =
       isStructural &&
       supportCount >= 1 &&
       (peakConfidence >= classFloor + 0.08 || globalSupport > 0);
 
     const criticalAccepted =
-      !isCritical || strongConf || supportCount >= CRITICAL_SUPPORT_MIN;
+      !isCritical ||
+      strongConf ||
+      supportCount >= (relaxed ? 2 : CRITICAL_SUPPORT_MIN);
     const nonCriticalAccepted =
       isCritical ||
       supportedEnough ||
+      (relaxed && relaxedSupportedEnough) ||
       structuralSinglePassAccepted ||
       (globalSupport > 0 && strongConf) ||
       superStrongConf;
@@ -415,6 +459,7 @@ export function useTFLite() {
   const [modelLoaded, setModelLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [model, setModel] = useState<TensorflowModel | null>(null);
+  const runtimeDebugLoggedRef = useRef(false);
 
   useEffect(() => {
     loadModel();
@@ -428,7 +473,13 @@ export function useTFLite() {
       );
       setModel(loadedModel);
       setModelLoaded(true);
-      console.log("YOLO26s Model Loaded");
+      console.log(
+        `YOLO26s Model Loaded (delegate=${loadedModel.delegate}, input=${loadedModel.inputs
+          .map((t) => `${t.name}:${t.dataType}[${t.shape.join("x")}]`)
+          .join("; ")}, outputs=${loadedModel.outputs
+          .map((t) => `${t.name}:${t.dataType}[${t.shape.join("x")}]`)
+          .join("; ")})`,
+      );
     } catch (err) {
       console.error("MODEL LOAD FAILED:", String(err));
       setError(err instanceof Error ? err.message : String(err));
@@ -439,11 +490,34 @@ export function useTFLite() {
     uri: string,
     offset = { x: 0, y: 0, scaleX: 1, scaleY: 1 },
     confThreshold = GLOBAL_CONF,
+    classFloorDelta = 0,
   ): Promise<Detection[]> => {
     if (!model) return [];
     const tensor = await prepareTensor(uri, model.inputs[0].dataType);
     const outputs = await model.run([tensor]);
-    return parseDetections(outputs[0], offset, confThreshold);
+    if (outputs.length === 0) {
+      return [];
+    }
+
+    // Some runtimes/delegates expose multiple outputs with varying order.
+    // Use the largest output tensor as detection payload for better cross-device consistency.
+    const detectionOutput = outputs.reduce((best, current) =>
+      current.length > best.length ? current : best,
+    );
+
+    if (!runtimeDebugLoggedRef.current) {
+      console.log(
+        `TFLite output lengths: [${outputs.map((o) => o.length).join(", ")}], selected=${detectionOutput.length}`,
+      );
+      runtimeDebugLoggedRef.current = true;
+    }
+
+    return parseDetections(
+      detectionOutput,
+      offset,
+      confThreshold,
+      classFloorDelta,
+    );
   };
 
   const runInference = useCallback(
@@ -482,30 +556,34 @@ export function useTFLite() {
         // Pass 2-10: Detailed Slices (3x3 Grid)
         for (let idx = 0; idx < SAHI_SLICES.length; idx++) {
           const s = SAHI_SLICES[idx];
-          const crop = await manipulateAsync(
-            imageUri,
-            [
-              {
-                crop: {
-                  originX: s.x * width,
-                  originY: s.y * height,
-                  width: s.w * width,
-                  height: s.h * height,
+          try {
+            const cropRect = getSafeSliceCrop(s, width, height);
+            const crop = await manipulateAsync(
+              imageUri,
+              [
+                {
+                  crop: cropRect,
                 },
-              },
-              { resize: { width: INPUT_SIZE, height: INPUT_SIZE } },
-            ],
-            { format: SaveFormat.JPEG },
-          );
+                { resize: { width: INPUT_SIZE, height: INPUT_SIZE } },
+              ],
+              { format: SaveFormat.JPEG },
+            );
 
-          const sliceDetections = await runSinglePass(
-            crop.uri,
-            { x: s.x, y: s.y, scaleX: s.w, scaleY: s.h },
-            SLICE_CONF, // permissive threshold for zoomed crops
-          );
-          const source = `slice-${idx + 1}` as const;
-          allCandidates.push(...sliceDetections.map((d) => ({ ...d, source })));
-          console.log(`Slice ${idx + 1}: ${sliceDetections.length} detections`);
+            const sliceDetections = await runSinglePass(
+              crop.uri,
+              { x: s.x, y: s.y, scaleX: s.w, scaleY: s.h },
+              SLICE_CONF, // permissive threshold for zoomed crops
+            );
+            const source = `slice-${idx + 1}` as const;
+            allCandidates.push(
+              ...sliceDetections.map((d) => ({ ...d, source })),
+            );
+            console.log(
+              `Slice ${idx + 1}: ${sliceDetections.length} detections`,
+            );
+          } catch (sliceErr) {
+            console.warn(`Slice ${idx + 1} failed, continuing SAHI:`, sliceErr);
+          }
           onProgress?.(2 + idx, totalSteps);
         }
 
@@ -515,10 +593,87 @@ export function useTFLite() {
           `SAHI Complete: ${allCandidates.length} raw -> ${mergedResults.length} vetted hazards`,
         );
 
-        return mergedResults;
+        if (mergedResults.length > 0) {
+          return mergedResults;
+        }
+
+        const relaxedFromStrictCandidates = applyConsensusFilter(
+          allCandidates,
+          {
+            relaxed: true,
+          },
+        );
+        console.log(
+          `Relaxed consensus on strict candidates: ${relaxedFromStrictCandidates.length} hazards`,
+        );
+        if (relaxedFromStrictCandidates.length > 0) {
+          return relaxedFromStrictCandidates;
+        }
+
+        // Lightweight fallback: run one relaxed global pass only.
+        // Avoids doubling SAHI slice workload on lower-memory real devices.
+        console.log(
+          "No hazards from strict SAHI. Trying relaxed global fallback...",
+        );
+
+        const relaxedGlobalDetections = await runSinglePass(
+          globalResized.uri,
+          undefined,
+          RELAXED_GLOBAL_CONF,
+          RELAXED_CLASS_FLOOR_DELTA,
+        );
+        const relaxedCandidates: DetectionCandidate[] = [];
+        relaxedCandidates.push(
+          ...relaxedGlobalDetections.map((d) => ({
+            ...d,
+            source: "global" as const,
+          })),
+        );
+
+        const relaxedResults = applyConsensusFilter(relaxedCandidates, {
+          relaxed: true,
+        });
+        console.log(
+          `Relaxed global fallback: ${relaxedCandidates.length} raw -> ${relaxedResults.length} vetted hazards`,
+        );
+
+        return relaxedResults;
       } catch (err) {
         console.error("SAHI Inference Failed:", err);
-        throw err;
+
+        try {
+          // Emergency fallback for low-memory/device-specific SAHI failures.
+          // Run a single global pass so users still get detections instead of an empty report.
+          const globalResized = await manipulateAsync(
+            imageUri,
+            [{ resize: { width: INPUT_SIZE, height: INPUT_SIZE } }],
+            { format: SaveFormat.JPEG },
+          );
+
+          const emergencyDetections = await runSinglePass(
+            globalResized.uri,
+            undefined,
+            RELAXED_GLOBAL_CONF,
+            RELAXED_CLASS_FLOOR_DELTA,
+          );
+          const emergencyCandidates: DetectionCandidate[] =
+            emergencyDetections.map((d) => ({
+              ...d,
+              source: "global" as const,
+            }));
+          const emergencyResults = applyConsensusFilter(emergencyCandidates, {
+            relaxed: true,
+          });
+
+          console.log(
+            `Emergency global fallback: ${emergencyDetections.length} raw -> ${emergencyResults.length} vetted hazards`,
+          );
+
+          return emergencyResults;
+        } catch (fallbackErr) {
+          console.error("Emergency fallback failed:", fallbackErr);
+          throw err;
+        }
       }
     },
     [model, modelLoaded],
