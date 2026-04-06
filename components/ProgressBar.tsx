@@ -10,11 +10,14 @@ interface ProgressBarProps {
   progress?: number;
   /** Status text */
   statusText?: string;
+  /** Optional cancel handler */
+  onCancel?: () => void;
 }
 
 export default function ProgressBar({
   progress = 0,
   statusText = "Initializing...",
+  onCancel,
 }: ProgressBarProps) {
   const percentage = Math.round(progress * 100);
 
@@ -45,7 +48,8 @@ export default function ProgressBar({
       <Button
         label="Cancel"
         className="w-full"
-        onPress={() => null}
+        onPress={onCancel ?? (() => null)}
+        disabled={!onCancel}
         variant="cancel"
       />
     </View>
