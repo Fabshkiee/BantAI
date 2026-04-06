@@ -247,6 +247,22 @@ export default function SafetyReport() {
       (SEVERITY_PRIORITY[b.variant] || 0) - (SEVERITY_PRIORITY[a.variant] || 0),
   );
 
+  const activeContextLabel: Record<DisasterType | "all", string> = {
+    all: "All Hazards",
+    earthquake: "Earthquake",
+    typhoon: "Typhoon",
+    fire: "Fire",
+  };
+
+  const sortingContextMessage: Record<DisasterType | "all", string> = {
+    earthquake:
+      "You are viewing earthquake-focused cards. Each reason and suggested fix explains the earthquake safety context of the hazard.",
+    typhoon:
+      "You are viewing typhoon-focused cards. Each reason and suggested fix explains the typhoon safety context of the hazard.",
+    fire: "You are viewing fire-focused cards. Each reason and suggested fix explains the fire safety context of the hazard.",
+    all: "You are viewing all hazards. Reasons and suggested fixes are based on each hazard's most critical risk evaluation.",
+  };
+
   const handleUploadAnotherImage = useCallback(async () => {
     try {
       const { status } =
@@ -364,7 +380,7 @@ export default function SafetyReport() {
               </Text>
               <Text className="text-lg">
                 After assessing each hazard, apply the recommended fix, and
-                press the hazard assessed button once finished.
+                press the 'Mark as Resolved' button once finished.
               </Text>
             </View>
 
@@ -373,9 +389,17 @@ export default function SafetyReport() {
                 tableName="test"
                 onSortQueryChange={executeDatabaseSearch}
               />
+              <View className="mt-3 rounded-xl bg-surface-light px-4 py-3 border border-border-light">
+                <Text className="text-sm font-semibold text-text-default">
+                  Reason/Fix Context: {activeContextLabel[activeDisasterTab]}
+                </Text>
+                <Text className="text-sm text-text-subtle mt-1 leading-5">
+                  {sortingContextMessage[activeDisasterTab]}
+                </Text>
+              </View>
             </View>
 
-            <View className="mt-7">
+            <View className="mt-1">
               {hasSession && isLoadingSession ? (
                 <View className="items-center justify-center py-10">
                   <ActivityIndicator size="large" color="#0f172a" />

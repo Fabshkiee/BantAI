@@ -10,7 +10,6 @@ import {
 const dbPromise = SQLite.openDatabaseAsync("app.db");
 let initPromise: Promise<void> | null = null;
 
-const sqlQuote = (value: string) => value.replaceAll("'", "''");
 const formatHazardTitle = (value: string) =>
   value.includes("_")
     ? value
@@ -218,10 +217,28 @@ export async function initDatabase(): Promise<void> {
       CREATE INDEX IF NOT EXISTS idx_hazards_assessed    ON detected_hazards (is_assessed);
       CREATE INDEX IF NOT EXISTS idx_sessions_scanned_at ON scan_sessions (scanned_at DESC);
       CREATE INDEX IF NOT EXISTS idx_sessions_status     ON scan_sessions (status);
-
-        INSERT OR IGNORE INTO hazard_types (name, category, default_severity, description, recommendation) VALUES
-          ${HAZARD_TYPES.map((hazard) => `('${sqlQuote(hazard.name)}', '${sqlQuote(hazard.category)}', '${sqlQuote(hazard.default_severity)}', '${sqlQuote(hazard.description ?? "")}', '${sqlQuote(hazard.recommendation ?? "")}')`).join(",\n          ")};
     `);
+
+    // Keep hazard seed metadata in sync across app updates.
+    // INSERT OR IGNORE alone leaves stale severity values in existing installs.
+    for (const hazard of HAZARD_TYPES) {
+      await db.runAsync(
+        `
+          INSERT INTO hazard_types (name, category, default_severity, description, recommendation)
+          VALUES (?, ?, ?, ?, ?)
+          ON CONFLICT(name) DO UPDATE SET
+            category = excluded.category,
+            default_severity = excluded.default_severity,
+            description = excluded.description,
+            recommendation = excluded.recommendation
+        `,
+        hazard.name,
+        hazard.category,
+        hazard.default_severity,
+        hazard.description ?? "",
+        hazard.recommendation ?? "",
+      );
+    }
   })();
 
   return initPromise;
@@ -459,14 +476,21 @@ export async function insertDetectedHazards(
         };
 
   for (const det of detections) {
-    const seed = HAZARD_TYPES.find((hazard) => hazard.name === det.class);
+    const normalizedClass = det.class.trim().toLowerCase();
+    const seed = HAZARD_TYPES.find((hazard) => hazard.name === normalizedClass);
+    const dictId = `HAZARD_LABELS.${normalizedClass.toUpperCase()}`;
+    const dictEntry = hazardDictionary.find((hazard) => hazard.id === dictId);
     const title =
-      HAZARD_DISPLAY_NAMES[det.class as keyof typeof HAZARD_DISPLAY_NAMES] ??
-      formatHazardTitle(det.class);
+      HAZARD_DISPLAY_NAMES[
+        normalizedClass as keyof typeof HAZARD_DISPLAY_NAMES
+      ] ?? formatHazardTitle(normalizedClass);
+
+    const resolvedSeverity =
+      seed?.default_severity ?? dictEntry?.default_severity ?? "medium";
 
     const hazardRows = await db.getAllAsync<{ id: number }>(
       "SELECT id FROM hazard_types WHERE name = ?",
-      det.class,
+      normalizedClass,
     );
     const hazardTypeId = hazardRows.length > 0 ? hazardRows[0].id : null;
 
@@ -484,7 +508,7 @@ export async function insertDetectedHazards(
       `,
       sessionId,
       hazardTypeId,
-      seed?.default_severity ?? "medium",
+      resolvedSeverity,
       title,
       seed?.description ?? null,
       seed?.recommendation ?? null,
