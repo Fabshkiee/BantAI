@@ -1,4 +1,14 @@
-import { Detection, performNMS } from "@/lib/spatialMath";
+import {
+  CLASS_CONFIDENCE_PROFILE,
+  CLASS_MIN_AREA_PROFILE,
+  CLASS_STRONG_CONFIDENCE_PROFILE,
+} from "@/lib/detectionCalibration";
+import {
+  Detection,
+  getContainmentRatio,
+  getIoU,
+  performNMS,
+} from "@/lib/spatialMath";
 import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
 import { useCallback, useEffect, useState } from "react";
 import { Image } from "react-native";
@@ -33,28 +43,73 @@ const CLASS_NAMES = [
 ];
 
 const INPUT_SIZE = 640;
-const CONF_THRESHOLD = 0.45;
+const GLOBAL_CONF = 0.5;
+const SLICE_CONF = 0.4;    // zoomed crops have less context, permissive filter
 const NMS_THRESHOLD = 0.45;
-const EDGE_MARGIN = 0.02;
 const MIN_BBOX_AREA = 0.001; // Minimum 0.1% of image area — filters noise-level hallucinations
+const MIN_BBOX_SIDE = 0.02; // Minimum 2% width/height
+const MAX_ASPECT_RATIO = 12; // Reject ultra-thin hallucination boxes
+const MIN_STRUCTURAL_BBOX_SIDE = 0.008; // Allow thin crack boxes
+const STRUCTURAL_MAX_ASPECT_RATIO = 30; // Cracks can be long and thin
+const SUPPORT_IOU = 0.35;
+const CRITICAL_SUPPORT_MIN = 3;
+const NON_CRITICAL_SUPER_STRONG_FLOOR = 0.92;
+const EXCLUSIVE_DUPLICATE_IOU = 0.42;
+const SAME_CLASS_CONTAINMENT_THRESHOLD = 0.86;
+const SAME_CLASS_MAX_NESTED_AREA_RATIO = 0.45;
+const SMALLER_BOX_KEEP_MARGIN = 0.12;
+
+const CRITICAL_CLASSES = new Set<string>([
+  "collapsed_structure",
+  "open_flame_hazard",
+  "exposed_breaker",
+]);
+
+const STRUCTURAL_CLASSES = new Set<string>([
+  "major_crack",
+  "minor_crack",
+  "collapsed_structure",
+]);
+
+const MUTUALLY_EXCLUSIVE_CLASS_GROUPS: Array<Set<string>> = [
+  new Set(["major_crack", "minor_crack"]),
+];
+
+const EXCLUSIVE_CLASS_PRIORITY: Record<string, number> = {
+  major_crack: 2,
+  minor_crack: 1,
+};
+
+const MIN_CLASS_CONFIDENCE = CLASS_CONFIDENCE_PROFILE;
+const MIN_CLASS_AREA = CLASS_MIN_AREA_PROFILE;
+const STRONG_CONFIDENCE = CLASS_STRONG_CONFIDENCE_PROFILE;
+
+const MAX_DETECTIONS_PER_CLASS = 3;
+
+type PassSource = "global" | `slice-${number}`;
+
+type DetectionCandidate = Detection & {
+  source: PassSource;
+};
 
 /**
- * 3x3 Grid with larger tiles (0.45x0.45) for more context per slice.
- * Positions are staggered to maintain full coverage with ~27% overlap.
+ * 3x3 Grid (3 columns, 3 rows) aligned with project documentation.
+ * Each tile: 0.4w x 0.4h with ~25% overlap in both axes.
+ * Total: 9 slices + 1 global = 10 passes.
  */
 const SAHI_SLICES = [
-  // Row 1
-  { x: 0, y: 0, w: 0.45, h: 0.45 },
-  { x: 0.275, y: 0, w: 0.45, h: 0.45 },
-  { x: 0.55, y: 0, w: 0.45, h: 0.45 },
-  // Row 2
-  { x: 0, y: 0.275, w: 0.45, h: 0.45 },
-  { x: 0.275, y: 0.275, w: 0.45, h: 0.45 },
-  { x: 0.55, y: 0.275, w: 0.45, h: 0.45 },
-  // Row 3
-  { x: 0, y: 0.55, w: 0.45, h: 0.45 },
-  { x: 0.275, y: 0.55, w: 0.45, h: 0.45 },
-  { x: 0.55, y: 0.55, w: 0.45, h: 0.45 },
+  // Row 1 (top)
+  { x: 0, y: 0, w: 0.4, h: 0.4 },
+  { x: 0.3, y: 0, w: 0.4, h: 0.4 },
+  { x: 0.6, y: 0, w: 0.4, h: 0.4 },
+  // Row 2 (middle)
+  { x: 0, y: 0.3, w: 0.4, h: 0.4 },
+  { x: 0.3, y: 0.3, w: 0.4, h: 0.4 },
+  { x: 0.6, y: 0.3, w: 0.4, h: 0.4 },
+  // Row 3 (bottom)
+  { x: 0, y: 0.6, w: 0.4, h: 0.4 },
+  { x: 0.3, y: 0.6, w: 0.4, h: 0.4 },
+  { x: 0.6, y: 0.6, w: 0.4, h: 0.4 },
 ];
 
 async function getOriginalSize(
@@ -100,23 +155,6 @@ async function prepareTensor(
   }
 }
 
-/**
- * Checks if a detection's bbox sits at the edge of the slice (in local 0-1 space).
- * If it does, it's likely a partial object — the neighboring slice will have the full one.
- */
-function isEdgeDetection(
-  x1: number,
-  y1: number,
-  x2: number,
-  y2: number,
-): boolean {
-  return (
-    x1 < EDGE_MARGIN ||
-    y1 < EDGE_MARGIN ||
-    x2 > 1 - EDGE_MARGIN ||
-    y2 > 1 - EDGE_MARGIN
-  );
-}
 
 function parseDetections(
   output: ArrayLike<number | bigint>,
@@ -126,7 +164,7 @@ function parseDetections(
     scaleX: 1,
     scaleY: 1,
   },
-  isSlice = false,
+  confThreshold = GLOBAL_CONF,
 ): Detection[] {
   const readValue = (index: number) => Number(output[index]);
   const detections: Detection[] = [];
@@ -143,38 +181,227 @@ function parseDetections(
     const classIdx = Math.round(readValue(offset + 5));
 
     if (
-      confidence > CONF_THRESHOLD &&
+      Number.isFinite(confidence) &&
+      confidence > confThreshold &&
       classIdx >= 0 &&
       classIdx < CLASS_NAMES.length
     ) {
-      // For slice passes: filter out detections that are cut off at the slice border
-      if (isSlice && isEdgeDetection(x1_raw, y1_raw, x2_raw, y2_raw)) {
-        continue;
-      }
+      const className = CLASS_NAMES[classIdx];
+      const isStructural = STRUCTURAL_CLASSES.has(className);
+      const classConfFloor = MIN_CLASS_CONFIDENCE[className] ?? confThreshold;
+      if (confidence < classConfFloor) continue;
+
+      // Guard against swapped coordinates and malformed outputs.
+      // Some exported models may emit x2/y2 slightly lower than x1/y1.
+      const rawLeft = Math.min(x1_raw, x2_raw);
+      const rawTop = Math.min(y1_raw, y2_raw);
+      const rawRight = Math.max(x1_raw, x2_raw);
+      const rawBottom = Math.max(y1_raw, y2_raw);
 
       // Model outputs normalized 0-1 coordinates — map directly to global space
-      const x1 = offsetParams.x + x1_raw * offsetParams.scaleX;
-      const y1 = offsetParams.y + y1_raw * offsetParams.scaleY;
-      const x2 = offsetParams.x + x2_raw * offsetParams.scaleX;
-      const y2 = offsetParams.y + y2_raw * offsetParams.scaleY;
+      const x1 = offsetParams.x + rawLeft * offsetParams.scaleX;
+      const y1 = offsetParams.y + rawTop * offsetParams.scaleY;
+      const x2 = offsetParams.x + rawRight * offsetParams.scaleX;
+      const y2 = offsetParams.y + rawBottom * offsetParams.scaleY;
+
+      const clampedX1 = Math.max(0, Math.min(1, x1));
+      const clampedY1 = Math.max(0, Math.min(1, y1));
+      const clampedX2 = Math.max(0, Math.min(1, x2));
+      const clampedY2 = Math.max(0, Math.min(1, y2));
+
+      const width = clampedX2 - clampedX1;
+      const height = clampedY2 - clampedY1;
+      if (width <= 0 || height <= 0) continue;
+
+      const minSide = isStructural ? MIN_STRUCTURAL_BBOX_SIDE : MIN_BBOX_SIDE;
+      if (width < minSide || height < minSide) continue;
+
+      const aspectRatio = Math.max(width / height, height / width);
+      const maxAspectRatio = isStructural
+        ? STRUCTURAL_MAX_ASPECT_RATIO
+        : MAX_ASPECT_RATIO;
+      if (aspectRatio > maxAspectRatio) continue;
 
       // Filter out noise: discard boxes smaller than MIN_BBOX_AREA of the image
-      const area = Math.abs(x2 - x1) * Math.abs(y2 - y1);
-      if (area < MIN_BBOX_AREA) continue;
+      const area = width * height;
+      const classMinArea = MIN_CLASS_AREA[className] ?? MIN_BBOX_AREA;
+      if (area < classMinArea) continue;
 
       detections.push({
-        class: CLASS_NAMES[classIdx],
+        class: className,
         confidence: Math.min(1, confidence),
-        bbox: [
-          Math.max(0, Math.min(1, x1)),
-          Math.max(0, Math.min(1, y1)),
-          Math.max(0, Math.min(1, x2)),
-          Math.max(0, Math.min(1, y2)),
-        ],
+        bbox: [clampedX1, clampedY1, clampedX2, clampedY2],
       });
     }
   }
   return detections;
+}
+
+function getBoxArea(bbox: [number, number, number, number]): number {
+  const width = Math.max(0, bbox[2] - bbox[0]);
+  const height = Math.max(0, bbox[3] - bbox[1]);
+  return width * height;
+}
+
+function isMutuallyExclusiveClassPair(aClass: string, bClass: string): boolean {
+  if (aClass === bClass) return false;
+  return MUTUALLY_EXCLUSIVE_CLASS_GROUPS.some(
+    (group) => group.has(aClass) && group.has(bClass),
+  );
+}
+
+function pickExclusiveWinner(a: Detection, b: Detection): Detection {
+  const confidenceDelta = Math.abs(a.confidence - b.confidence);
+  if (confidenceDelta > 0.03) {
+    return a.confidence >= b.confidence ? a : b;
+  }
+
+  const aPriority = EXCLUSIVE_CLASS_PRIORITY[a.class] ?? 0;
+  const bPriority = EXCLUSIVE_CLASS_PRIORITY[b.class] ?? 0;
+  if (aPriority !== bPriority) {
+    return aPriority > bPriority ? a : b;
+  }
+
+  return a.confidence >= b.confidence ? a : b;
+}
+
+function suppressSemanticDuplicates(detections: Detection[]): Detection[] {
+  if (detections.length < 2) return detections;
+
+  const sorted = [...detections].sort((a, b) => b.confidence - a.confidence);
+  const removed = new Set<number>();
+
+  for (let i = 0; i < sorted.length; i++) {
+    if (removed.has(i)) continue;
+
+    for (let j = i + 1; j < sorted.length; j++) {
+      if (removed.has(j)) continue;
+
+      const a = sorted[i];
+      const b = sorted[j];
+      const iou = getIoU(a.bbox, b.bbox);
+
+      if (isMutuallyExclusiveClassPair(a.class, b.class) && iou >= EXCLUSIVE_DUPLICATE_IOU) {
+        const winner = pickExclusiveWinner(a, b);
+        if (winner === a) {
+          removed.add(j);
+        } else {
+          removed.add(i);
+          break;
+        }
+        continue;
+      }
+
+      if (a.class !== b.class) continue;
+
+      const areaA = getBoxArea(a.bbox);
+      const areaB = getBoxArea(b.bbox);
+      if (areaA <= 0 || areaB <= 0) continue;
+
+      const aIsSmaller = areaA <= areaB;
+      const smallerIdx = aIsSmaller ? i : j;
+      const largerIdx = aIsSmaller ? j : i;
+      const smaller = aIsSmaller ? a : b;
+      const larger = aIsSmaller ? b : a;
+
+      const containment = getContainmentRatio(smaller.bbox, larger.bbox);
+      const areaRatio = Math.min(areaA, areaB) / Math.max(areaA, areaB);
+      const isNestedPartDuplicate =
+        containment >= SAME_CLASS_CONTAINMENT_THRESHOLD &&
+        areaRatio <= SAME_CLASS_MAX_NESTED_AREA_RATIO;
+
+      if (!isNestedPartDuplicate) continue;
+
+      const keepSmaller =
+        smaller.confidence >= larger.confidence + SMALLER_BOX_KEEP_MARGIN;
+      if (!keepSmaller) {
+        removed.add(smallerIdx);
+        if (smallerIdx === i) break;
+      } else {
+        removed.add(largerIdx);
+      }
+    }
+  }
+
+  return sorted.filter((_, idx) => !removed.has(idx));
+}
+
+function applyConsensusFilter(candidates: DetectionCandidate[]): Detection[] {
+  if (candidates.length === 0) return [];
+
+  const merged = performNMS(candidates, NMS_THRESHOLD);
+
+  const filtered: Detection[] = [];
+  for (const det of merged) {
+    const supporters = candidates.filter(
+      (cand) =>
+        cand.class === det.class && getIoU(cand.bbox, det.bbox) >= SUPPORT_IOU,
+    );
+
+    const supportCount = supporters.length;
+    const globalSupport = supporters.filter((s) => s.source === "global").length;
+    const sliceSupport = supportCount - globalSupport;
+    const isCritical = CRITICAL_CLASSES.has(det.class);
+    const isStructural = STRUCTURAL_CLASSES.has(det.class);
+    const className = det.class as (typeof CLASS_NAMES)[number];
+    const classFloor = MIN_CLASS_CONFIDENCE[className] ?? GLOBAL_CONF;
+    const strongFloor = STRONG_CONFIDENCE[className] ?? 0.8;
+    const peakConfidence = Math.max(...supporters.map((s) => s.confidence), det.confidence);
+    const meanConfidence =
+      supporters.reduce((sum, s) => sum + s.confidence, 0) /
+      Math.max(1, supportCount);
+
+    const strongConf =
+      peakConfidence >= strongFloor;
+    const superStrongConf =
+      peakConfidence >= Math.max(strongFloor + 0.08, NON_CRITICAL_SUPER_STRONG_FLOOR);
+
+    const supportedEnough =
+      supportCount >= 2 &&
+      (globalSupport > 0 || strongConf || meanConfidence >= classFloor + 0.05);
+
+    const structuralSinglePassAccepted =
+      isStructural &&
+      supportCount >= 1 &&
+      (peakConfidence >= classFloor + 0.08 || globalSupport > 0);
+
+    const criticalAccepted =
+      !isCritical || strongConf || supportCount >= CRITICAL_SUPPORT_MIN;
+    const nonCriticalAccepted =
+      isCritical ||
+      supportedEnough ||
+      structuralSinglePassAccepted ||
+      (globalSupport > 0 && strongConf) ||
+      superStrongConf;
+
+    if (!criticalAccepted || !nonCriticalAccepted) {
+      continue;
+    }
+
+    filtered.push({
+      ...det,
+      confidence: Math.min(1, meanConfidence),
+    });
+  }
+
+  const deduped = suppressSemanticDuplicates(filtered);
+
+  // Keep only top-k per class to prevent one class from dominating due to noise.
+  const buckets = new Map<string, Detection[]>();
+  for (const det of deduped) {
+    if (!buckets.has(det.class)) buckets.set(det.class, []);
+    buckets.get(det.class)!.push(det);
+  }
+
+  const limited: Detection[] = [];
+  buckets.forEach((items) => {
+    items
+      .sort((a, b) => b.confidence - a.confidence)
+      .slice(0, MAX_DETECTIONS_PER_CLASS)
+      .forEach((item) => limited.push(item));
+  });
+
+  return limited.sort((a, b) => b.confidence - a.confidence);
 }
 
 export function useTFLite() {
@@ -204,12 +431,12 @@ export function useTFLite() {
   const runSinglePass = async (
     uri: string,
     offset = { x: 0, y: 0, scaleX: 1, scaleY: 1 },
-    isSlice = false,
+    confThreshold = GLOBAL_CONF,
   ): Promise<Detection[]> => {
     if (!model) return [];
     const tensor = await prepareTensor(uri, model.inputs[0].dataType);
     const outputs = await model.run([tensor]);
-    return parseDetections(outputs[0], offset, isSlice);
+    return parseDetections(outputs[0], offset, confThreshold);
   };
 
   const runInference = useCallback(
@@ -218,26 +445,32 @@ export function useTFLite() {
       onProgress?: (step: number, total: number) => void,
     ): Promise<Detection[]> => {
       if (!modelLoaded || !model) throw new Error("Model not ready");
-      const totalSteps = 1 + SAHI_SLICES.length; // 1 global + 9 slices
+      const totalSteps = 1 + SAHI_SLICES.length;
 
       try {
         const { width, height } = await getOriginalSize(imageUri);
-        const allResults: Detection[] = [];
+        const allCandidates: DetectionCandidate[] = [];
 
         console.log("--- Starting 10-Pass SAHI Scan (3x3) ---");
 
-        // Pass 1: Global Scan (full context, no edge filtering)
+        // Pass 1: Global Scan (full context, strict threshold)
         const globalResized = await manipulateAsync(
           imageUri,
           [{ resize: { width: INPUT_SIZE, height: INPUT_SIZE } }],
           { format: SaveFormat.JPEG },
         );
-        const globalDetections = await runSinglePass(globalResized.uri);
-        allResults.push(...globalDetections);
-        console.log(`Global Pass: ${globalDetections.length} detections`);
+        const globalDetections = await runSinglePass(
+          globalResized.uri,
+          undefined,
+          GLOBAL_CONF,
+        );
+        allCandidates.push(
+          ...globalDetections.map((d) => ({ ...d, source: "global" as const })),
+        );
+        console.log(`Global Pass (conf=${GLOBAL_CONF}): ${globalDetections.length} detections`);
         onProgress?.(1, totalSteps);
 
-        // Pass 2-10: Detailed Slices (3x3 Grid, edge-filtered)
+        // Pass 2-10: Detailed Slices (3x3 Grid)
         for (let idx = 0; idx < SAHI_SLICES.length; idx++) {
           const s = SAHI_SLICES[idx];
           const crop = await manipulateAsync(
@@ -259,17 +492,20 @@ export function useTFLite() {
           const sliceDetections = await runSinglePass(
             crop.uri,
             { x: s.x, y: s.y, scaleX: s.w, scaleY: s.h },
-            true, // enable edge filtering for slices
+            SLICE_CONF, // permissive threshold for zoomed crops
           );
-          allResults.push(...sliceDetections);
+          const source = `slice-${idx + 1}` as const;
+          allCandidates.push(
+            ...sliceDetections.map((d) => ({ ...d, source })),
+          );
           console.log(`Slice ${idx + 1}: ${sliceDetections.length} detections`);
           onProgress?.(2 + idx, totalSteps);
         }
 
-        // Final: NMS to merge duplicate detections from overlapping slices
-        const mergedResults = performNMS(allResults, NMS_THRESHOLD);
+        // Final: NMS + consensus filter to reduce single-pass hallucinations
+        const mergedResults = applyConsensusFilter(allCandidates);
         console.log(
-          `SAHI Complete: ${allResults.length} raw -> ${mergedResults.length} unique hazards`,
+          `SAHI Complete: ${allCandidates.length} raw -> ${mergedResults.length} vetted hazards`,
         );
 
         return mergedResults;
