@@ -141,7 +141,12 @@ export default function SafetyReport() {
           .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
           .join(" ");
 
-    const variant = entry ? entry.default_severity : "low";
+    const baseVariant = (entry ? entry.default_severity : "low") as
+      | "low"
+      | "medium"
+      | "high"
+      | "critical";
+    const variant = baseVariant;
 
     mappedHazards.push({
       id: i.toString(),

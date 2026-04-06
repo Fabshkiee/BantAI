@@ -103,7 +103,14 @@ function HazardCardDesign({
     >
       <Pressable className="flex-row items-center gap-4" onPress={toggleExpand}>
         {riskIcons[data.variant]}
-        <Text className="text-2xl font-semibold flex-1">{data.title}</Text>
+        <Text
+          className="text-2xl font-semibold flex-1"
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.7}
+        >
+          {data.title}
+        </Text>
 
         <View className="flex-row items-center gap-3">
           {riskStatus[data.variant]}
@@ -148,19 +155,47 @@ function HazardCardDesign({
                     className="absolute inset-0 w-full h-full"
                     resizeMode="stretch"
                   />
-                  {hasBbox && (
-                    <View
-                      className="absolute border-[2.5px]"
-                      style={{
-                        left: `${data.bbox![0] * 100}%`,
-                        top: `${data.bbox![1] * 100}%`,
-                        width: `${(data.bbox![2] - data.bbox![0]) * 100}%`,
-                        height: `${(data.bbox![3] - data.bbox![1]) * 100}%`,
-                        borderColor: data.variant === "critical" ? "#b40000" : data.variant === "high" ? "#c56400" : data.variant === "medium" ? "#d89700" : "#00ad14",
-                        backgroundColor: "rgba(255,255,255,0.05)",
-                      }}
-                    />
-                  )}
+                  {hasBbox && (() => {
+                    const bboxColor = data.variant === "critical" ? "#b40000" : data.variant === "high" ? "#c56400" : data.variant === "medium" ? "#d89700" : "#00ad14";
+                    const severityLabel = data.variant.charAt(0).toUpperCase() + data.variant.slice(1);
+                    const bboxW = (data.bbox![2] - data.bbox![0]) * 100;
+                    const bboxH = (data.bbox![3] - data.bbox![1]) * 100;
+                    // Scale font relative to box size, clamped between 7-14px
+                    const fontSize = Math.max(7, Math.min(14, Math.min(bboxW, bboxH) * 0.3));
+                    return (
+                      <>
+                        {/* Severity label — top-left, above the border */}
+                        <View
+                          style={{
+                            position: "absolute",
+                            left: `${data.bbox![0] * 100}%`,
+                            top: `${data.bbox![1] * 100 - (fontSize + 6) / 2.56}%`,
+                            backgroundColor: bboxColor,
+                            paddingHorizontal: 4,
+                            paddingVertical: 1,
+                            borderRadius: 2,
+                            zIndex: 10,
+                          }}
+                        >
+                          <Text style={{ color: "#fff", fontSize, fontWeight: "700" }}>
+                            {severityLabel}
+                          </Text>
+                        </View>
+                        {/* Bounding box */}
+                        <View
+                          className="absolute border-[2.5px]"
+                          style={{
+                            left: `${data.bbox![0] * 100}%`,
+                            top: `${data.bbox![1] * 100}%`,
+                            width: `${bboxW}%`,
+                            height: `${bboxH}%`,
+                            borderColor: bboxColor,
+                            backgroundColor: "rgba(255,255,255,0.05)",
+                          }}
+                        />
+                      </>
+                    );
+                  })()}
                 </View>
               );
             })()}
@@ -188,7 +223,12 @@ function HazardCardDesign({
               <Button
                 label={isResolved ? "Resolved" : "Mark as Resolved"}
                 variant={isResolved ? "secondary" : "primary"}
-                icon={<CheckIcon color={isResolved ? "#006ec2" : "white"} size={24} />}
+                icon={
+                  <CheckIcon
+                    color={isResolved ? "#006ec2" : "white"}
+                    size={24}
+                  />
+                }
                 iconPosition="right"
                 onPress={async () => {
                   if (isResolved) return;
