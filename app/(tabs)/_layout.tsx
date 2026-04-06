@@ -6,8 +6,6 @@ import { router, Tabs } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import { Alert, Animated, Modal, Pressable, Text, View } from "react-native";
 
-
-
 // Static configurations
 const TAB_BAR_OPTIONS = {
   headerShown: false,
@@ -80,45 +78,61 @@ const CameraActionModal = ({
 
   const handleCamera = () => handleClose(() => router.push("/camera"));
 
-  const handleOpenGallery = () => {
-    handleClose(async () => {
-      try {
-        const { status } =
-          await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== "granted") {
-          Alert.alert(
-            "Permission Needed",
-            "We need gallery permissions to select a photo.",
-          );
-          return;
-        }
-
-        const result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.Images,
-          allowsEditing: true,
-          quality: 0.8,
-        });
-
-        if (result.canceled) {
-          return;
-        }
-
-        const uri = result.assets[0]?.uri;
-        if (!uri) {
-          throw new Error("Selected image does not include a URI.");
-        }
-
-        router.replace({
-          pathname: "/loadingScreen",
-          params: { imageUri: uri },
-        });
-      } catch (error) {
-        console.error("Failed to import image:", error);
+  const importFromGallery = async () => {
+    try {
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== "granted") {
         Alert.alert(
-          "Import failed",
-          "We could not process that image. Please try again.",
+          "Permission Needed",
+          "We need gallery permissions to select a photo.",
         );
+        return;
       }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        quality: 0.8,
+      });
+
+      if (result.canceled) {
+        return;
+      }
+
+      const uri = result.assets[0]?.uri;
+      if (!uri) {
+        throw new Error("Selected image does not include a URI.");
+      }
+
+      router.replace({
+        pathname: "/loadingScreen",
+        params: { imageUri: uri },
+      });
+    } catch (error) {
+      console.error("Failed to import image:", error);
+      Alert.alert(
+        "Import failed",
+        "We could not process that image. Please try again.",
+      );
+    }
+  };
+
+  const handleOpenGallery = () => {
+    handleClose(() => {
+      Alert.alert(
+        "Landscape Photo Recommended",
+        "It is recommended to use landscape photos for better hazard detection.",
+        [
+          { text: "Cancel", style: "cancel" },
+          {
+            text: "Continue",
+            onPress: () => {
+              void importFromGallery();
+            },
+          },
+        ],
+      );
     });
   };
 
