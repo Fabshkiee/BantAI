@@ -95,6 +95,54 @@ type SessionHazardRow = {
   internalName?: string;
 };
 
+async function recalculateSessionRisk(sessionId: number): Promise<void> {
+  await initDatabase();
+  const db = await dbPromise;
+
+  const unassessedRows = await db.getAllAsync<{
+    name: string;
+    x1: number;
+    y1: number;
+    x2: number;
+    y2: number;
+  }>(
+    `
+      SELECT ht.name, dh.x1, dh.y1, dh.x2, dh.y2
+      FROM detected_hazards dh
+      JOIN hazard_types ht ON dh.hazard_type_id = ht.id
+      WHERE dh.session_id = ?
+        AND dh.is_assessed = 0
+    `,
+    sessionId,
+  );
+
+  const detections: Detection[] = unassessedRows.map((r) => ({
+    class: r.name,
+    confidence: 1.0,
+    bbox: [r.x1, r.y1, r.x2, r.y2],
+  }));
+
+  const scoreResult =
+    detections.length > 0
+      ? calculateRoomRisk(detections)
+      : {
+          safetyScore: 100,
+          mascotVariant: "low" as const,
+        };
+
+  await db.runAsync(
+    `
+      UPDATE scan_sessions
+      SET room_score = ?,
+          risk_variant = ?
+      WHERE id = ?
+    `,
+    scoreResult.safetyScore,
+    scoreResult.mascotVariant,
+    sessionId,
+  );
+}
+
 export async function initDatabase(): Promise<void> {
   if (initPromise) {
     return initPromise;
@@ -139,7 +187,7 @@ export async function initDatabase(): Promise<void> {
           x1              REAL,
           y1              REAL,
           x2              REAL,
-          y2              REAL
+            y2              REAL
       );
 
       CREATE INDEX IF NOT EXISTS idx_hazards_session_id  ON detected_hazards (session_id);
@@ -366,8 +414,13 @@ export async function insertDetectedHazards(
     return getScanSessionDetails(sessionId);
   }
 
-  // Use the advanced Risk Engine for proper spatial scoring
-  const { safetyScore, mascotVariant } = calculateRoomRisk(detections);
+  const scoreResult =
+    detections.length > 0
+      ? calculateRoomRisk(detections)
+      : {
+          safetyScore: 100,
+          mascotVariant: "low" as const,
+        };
 
   for (const det of detections) {
     const seed = HAZARD_TYPES.find((hazard) => hazard.name === det.class);
@@ -415,8 +468,8 @@ export async function insertDetectedHazards(
           completed_at = strftime('%s', 'now')
       WHERE id = ?
     `,
-    safetyScore,
-    mascotVariant,
+    scoreResult.safetyScore,
+    scoreResult.mascotVariant,
     sessionId,
   );
 
@@ -449,43 +502,8 @@ export async function markHazardAsAssessed(
     hazardId,
   );
 
-  // 3. Re-calculate room risk based on REMAINING hazards
-  const unassessedRows = await db.getAllAsync<{
-    name: string;
-    x1: number;
-    y1: number;
-    x2: number;
-    y2: number;
-  }>(
-    `
-    SELECT ht.name, dh.x1, dh.y1, dh.x2, dh.y2 
-    FROM detected_hazards dh
-    JOIN hazard_types ht ON dh.hazard_type_id = ht.id
-    WHERE dh.session_id = ? AND dh.is_assessed = 0
-    `,
-    sessionId,
-  );
-
-  const detections: Detection[] = unassessedRows.map((r) => ({
-    class: r.name,
-    confidence: 1.0,
-    bbox: [r.x1, r.y1, r.x2, r.y2],
-  }));
-
-  const { safetyScore, mascotVariant } = calculateRoomRisk(detections);
-
-  // 4. Update the session score and variant
-  await db.runAsync(
-    `
-      UPDATE scan_sessions
-      SET room_score = ?,
-          risk_variant = ?
-      WHERE id = ?
-    `,
-    safetyScore,
-    mascotVariant,
-    sessionId,
-  );
+  // 3. Re-calculate room risk based on remaining confirmed hazards
+  await recalculateSessionRisk(sessionId);
 
   return getScanSessionDetails(sessionId);
 }

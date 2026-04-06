@@ -39,12 +39,13 @@ export interface Detection {
  * 3. Lock status to Critical if extreme conditions met
  */
 export function calculateRoomRisk(detections: Detection[]): RiskResult {
+  const consideredDetections = detections;
   const breakdown: Record<string, { count: number; weightedScore: number }> =
     {};
   const spatialInsights: string[] = [];
 
   // 1. Group and count detections
-  detections.forEach((det) => {
+  consideredDetections.forEach((det) => {
     const dictId = getDictionaryId(det.class);
     if (!breakdown[dictId]) {
       breakdown[dictId] = { count: 0, weightedScore: 0 };
@@ -75,10 +76,10 @@ export function calculateRoomRisk(detections: Detection[]): RiskResult {
   });
 
   // 3. Precise Spatial Reasoning Phase
-  for (let i = 0; i < detections.length; i++) {
-    for (let j = i + 1; j < detections.length; j++) {
-      const detA = detections[i];
-      const detB = detections[j];
+  for (let i = 0; i < consideredDetections.length; i++) {
+    for (let j = i + 1; j < consideredDetections.length; j++) {
+      const detA = consideredDetections[i];
+      const detB = consideredDetections[j];
       const dist = getBoxDistance(detA.bbox, detB.bbox);
 
       if (dist < PROXIMITY_THRESHOLD) {
@@ -158,7 +159,7 @@ export function calculateRoomRisk(detections: Detection[]): RiskResult {
   }
 
   // 4. Flood Zone Awareness (Bottom 15% of frame)
-  detections.forEach((det) => {
+  consideredDetections.forEach((det) => {
     const isAtBottom = det.bbox[3] > 0.85; // Lower 15%
     const entry = hazardDictionary.find(
       (h) => h.id === getDictionaryId(det.class),
