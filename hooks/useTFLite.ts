@@ -33,9 +33,10 @@ const CLASS_NAMES = [
 ];
 
 const INPUT_SIZE = 640;
-const CONF_THRESHOLD = 0.4;
+const CONF_THRESHOLD = 0.45;
 const NMS_THRESHOLD = 0.45;
-const EDGE_MARGIN = 0.02; // 2% edge margin — discard partial detections at slice borders
+const EDGE_MARGIN = 0.02;
+const MIN_BBOX_AREA = 0.001; // Minimum 0.1% of image area — filters noise-level hallucinations
 
 /**
  * 3x3 Grid with larger tiles (0.45x0.45) for more context per slice.
@@ -157,6 +158,10 @@ function parseDetections(
       const x2 = offsetParams.x + x2_raw * offsetParams.scaleX;
       const y2 = offsetParams.y + y2_raw * offsetParams.scaleY;
 
+      // Filter out noise: discard boxes smaller than MIN_BBOX_AREA of the image
+      const area = Math.abs(x2 - x1) * Math.abs(y2 - y1);
+      if (area < MIN_BBOX_AREA) continue;
+
       detections.push({
         class: CLASS_NAMES[classIdx],
         confidence: Math.min(1, confidence),
@@ -208,8 +213,12 @@ export function useTFLite() {
   };
 
   const runInference = useCallback(
-    async (imageUri: string): Promise<Detection[]> => {
+    async (
+      imageUri: string,
+      onProgress?: (step: number, total: number) => void,
+    ): Promise<Detection[]> => {
       if (!modelLoaded || !model) throw new Error("Model not ready");
+      const totalSteps = 1 + SAHI_SLICES.length; // 1 global + 9 slices
 
       try {
         const { width, height } = await getOriginalSize(imageUri);
@@ -226,6 +235,7 @@ export function useTFLite() {
         const globalDetections = await runSinglePass(globalResized.uri);
         allResults.push(...globalDetections);
         console.log(`Global Pass: ${globalDetections.length} detections`);
+        onProgress?.(1, totalSteps);
 
         // Pass 2-10: Detailed Slices (3x3 Grid, edge-filtered)
         for (let idx = 0; idx < SAHI_SLICES.length; idx++) {
@@ -253,6 +263,7 @@ export function useTFLite() {
           );
           allResults.push(...sliceDetections);
           console.log(`Slice ${idx + 1}: ${sliceDetections.length} detections`);
+          onProgress?.(2 + idx, totalSteps);
         }
 
         // Final: NMS to merge duplicate detections from overlapping slices
