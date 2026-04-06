@@ -44,7 +44,7 @@ const CLASS_NAMES = [
 
 const INPUT_SIZE = 640;
 const GLOBAL_CONF = 0.5;
-const SLICE_CONF = 0.4;    // zoomed crops have less context, permissive filter
+const SLICE_CONF = 0.4; // zoomed crops have less context, permissive filter
 const NMS_THRESHOLD = 0.45;
 const MIN_BBOX_AREA = 0.001; // Minimum 0.1% of image area — filters noise-level hallucinations
 const MIN_BBOX_SIDE = 0.02; // Minimum 2% width/height
@@ -154,7 +154,6 @@ async function prepareTensor(
     return tensor;
   }
 }
-
 
 function parseDetections(
   output: ArrayLike<number | bigint>,
@@ -281,7 +280,10 @@ function suppressSemanticDuplicates(detections: Detection[]): Detection[] {
       const b = sorted[j];
       const iou = getIoU(a.bbox, b.bbox);
 
-      if (isMutuallyExclusiveClassPair(a.class, b.class) && iou >= EXCLUSIVE_DUPLICATE_IOU) {
+      if (
+        isMutuallyExclusiveClassPair(a.class, b.class) &&
+        iou >= EXCLUSIVE_DUPLICATE_IOU
+      ) {
         const winner = pickExclusiveWinner(a, b);
         if (winner === a) {
           removed.add(j);
@@ -339,22 +341,27 @@ function applyConsensusFilter(candidates: DetectionCandidate[]): Detection[] {
     );
 
     const supportCount = supporters.length;
-    const globalSupport = supporters.filter((s) => s.source === "global").length;
+    const globalSupport = supporters.filter(
+      (s) => s.source === "global",
+    ).length;
     const sliceSupport = supportCount - globalSupport;
     const isCritical = CRITICAL_CLASSES.has(det.class);
     const isStructural = STRUCTURAL_CLASSES.has(det.class);
     const className = det.class as (typeof CLASS_NAMES)[number];
     const classFloor = MIN_CLASS_CONFIDENCE[className] ?? GLOBAL_CONF;
     const strongFloor = STRONG_CONFIDENCE[className] ?? 0.8;
-    const peakConfidence = Math.max(...supporters.map((s) => s.confidence), det.confidence);
+    const peakConfidence = Math.max(
+      ...supporters.map((s) => s.confidence),
+      det.confidence,
+    );
     const meanConfidence =
       supporters.reduce((sum, s) => sum + s.confidence, 0) /
       Math.max(1, supportCount);
 
-    const strongConf =
-      peakConfidence >= strongFloor;
+    const strongConf = peakConfidence >= strongFloor;
     const superStrongConf =
-      peakConfidence >= Math.max(strongFloor + 0.08, NON_CRITICAL_SUPER_STRONG_FLOOR);
+      peakConfidence >=
+      Math.max(strongFloor + 0.08, NON_CRITICAL_SUPER_STRONG_FLOOR);
 
     const supportedEnough =
       supportCount >= 2 &&
@@ -467,7 +474,9 @@ export function useTFLite() {
         allCandidates.push(
           ...globalDetections.map((d) => ({ ...d, source: "global" as const })),
         );
-        console.log(`Global Pass (conf=${GLOBAL_CONF}): ${globalDetections.length} detections`);
+        console.log(
+          `Global Pass (conf=${GLOBAL_CONF}): ${globalDetections.length} detections`,
+        );
         onProgress?.(1, totalSteps);
 
         // Pass 2-10: Detailed Slices (3x3 Grid)
@@ -495,9 +504,7 @@ export function useTFLite() {
             SLICE_CONF, // permissive threshold for zoomed crops
           );
           const source = `slice-${idx + 1}` as const;
-          allCandidates.push(
-            ...sliceDetections.map((d) => ({ ...d, source })),
-          );
+          allCandidates.push(...sliceDetections.map((d) => ({ ...d, source })));
           console.log(`Slice ${idx + 1}: ${sliceDetections.length} detections`);
           onProgress?.(2 + idx, totalSteps);
         }
