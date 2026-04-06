@@ -1,12 +1,15 @@
+import { calculateRoomRisk, type Detection } from "@/lib/riskEngine";
 import * as SQLite from "expo-sqlite";
 import { hazardDictionary } from "../hazardDictionary";
-import { calculateRoomRisk, type Detection } from "@/lib/riskEngine";
-import { type DisasterType, HAZARD_DISPLAY_NAMES, HAZARD_TYPES } from "./hazards";
+import {
+  type DisasterType,
+  HAZARD_DISPLAY_NAMES,
+  HAZARD_TYPES,
+} from "./hazards";
 
 const dbPromise = SQLite.openDatabaseAsync("app.db");
 let initPromise: Promise<void> | null = null;
 
-const sqlQuote = (value: string) => value.replaceAll("'", "''");
 const formatHazardTitle = (value: string) =>
   value.includes("_")
     ? value
@@ -14,6 +17,24 @@ const formatHazardTitle = (value: string) =>
         .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
         .join(" ")
     : value;
+
+function mergeDisasterTypes(
+  seedDisasterTypes: DisasterType[] | undefined,
+  entry:
+    | {
+        disaster_filters?: DisasterType[];
+        highest_risk_disaster?: DisasterType;
+      }
+    | undefined,
+): DisasterType[] {
+  return Array.from(
+    new Set<DisasterType>([
+      ...(seedDisasterTypes ?? []),
+      ...(entry?.disaster_filters ?? []),
+      ...(entry?.highest_risk_disaster ? [entry.highest_risk_disaster] : []),
+    ]),
+  );
+}
 
 const getRiskVariantFromScore = (
   score: number,
@@ -31,6 +52,8 @@ export type HazardData = {
   disasterTypes: DisasterType[];
   reason: string;
   suggestedFix: string;
+  general_reason?: string;
+  general_fixes?: string[];
   earthquake_reason?: string;
   typhoon_reason?: string;
   fire_reason?: string;
@@ -95,6 +118,54 @@ type SessionHazardRow = {
   internalName?: string;
 };
 
+async function recalculateSessionRisk(sessionId: number): Promise<void> {
+  await initDatabase();
+  const db = await dbPromise;
+
+  const unassessedRows = await db.getAllAsync<{
+    name: string;
+    x1: number;
+    y1: number;
+    x2: number;
+    y2: number;
+  }>(
+    `
+      SELECT ht.name, dh.x1, dh.y1, dh.x2, dh.y2
+      FROM detected_hazards dh
+      JOIN hazard_types ht ON dh.hazard_type_id = ht.id
+      WHERE dh.session_id = ?
+        AND dh.is_assessed = 0
+    `,
+    sessionId,
+  );
+
+  const detections: Detection[] = unassessedRows.map((r) => ({
+    class: r.name,
+    confidence: 1.0,
+    bbox: [r.x1, r.y1, r.x2, r.y2],
+  }));
+
+  const scoreResult =
+    detections.length > 0
+      ? calculateRoomRisk(detections)
+      : {
+          safetyScore: 100,
+          mascotVariant: "low" as const,
+        };
+
+  await db.runAsync(
+    `
+      UPDATE scan_sessions
+      SET room_score = ?,
+          risk_variant = ?
+      WHERE id = ?
+    `,
+    scoreResult.safetyScore,
+    scoreResult.mascotVariant,
+    sessionId,
+  );
+}
+
 export async function initDatabase(): Promise<void> {
   if (initPromise) {
     return initPromise;
@@ -139,17 +210,35 @@ export async function initDatabase(): Promise<void> {
           x1              REAL,
           y1              REAL,
           x2              REAL,
-          y2              REAL
+            y2              REAL
       );
 
       CREATE INDEX IF NOT EXISTS idx_hazards_session_id  ON detected_hazards (session_id);
       CREATE INDEX IF NOT EXISTS idx_hazards_assessed    ON detected_hazards (is_assessed);
       CREATE INDEX IF NOT EXISTS idx_sessions_scanned_at ON scan_sessions (scanned_at DESC);
       CREATE INDEX IF NOT EXISTS idx_sessions_status     ON scan_sessions (status);
-
-        INSERT OR IGNORE INTO hazard_types (name, category, default_severity, description, recommendation) VALUES
-          ${HAZARD_TYPES.map((hazard) => `('${sqlQuote(hazard.name)}', '${sqlQuote(hazard.category)}', '${sqlQuote(hazard.default_severity)}', '${sqlQuote(hazard.description ?? "")}', '${sqlQuote(hazard.recommendation ?? "")}')`).join(",\n          ")};
     `);
+
+    // Keep hazard seed metadata in sync across app updates.
+    // INSERT OR IGNORE alone leaves stale severity values in existing installs.
+    for (const hazard of HAZARD_TYPES) {
+      await db.runAsync(
+        `
+          INSERT INTO hazard_types (name, category, default_severity, description, recommendation)
+          VALUES (?, ?, ?, ?, ?)
+          ON CONFLICT(name) DO UPDATE SET
+            category = excluded.category,
+            default_severity = excluded.default_severity,
+            description = excluded.description,
+            recommendation = excluded.recommendation
+        `,
+        hazard.name,
+        hazard.category,
+        hazard.default_severity,
+        hazard.description ?? "",
+        hazard.recommendation ?? "",
+      );
+    }
   })();
 
   return initPromise;
@@ -166,16 +255,21 @@ export async function fetchDataFromDB(): Promise<HazardData[]> {
     const entry = hazardDictionary.find(
       (h: { id: string }) => h.id === `HAZARD_LABELS.${row.name.toUpperCase()}`,
     );
+    const seed = HAZARD_TYPES.find((h) => h.name === row.name);
     return {
       id: row.id,
       title:
         HAZARD_DISPLAY_NAMES[row.name as keyof typeof HAZARD_DISPLAY_NAMES] ??
         formatHazardTitle(row.name),
       variant: row.default_severity,
-      reason: entry?.description ?? "No reason available.",
-      suggestedFix: entry?.fire_fixes?.[0] ?? "No recommendation available.",
-      disasterTypes:
-        HAZARD_TYPES.find((h) => h.name === row.name)?.disasterTypes ?? [],
+      reason: seed?.description ?? entry?.description ?? "No reason available.",
+      suggestedFix:
+        seed?.recommendation ??
+        entry?.fire_fixes?.[0] ??
+        "No recommendation available.",
+      general_reason: entry?.general_reason,
+      general_fixes: entry?.general_fixes ?? [],
+      disasterTypes: mergeDisasterTypes(seed?.disasterTypes, entry),
       earthquake_reason:
         entry?.earthquake_reason ?? "No information available.",
       typhoon_reason: entry?.typhoon_reason ?? "No information available.",
@@ -303,7 +397,8 @@ export async function getScanSessionDetails(
     hazards: hazards.map((row) => {
       const seed = HAZARD_TYPES.find(
         (h) =>
-          HAZARD_DISPLAY_NAMES[h.name as keyof typeof HAZARD_DISPLAY_NAMES] === row.label || h.name === row.label,
+          HAZARD_DISPLAY_NAMES[h.name as keyof typeof HAZARD_DISPLAY_NAMES] ===
+            row.label || h.name === row.label,
       );
       const entry = hazardDictionary.find(
         (h: { id: string }) =>
@@ -315,7 +410,12 @@ export async function getScanSessionDetails(
         title: row.label,
         variant: row.severity,
         reason: row.description ?? entry?.description ?? "No reason available.",
-        suggestedFix: row.recommendation ?? entry?.fire_fixes?.[0] ?? "No recommendation available.",
+        suggestedFix:
+          row.recommendation ??
+          entry?.fire_fixes?.[0] ??
+          "No recommendation available.",
+        general_reason: entry?.general_reason,
+        general_fixes: entry?.general_fixes ?? [],
         isAssessed: !!row.is_assessed,
         internalName: row.internalName,
         bbox:
@@ -325,8 +425,9 @@ export async function getScanSessionDetails(
           row.y2 !== null
             ? [row.x1, row.y1, row.x2, row.y2]
             : undefined,
-        disasterTypes: seed?.disasterTypes ?? [],
-        earthquake_reason: entry?.earthquake_reason ?? "No information available.",
+        disasterTypes: mergeDisasterTypes(seed?.disasterTypes, entry),
+        earthquake_reason:
+          entry?.earthquake_reason ?? "No information available.",
         typhoon_reason: entry?.typhoon_reason ?? "No information available.",
         fire_reason: entry?.fire_reason ?? "No information available.",
         earthquake_fixes: entry?.earthquake_fixes ?? [],
@@ -366,18 +467,30 @@ export async function insertDetectedHazards(
     return getScanSessionDetails(sessionId);
   }
 
-  // Use the advanced Risk Engine for proper spatial scoring
-  const { safetyScore, mascotVariant } = calculateRoomRisk(detections);
+  const scoreResult =
+    detections.length > 0
+      ? calculateRoomRisk(detections)
+      : {
+          safetyScore: 100,
+          mascotVariant: "low" as const,
+        };
 
   for (const det of detections) {
-    const seed = HAZARD_TYPES.find((hazard) => hazard.name === det.class);
+    const normalizedClass = det.class.trim().toLowerCase();
+    const seed = HAZARD_TYPES.find((hazard) => hazard.name === normalizedClass);
+    const dictId = `HAZARD_LABELS.${normalizedClass.toUpperCase()}`;
+    const dictEntry = hazardDictionary.find((hazard) => hazard.id === dictId);
     const title =
-      HAZARD_DISPLAY_NAMES[det.class as keyof typeof HAZARD_DISPLAY_NAMES] ??
-      formatHazardTitle(det.class);
+      HAZARD_DISPLAY_NAMES[
+        normalizedClass as keyof typeof HAZARD_DISPLAY_NAMES
+      ] ?? formatHazardTitle(normalizedClass);
+
+    const resolvedSeverity =
+      seed?.default_severity ?? dictEntry?.default_severity ?? "medium";
 
     const hazardRows = await db.getAllAsync<{ id: number }>(
       "SELECT id FROM hazard_types WHERE name = ?",
-      det.class,
+      normalizedClass,
     );
     const hazardTypeId = hazardRows.length > 0 ? hazardRows[0].id : null;
 
@@ -395,7 +508,7 @@ export async function insertDetectedHazards(
       `,
       sessionId,
       hazardTypeId,
-      seed?.default_severity ?? "medium",
+      resolvedSeverity,
       title,
       seed?.description ?? null,
       seed?.recommendation ?? null,
@@ -415,8 +528,8 @@ export async function insertDetectedHazards(
           completed_at = strftime('%s', 'now')
       WHERE id = ?
     `,
-    safetyScore,
-    mascotVariant,
+    scoreResult.safetyScore,
+    scoreResult.mascotVariant,
     sessionId,
   );
 
@@ -449,43 +562,37 @@ export async function markHazardAsAssessed(
     hazardId,
   );
 
-  // 3. Re-calculate room risk based on REMAINING hazards
-  const unassessedRows = await db.getAllAsync<{
-    name: string;
-    x1: number;
-    y1: number;
-    x2: number;
-    y2: number;
-  }>(
-    `
-    SELECT ht.name, dh.x1, dh.y1, dh.x2, dh.y2 
-    FROM detected_hazards dh
-    JOIN hazard_types ht ON dh.hazard_type_id = ht.id
-    WHERE dh.session_id = ? AND dh.is_assessed = 0
-    `,
-    sessionId,
+  // 3. Re-calculate room risk based on remaining confirmed hazards
+  await recalculateSessionRisk(sessionId);
+
+  return getScanSessionDetails(sessionId);
+}
+
+export async function markHazardAsUnassessed(
+  hazardId: number,
+): Promise<ScanSessionDetails | null> {
+  await initDatabase();
+  const db = await dbPromise;
+
+  const row = await db.getFirstAsync<{ session_id: number }>(
+    "SELECT session_id FROM detected_hazards WHERE id = ?",
+    hazardId,
   );
+  if (!row) return null;
 
-  const detections: Detection[] = unassessedRows.map((r) => ({
-    class: r.name,
-    confidence: 1.0,
-    bbox: [r.x1, r.y1, r.x2, r.y2],
-  }));
+  const sessionId = row.session_id;
 
-  const { safetyScore, mascotVariant } = calculateRoomRisk(detections);
-
-  // 4. Update the session score and variant
   await db.runAsync(
     `
-      UPDATE scan_sessions
-      SET room_score = ?,
-          risk_variant = ?
+      UPDATE detected_hazards
+      SET is_assessed = 0,
+          assessed_at = NULL
       WHERE id = ?
     `,
-    safetyScore,
-    mascotVariant,
-    sessionId,
+    hazardId,
   );
+
+  await recalculateSessionRisk(sessionId);
 
   return getScanSessionDetails(sessionId);
 }

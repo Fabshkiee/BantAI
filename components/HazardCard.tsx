@@ -5,18 +5,19 @@ import HighRiskIcon from "@/assets/icons/HighRiskIcon";
 import LowRiskIcon from "@/assets/icons/LowRiskIcon";
 import MediumRiskIcon from "@/assets/icons/MediumRiskIcon";
 import {
-  fetchDataFromDB,
-  markHazardAsAssessed,
-  type ScanSessionDetails,
+    fetchDataFromDB,
+    markHazardAsAssessed,
+    markHazardAsUnassessed,
+    type ScanSessionDetails,
 } from "@/db/db";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Image, Pressable, Text, View } from "react-native";
 import Animated, {
-  FadeInUp,
-  FadeOutUp,
-  LinearTransition,
-  useSharedValue,
-  withSpring,
+    FadeInUp,
+    FadeOutUp,
+    LinearTransition,
+    useSharedValue,
+    withSpring,
 } from "react-native-reanimated";
 import Button from "./Button";
 import RiskStatus from "./RiskStatus";
@@ -27,6 +28,8 @@ export type HazardData = {
   variant: "low" | "medium" | "high" | "critical";
   reason: string;
   suggestedFix: string;
+  general_reason?: string;
+  general_fixes?: string[];
   bbox?: [number, number, number, number];
   isAssessed?: boolean;
   internalName?: string;
@@ -77,16 +80,39 @@ function HazardCardDesign({
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isResolved, setIsResolved] = useState(data.isAssessed || false);
+  const [isTogglingResolution, setIsTogglingResolution] = useState(false);
   const rotation = useSharedValue(0);
 
   useEffect(() => {
     setIsResolved(data.isAssessed || false);
   }, [data.isAssessed]);
 
-  // Disaster Sorting Logic: Determine which text to show
-  const tab = activeDisasterTab === "all" ? "earthquake" : activeDisasterTab;
-  const reason = (data[`${tab}_reason` as keyof HazardData] as string) || data.reason;
-  const fixes = (data[`${tab}_fixes` as keyof HazardData] as string[]) || [data.suggestedFix];
+  // Use generic class-level guidance on "All" and disaster-specific guidance on selected tabs.
+  const selectedReason =
+    activeDisasterTab !== "all"
+      ? (data[`${activeDisasterTab}_reason` as keyof HazardData] as string)
+      : undefined;
+  const selectedFixes =
+    activeDisasterTab !== "all"
+      ? (data[`${activeDisasterTab}_fixes` as keyof HazardData] as string[])
+      : undefined;
+
+  const reason =
+    selectedReason ||
+    `${activeDisasterTab[0].toUpperCase()}${activeDisasterTab.slice(1)}-specific reason is currently unavailable for this hazard.`;
+  const fixes =
+    activeDisasterTab === "all"
+      ? data.general_fixes && data.general_fixes.length > 0
+        ? data.general_fixes
+        : [data.suggestedFix]
+      : selectedFixes && selectedFixes.length > 0
+        ? selectedFixes
+        : [
+            `${activeDisasterTab[0].toUpperCase()}${activeDisasterTab.slice(1)}-specific fix is currently unavailable. Secure the area first and request a manual safety check.`,
+          ];
+
+  const displayedReason =
+    activeDisasterTab === "all" ? data.general_reason || data.reason : reason;
 
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
@@ -103,11 +129,18 @@ function HazardCardDesign({
     >
       <Pressable className="flex-row items-center gap-4" onPress={toggleExpand}>
         {riskIcons[data.variant]}
-        <Text className="text-2xl font-semibold flex-1">{data.title}</Text>
+        <Text
+          className="text-2xl leading-7 font-semibold flex-1 pr-2"
+          numberOfLines={2}
+        >
+          {data.title}
+        </Text>
 
         <View className="flex-row items-center gap-3">
           {riskStatus[data.variant]}
-          <Animated.View style={{ transform: [{ rotate: `${isExpanded ? 180 : 0}deg` }] }}>
+          <Animated.View
+            style={{ transform: [{ rotate: `${isExpanded ? 180 : 0}deg` }] }}
+          >
             <DropDownIcon size={26} />
           </Animated.View>
         </View>
@@ -130,7 +163,10 @@ function HazardCardDesign({
                 const centerY = (y1 + y2) / 2;
                 const width = x2 - x1;
                 const height = y2 - y1;
-                const scale = Math.min(2.5, Math.max(1, 0.6 / Math.max(width, height)));
+                const scale = Math.min(
+                  2.5,
+                  Math.max(1, 0.6 / Math.max(width, height)),
+                );
                 const translateX = (0.5 - centerX) * 100;
                 const translateY = (0.5 - centerY) * 100;
                 transformStyles = {
@@ -144,23 +180,74 @@ function HazardCardDesign({
               return (
                 <View className="w-full h-full" style={transformStyles}>
                   <Image
-                    source={imageUri ? { uri: imageUri } : require("@/assets/images/room.png")}
+                    source={
+                      imageUri
+                        ? { uri: imageUri }
+                        : require("@/assets/images/room.png")
+                    }
                     className="absolute inset-0 w-full h-full"
                     resizeMode="stretch"
                   />
-                  {hasBbox && (
-                    <View
-                      className="absolute border-[2.5px]"
-                      style={{
-                        left: `${data.bbox![0] * 100}%`,
-                        top: `${data.bbox![1] * 100}%`,
-                        width: `${(data.bbox![2] - data.bbox![0]) * 100}%`,
-                        height: `${(data.bbox![3] - data.bbox![1]) * 100}%`,
-                        borderColor: data.variant === "critical" ? "#b40000" : data.variant === "high" ? "#c56400" : data.variant === "medium" ? "#d89700" : "#00ad14",
-                        backgroundColor: "rgba(255,255,255,0.05)",
-                      }}
-                    />
-                  )}
+                  {hasBbox &&
+                    (() => {
+                      const bboxColor =
+                        data.variant === "critical"
+                          ? "#b40000"
+                          : data.variant === "high"
+                            ? "#c56400"
+                            : data.variant === "medium"
+                              ? "#d89700"
+                              : "#00ad14";
+                      const severityLabel =
+                        data.variant.charAt(0).toUpperCase() +
+                        data.variant.slice(1);
+                      const bboxW = (data.bbox![2] - data.bbox![0]) * 100;
+                      const bboxH = (data.bbox![3] - data.bbox![1]) * 100;
+                      // Scale font relative to box size, clamped between 7-14px
+                      const fontSize = Math.max(
+                        7,
+                        Math.min(14, Math.min(bboxW, bboxH) * 0.3),
+                      );
+                      return (
+                        <>
+                          {/* Severity label — top-left, above the border */}
+                          <View
+                            style={{
+                              position: "absolute",
+                              left: `${data.bbox![0] * 100}%`,
+                              top: `${data.bbox![1] * 100 - (fontSize + 6) / 2.56}%`,
+                              backgroundColor: bboxColor,
+                              paddingHorizontal: 4,
+                              paddingVertical: 1,
+                              borderRadius: 2,
+                              zIndex: 10,
+                            }}
+                          >
+                            <Text
+                              style={{
+                                color: "#fff",
+                                fontSize,
+                                fontWeight: "700",
+                              }}
+                            >
+                              {severityLabel}
+                            </Text>
+                          </View>
+                          {/* Bounding box */}
+                          <View
+                            className="absolute border-[2.5px]"
+                            style={{
+                              left: `${data.bbox![0] * 100}%`,
+                              top: `${data.bbox![1] * 100}%`,
+                              width: `${bboxW}%`,
+                              height: `${bboxH}%`,
+                              borderColor: bboxColor,
+                              backgroundColor: "rgba(255,255,255,0.05)",
+                            }}
+                          />
+                        </>
+                      );
+                    })()}
                 </View>
               );
             })()}
@@ -168,16 +255,24 @@ function HazardCardDesign({
 
           {/* Dynamic Reason based on Tab */}
           <View>
-            <Text className="text-xl font-semibold mb-2 text-text-default">Reason:</Text>
-            <Text className="text-lg leading-6 text-text-default">{reason}</Text>
+            <Text className="text-xl font-semibold mb-2 text-text-default">
+              Reason:
+            </Text>
+            <Text className="text-lg leading-6 text-text-default">
+              {displayedReason}
+            </Text>
           </View>
 
           {/* Dynamic Fixes based on Tab */}
           <View>
-            <Text className="text-xl font-semibold mb-2 text-text-default">Suggested Fixes:</Text>
+            <Text className="text-xl font-semibold mb-2 text-text-default">
+              Suggested Fixes:
+            </Text>
             {fixes.map((fix, index) => (
               <View key={index} className="flex-row gap-2 mb-2">
-                <Text className="text-lg font-bold text-text-default">{index + 1}.</Text>
+                <Text className="text-lg font-bold text-text-default">
+                  {index + 1}.
+                </Text>
                 <Text className="text-lg flex-1 text-text-default">{fix}</Text>
               </View>
             ))}
@@ -186,18 +281,29 @@ function HazardCardDesign({
           {showResolutionAction && (
             <View>
               <Button
-                label={isResolved ? "Resolved" : "Mark as Resolved"}
-                variant={isResolved ? "secondary" : "primary"}
-                icon={<CheckIcon color={isResolved ? "#006ec2" : "white"} size={24} />}
+                label={isResolved ? "Unmark as Resolved" : "Mark as Resolved"}
+                variant={isResolved ? "cancel" : "primary"}
+                icon={
+                  <CheckIcon
+                    color={isResolved ? "#b40000" : "white"}
+                    size={24}
+                  />
+                }
                 iconPosition="right"
+                loading={isTogglingResolution}
                 onPress={async () => {
-                  if (isResolved) return;
+                  if (isTogglingResolution) return;
                   try {
-                    const freshSession = await markHazardAsAssessed(data.id as number);
-                    setIsResolved(true);
+                    setIsTogglingResolution(true);
+                    const freshSession = isResolved
+                      ? await markHazardAsUnassessed(data.id as number)
+                      : await markHazardAsAssessed(data.id as number);
+                    setIsResolved(!isResolved);
                     if (onResolved) onResolved(freshSession);
                   } catch (error) {
-                    console.error("Failed to mark hazard as resolved:", error);
+                    console.error("Failed to update hazard resolution:", error);
+                  } finally {
+                    setIsTogglingResolution(false);
                   }
                 }}
               />
@@ -251,7 +357,9 @@ const HazardCard = ({
   if (loadedHazards.length === 0) {
     return (
       <View className="bg-surface-light rounded-2xl p-8 items-center border-2 border-dashed border-border-secondary">
-        <Text className="text-xl font-semibold text-gray-500 text-center">No Hazards Detected</Text>
+        <Text className="text-xl font-semibold text-gray-500 text-center">
+          No Hazards Detected
+        </Text>
         <Text className="text-base text-gray-400 text-center mt-2">
           This area appears to be safe based on the current scan.
         </Text>

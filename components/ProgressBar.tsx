@@ -5,48 +5,33 @@ import * as Progress from "react-native-progress";
 
 const brandColor = "#006ec2";
 
-// progress bar map
-type progressBarState = {
-  progressValue: number;
-  percentage: number;
-  subtext: string;
-};
+interface ProgressBarProps {
+  /** 0.0 to 1.0 continuous progress */
+  progress?: number;
+  /** Status text */
+  statusText?: string;
+  /** Optional cancel handler */
+  onCancel?: () => void;
+}
 
-const progressBarStates: progressBarState[] = [
-  { progressValue: 0, percentage: 0, subtext: "Initializing..." },
-  { progressValue: 0.2, percentage: 20, subtext: "Detecting room layout..." },
-  {
-    progressValue: 0.5,
-    percentage: 50,
-    subtext: "Analyzing for disastrous hazards...",
-  },
-  {
-    progressValue: 0.8,
-    percentage: 80,
-    subtext: "Generating safety report...",
-  },
-  { progressValue: 1, percentage: 100, subtext: "Analysis Complete!" },
-];
+export default function ProgressBar({
+  progress = 0,
+  statusText = "Initializing...",
+  onCancel,
+}: ProgressBarProps) {
+  const percentage = Math.round(progress * 100);
 
-export default function ProgressBar({ index = 0 }: { index?: number }) {
-  // NOTE: Back-end Logic may be placed here.
-  // use index locations when changing conditions at each phase.
-  // refer to the map above.
-
-  const currentState = progressBarStates[index];
-
-  // progress bar logic
   return (
     <View className="flex items-center justify-center">
       {/* Loading header text */}
       <View className="flex items-center">
         <Text className="text-h3 font-semibold mb-1">Analyzing Your Room</Text>
-        <Text className="mb-6"> {currentState.subtext} </Text>
+        <Text className="mb-6"> {statusText} </Text>
       </View>
 
       {/* ProgressBar properties */}
       <Progress.Bar
-        progress={currentState.progressValue}
+        progress={progress}
         width={320}
         height={12}
         borderRadius={12}
@@ -56,14 +41,15 @@ export default function ProgressBar({ index = 0 }: { index?: number }) {
         color={brandColor}
       />
       <Text className="text-center mt-2 text-lg font-semibold color-text-primary mb-6">
-        {currentState.percentage} %
+        {percentage} %
       </Text>
 
       {/* Cancel Button */}
       <Button
         label="Cancel"
         className="w-full"
-        onPress={() => null}
+        onPress={onCancel ?? (() => null)}
+        disabled={!onCancel}
         variant="cancel"
       />
     </View>

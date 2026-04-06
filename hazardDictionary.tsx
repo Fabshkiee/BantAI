@@ -13,9 +13,303 @@ export type HazardDictionaryEntry = {
   earthquake_fixes: string[];
   typhoon_fixes: string[];
   fire_fixes: string[];
+  general_reason?: string;
+  general_fixes?: string[];
+  highest_risk_disaster?: "earthquake" | "typhoon" | "fire";
+  disaster_filters?: Array<"earthquake" | "typhoon" | "fire">;
 };
 
-export const hazardDictionary: HazardDictionaryEntry[] = [
+const CATEGORY_MATERIAL_KITS: Record<HazardCategory, string[]> = {
+  electrical: [
+    "electrical tape, insulated gloves, non-contact voltage tester",
+    "cable ties, outlet cover, screwdriver set",
+    "replacement plug or socket, breaker labels, flashlight",
+  ],
+  interior: [
+    "anti-slip pads, wall anchors, nylon straps",
+    "shelf guard rails, furniture brackets, adhesive putty",
+    "storage bins, protective gloves, broom and dustpan",
+  ],
+  structural: [
+    "crack gauge or ruler, marker pen, flashlight",
+    "cement patch, sealant, putty knife",
+    "masonry drill bits, anchor bolts, protective mask",
+  ],
+  fire: [
+    "fire extinguisher, dry sand bucket, heat-resistant gloves",
+    "metal tray, lighter snuffer, smoke alarm batteries",
+    "flame-resistant cover, emergency flashlight, whistle",
+  ],
+};
+
+const CATEGORY_BASE_FIXES: Record<HazardCategory, string> = {
+  electrical:
+    "Turn off the breaker before touching the hazard area, then isolate the source and have the connection inspected before reuse",
+  interior:
+    "Reposition unstable items to lower, secured locations and clear the surrounding walkway to reduce fall and impact risks",
+  structural:
+    "Mark the damaged area, restrict access, and schedule a structural inspection before normal use",
+  fire: "Remove nearby combustibles, keep an extinguisher within reach, and never leave ignition sources unattended",
+};
+
+const OUT_OF_SCOPE_CIVIL_EXTERIOR_PATTERN =
+  /\b(soil erosion|foundation|base of your house|outside panels?|street drains?|washed away soil|under the house)\b/i;
+
+const INTERIOR_SCOPE_DESCRIPTION_FALLBACK: Record<HazardCategory, string> = {
+  electrical:
+    "Unsafe indoor electrical components such as exposed wiring, overloaded outlets, or damaged fixtures can cause shocks, short circuits, and fires inside occupied rooms",
+  interior:
+    "Unsecured indoor objects and furnishings can fall, shatter, or block movement during sudden shaking or strong vibration",
+  structural:
+    "Visible interior structural damage such as widening cracks, detached plaster, or unstable wall sections can lead to falling debris and unsafe room conditions",
+  fire: "Open flames or heat sources near indoor combustibles can rapidly spread fire and smoke through living spaces",
+};
+
+const INTERIOR_SCOPE_REASON_FALLBACK: Record<HazardCategory, string> = {
+  electrical:
+    "This hazard is critical indoors because occupants may contact live components, and a single short circuit can ignite nearby materials",
+  interior:
+    "This hazard is dangerous indoors because falling or unstable objects can injure occupants and block evacuation routes",
+  structural:
+    "This hazard indicates indoor structural instability; if cracks widen or sections loosen, debris may fall and interior spaces can become unsafe",
+  fire: "This hazard can escalate quickly indoors where heat, smoke, and combustibles are concentrated, reducing safe escape time",
+};
+
+const INTERIOR_SCOPE_FIX_FALLBACK: Record<HazardCategory, string> = {
+  electrical:
+    "Turn off the main breaker, isolate the affected indoor circuit, and secure exposed connections with proper electrical insulation until a licensed electrician repairs them",
+  interior:
+    "Relocate heavy or fragile items to lower stable positions, anchor tall furniture to interior walls, and clear walkways to maintain safe movement",
+  structural:
+    "Mark crack endpoints, monitor for growth weekly, limit use of the affected room, and request an indoor structural safety assessment",
+  fire: "Remove combustible items within one meter, keep a Class ABC extinguisher accessible, and stop unattended flame use in occupied rooms",
+};
+
+type DisasterType = "earthquake" | "typhoon" | "fire";
+
+const DISASTER_LABELS: Record<DisasterType, string> = {
+  earthquake: "Earthquake",
+  typhoon: "Typhoon",
+  fire: "Fire",
+};
+
+// Mirrors the severity scaling used in the risk engine.
+const RISK_ENGINE_SEVERITY_VALUES: Record<
+  HazardDictionaryEntry["default_severity"],
+  number
+> = {
+  critical: 15,
+  high: 10,
+  medium: 5,
+  low: 2,
+};
+
+// Higher score = higher likelihood this disaster context should be prioritized in "All".
+const DISASTER_CATEGORY_RISK_BONUS: Record<
+  HazardCategory,
+  Record<DisasterType, number>
+> = {
+  electrical: { earthquake: 2, typhoon: 3, fire: 5 },
+  interior: { earthquake: 4, typhoon: 3, fire: 2 },
+  structural: { earthquake: 5, typhoon: 3, fire: 2 },
+  fire: { earthquake: 2, typhoon: 2, fire: 6 },
+};
+
+function normalizeText(value: string): string {
+  const compact = value
+    .replace(/\s+/g, " ")
+    .replace(/\s+([,.;:!?])/g, "$1")
+    .replace(/\.{2,}/g, ".")
+    .trim();
+
+  if (!compact) return "";
+  return /[.!?]$/.test(compact) ? compact : `${compact}.`;
+}
+
+function normalizeFixes(fixes: string[]): string[] {
+  const normalized = fixes
+    .map((fix) => normalizeText(fix))
+    .filter((fix) => fix.length > 0);
+
+  // Deduplicate while preserving order.
+  const seen = new Set<string>();
+  return normalized.filter((fix) => {
+    const key = fix.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function dedupeCaseInsensitive(values: string[]): string[] {
+  const seen = new Set<string>();
+  return values.filter((value) => {
+    const key = value.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function withMaterials(fix: string, materials: string): string {
+  if (/materials\s*:/i.test(fix)) return fix;
+  return `${fix} Materials: ${materials}.`;
+}
+
+function keepInteriorScope(value: string, fallback: string): string {
+  if (!value) return fallback;
+  return OUT_OF_SCOPE_CIVIL_EXTERIOR_PATTERN.test(value) ? fallback : value;
+}
+
+function getDisasterReason(
+  entry: HazardDictionaryEntry,
+  disaster: DisasterType,
+): string {
+  if (disaster === "earthquake") return entry.earthquake_reason;
+  if (disaster === "typhoon") return entry.typhoon_reason;
+  return entry.fire_reason;
+}
+
+function getDisasterFixes(
+  entry: HazardDictionaryEntry,
+  disaster: DisasterType,
+): string[] {
+  if (disaster === "earthquake") return entry.earthquake_fixes;
+  if (disaster === "typhoon") return entry.typhoon_fixes;
+  return entry.fire_fixes;
+}
+
+function buildDisasterFilters(
+  entry: HazardDictionaryEntry,
+  highestRiskDisaster: DisasterType,
+): DisasterType[] {
+  const disasters: DisasterType[] = ["earthquake", "typhoon", "fire"];
+  const available = disasters.filter((disaster) => {
+    const reason = getDisasterReason(entry, disaster).trim();
+    const fixes = getDisasterFixes(entry, disaster);
+    return reason.length > 0 || fixes.length > 0;
+  });
+
+  // Highest-risk context must always be included in filter tags.
+  return Array.from(new Set([highestRiskDisaster, ...available]));
+}
+
+function scoreDisasterForEntry(
+  entry: HazardDictionaryEntry,
+  disaster: DisasterType,
+): number {
+  const severity = RISK_ENGINE_SEVERITY_VALUES[entry.default_severity] ?? 0;
+  const categoryBonus = DISASTER_CATEGORY_RISK_BONUS[entry.category][disaster];
+  const reasonScore = getDisasterReason(entry, disaster).length > 0 ? 1 : 0;
+  const fixScore = getDisasterFixes(entry, disaster).length > 0 ? 1 : 0;
+  return severity + categoryBonus + reasonScore + fixScore;
+}
+
+function pickHighestRiskDisaster(entry: HazardDictionaryEntry): DisasterType {
+  const disasters: DisasterType[] = ["earthquake", "typhoon", "fire"];
+  return disasters.reduce((best, current) =>
+    scoreDisasterForEntry(entry, current) > scoreDisasterForEntry(entry, best)
+      ? current
+      : best,
+  );
+}
+
+function buildGeneralReason(entry: HazardDictionaryEntry): string {
+  const highestRiskDisaster = pickHighestRiskDisaster(entry);
+  const contextReason = getDisasterReason(entry, highestRiskDisaster);
+  return normalizeText(
+    `${entry.description} Highest-risk context (${DISASTER_LABELS[highestRiskDisaster]}): ${contextReason}`,
+  );
+}
+
+function buildGeneralFixes(entry: HazardDictionaryEntry): string[] {
+  const highestRiskDisaster = pickHighestRiskDisaster(entry);
+  const disasterPriority: DisasterType[] = [
+    highestRiskDisaster,
+    ...(["earthquake", "typhoon", "fire"] as DisasterType[]).filter(
+      (d) => d !== highestRiskDisaster,
+    ),
+  ];
+
+  const prioritizedFixes = disasterPriority.flatMap((disaster) =>
+    getDisasterFixes(entry, disaster),
+  );
+
+  const pooled = dedupeCaseInsensitive(
+    [...prioritizedFixes, CATEGORY_BASE_FIXES[entry.category]]
+      .map((fix) => normalizeText(fix))
+      .filter((fix) => fix.length > 0),
+  );
+
+  const selected = pooled.slice(0, 3);
+  const materials = CATEGORY_MATERIAL_KITS[entry.category];
+
+  return selected.map((fix, idx) =>
+    withMaterials(fix, materials[idx % materials.length]),
+  );
+}
+
+function normalizeHazardEntry(
+  entry: HazardDictionaryEntry,
+): HazardDictionaryEntry {
+  const normalizedEntry: HazardDictionaryEntry = {
+    ...entry,
+    description: normalizeText(
+      keepInteriorScope(
+        entry.description,
+        INTERIOR_SCOPE_DESCRIPTION_FALLBACK[entry.category],
+      ),
+    ),
+    earthquake_reason: normalizeText(
+      keepInteriorScope(
+        entry.earthquake_reason,
+        INTERIOR_SCOPE_REASON_FALLBACK[entry.category],
+      ),
+    ),
+    typhoon_reason: normalizeText(
+      keepInteriorScope(
+        entry.typhoon_reason,
+        INTERIOR_SCOPE_REASON_FALLBACK[entry.category],
+      ),
+    ),
+    fire_reason: normalizeText(
+      keepInteriorScope(
+        entry.fire_reason,
+        INTERIOR_SCOPE_REASON_FALLBACK[entry.category],
+      ),
+    ),
+    earthquake_fixes: normalizeFixes(
+      entry.earthquake_fixes.map((fix) =>
+        keepInteriorScope(fix, INTERIOR_SCOPE_FIX_FALLBACK[entry.category]),
+      ),
+    ),
+    typhoon_fixes: normalizeFixes(
+      entry.typhoon_fixes.map((fix) =>
+        keepInteriorScope(fix, INTERIOR_SCOPE_FIX_FALLBACK[entry.category]),
+      ),
+    ),
+    fire_fixes: normalizeFixes(
+      entry.fire_fixes.map((fix) =>
+        keepInteriorScope(fix, INTERIOR_SCOPE_FIX_FALLBACK[entry.category]),
+      ),
+    ),
+  };
+
+  const highestRiskDisaster = pickHighestRiskDisaster(normalizedEntry);
+
+  return {
+    ...normalizedEntry,
+    general_reason: buildGeneralReason(normalizedEntry),
+    general_fixes: buildGeneralFixes(normalizedEntry),
+    highest_risk_disaster: highestRiskDisaster,
+    disaster_filters: buildDisasterFilters(
+      normalizedEntry,
+      highestRiskDisaster,
+    ),
+  };
+}
+
+const RAW_HAZARD_DICTIONARY: HazardDictionaryEntry[] = [
   {
     id: "HAZARD_LABELS.ELECTRONIC_HAZARD",
     title: "Electronic Hazard",
@@ -76,7 +370,7 @@ export const hazardDictionary: HazardDictionaryEntry[] = [
   },
   {
     id: "HAZARD_LABELS.EXPOSED_BREAKER",
-    title: "Exposed Circuit Breakers",
+    title: "Exposed Breaker",
     category: "electrical",
     default_severity: "critical",
     description:
@@ -107,7 +401,7 @@ export const hazardDictionary: HazardDictionaryEntry[] = [
     id: "HAZARD_LABELS.EXPOSED_CEILING_LIGHTS",
     title: "Exposed Ceiling Lights",
     category: "electrical",
-    default_severity: "medium",
+    default_severity: "high",
     description:
       "Ceiling lights with broken bulbs or messy octopus wires. These open wires are very dangerous because they are completely unprotected from water and shaking.",
     earthquake_reason:
@@ -122,7 +416,7 @@ export const hazardDictionary: HazardDictionaryEntry[] = [
       "Cover bare bulbs with cheap plastic cages. This stops the glass from breaking and scattering on your floor if things start shaking.",
     ],
     typhoon_fixes: [
-      "Fix any holes in your yero roof right away so water does not reach the lights. This stops dangerous sparks and short circuits during heavy rain.",
+      "Fix any holes in your roof right away so water does not reach the lights. This stops dangerous sparks and short circuits during heavy rain.",
       "Use waterproof lights for your dirty kitchen and balcony. Standard indoor bulbs easily break when hit by strong wind and heavy rain.",
       "Tie up or shorten long dangling wires so they do not swing around. This keeps the wires safe even when strong typhoon winds shake your house.",
     ],
@@ -136,7 +430,7 @@ export const hazardDictionary: HazardDictionaryEntry[] = [
     id: "HAZARD_LABELS.HEAVY_WOODEN_FURNITURE",
     title: "Heavy Wooden Furniture",
     category: "interior",
-    default_severity: "medium",
+    default_severity: "high",
     description:
       "Large and top heavy furniture like traditional wooden aparadors and big dining tables. These massive items are dangerous because they are not attached to the walls and can easily tip over.",
     earthquake_reason:
@@ -163,7 +457,7 @@ export const hazardDictionary: HazardDictionaryEntry[] = [
   },
   {
     id: "HAZARD_LABELS.OPEN_FLAME_HAZARD",
-    title: "Open Flame Hazards",
+    title: "Open Flame Hazard",
     category: "fire",
     default_severity: "critical",
     description:
@@ -192,7 +486,7 @@ export const hazardDictionary: HazardDictionaryEntry[] = [
   },
   {
     id: "HAZARD_LABELS.OVERLOADED_SOCKET",
-    title: "Overloaded Sockets",
+    title: "Overloaded Socket",
     category: "electrical",
     default_severity: "high",
     description:
@@ -221,9 +515,9 @@ export const hazardDictionary: HazardDictionaryEntry[] = [
   },
   {
     id: "HAZARD_LABELS.DAMAGED_WIRE",
-    title: "Damaged Wires",
+    title: "Damaged Wire",
     category: "electrical",
-    default_severity: "high",
+    default_severity: "critical",
     description:
       "Electrical cords that are frayed, cracked, or have bare copper wires showing. These wires are very dangerous because they no longer have their protective plastic cover to stop sparks.",
     earthquake_reason:
@@ -253,7 +547,7 @@ export const hazardDictionary: HazardDictionaryEntry[] = [
     id: "HAZARD_LABELS.FLOOR_APPLIANCE",
     title: "Floor Appliances",
     category: "electrical",
-    default_severity: "high",
+    default_severity: "medium",
     description:
       "Heavy freestanding appliances like washing machines, refrigerators, and stand fans that sit directly on the floor. These items contain large motors and wiring that are very vulnerable to flooding and vibration.",
     earthquake_reason:
@@ -280,9 +574,9 @@ export const hazardDictionary: HazardDictionaryEntry[] = [
   },
   {
     id: "HAZARD_LABELS.MAJOR_CRACK",
-    title: "Major Wall Cracks",
+    title: "Major Crack",
     category: "structural",
-    default_severity: "high",
+    default_severity: "critical",
     description:
       "Deep cracks in your walls that are wider than a coin or look like a staircase. These are dangerous because they mean your house foundation is moving or the walls are starting to fail.",
     earthquake_reason:
@@ -309,9 +603,9 @@ export const hazardDictionary: HazardDictionaryEntry[] = [
   },
   {
     id: "HAZARD_LABELS.MINOR_CRACK",
-    title: "Minor Wall Cracks",
+    title: "Minor Crack",
     category: "structural",
-    default_severity: "low",
+    default_severity: "medium",
     description:
       "Thin hairline cracks in your paint or plaster that are smaller than a strand of hair. These are usually just on the surface and do not mean your wall is about to fall down.",
     earthquake_reason:
@@ -338,7 +632,7 @@ export const hazardDictionary: HazardDictionaryEntry[] = [
   },
   {
     id: "HAZARD_LABELS.BROKEN_GLASS",
-    title: "Broken Glass Hazards",
+    title: "Broken Glass",
     category: "interior",
     default_severity: "medium",
     description:
@@ -367,13 +661,13 @@ export const hazardDictionary: HazardDictionaryEntry[] = [
   },
   {
     id: "HAZARD_LABELS.COLLAPSED_STRUCTURE",
-    title: "Collapsed Structures",
+    title: "Collapsed Structure",
     category: "structural",
     default_severity: "critical",
     description:
       "A building that has partially or completely fallen down due to weak walls, a bad foundation, or rotten supports. This is the most dangerous hazard because it can trap or crush anyone inside the home.",
     earthquake_reason:
-      "Weak ground floors can drop or fold sideways in seconds, leaving no time to escape the collapsing structure.",
+      "Weak boards can drop or fold sideways in seconds, leaving no time to escape the collapsing structure.",
     typhoon_reason:
       "Floodwater washing away soil under the house can cause the entire foundation to tilt or sink without warning.",
     fire_reason:
@@ -395,3 +689,6 @@ export const hazardDictionary: HazardDictionaryEntry[] = [
     ],
   },
 ];
+
+export const hazardDictionary: HazardDictionaryEntry[] =
+  RAW_HAZARD_DICTIONARY.map(normalizeHazardEntry);

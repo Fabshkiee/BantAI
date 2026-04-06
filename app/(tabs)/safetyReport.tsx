@@ -1,16 +1,18 @@
 import ArrowLeftIcon from "@/assets/icons/ArrowLeftIcon";
+import PlusIcon from "@/assets/icons/PlusIcon";
 import RefreshIcon from "@/assets/icons/RefreshIcon";
 import Button from "@/components/Button";
 import HazardCard, { HazardData } from "@/components/HazardCard";
 import HazardSortingButtons from "@/components/HazardSortingButons";
 import MascotReporter, { getRiskVariant } from "@/components/MascotReporter";
 import { getScanSessionDetails, type ScanSessionDetails } from "@/db/db";
-import { type DisasterType } from "@/db/hazards";
+import { HAZARD_TYPES, type DisasterType } from "@/db/hazards";
 import { hazardDictionary } from "@/hazardDictionary";
 import { calculateRoomRisk, type Detection } from "@/lib/riskEngine";
+import * as ImagePicker from "expo-image-picker";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { ActivityIndicator, Animated, Text, View } from "react-native";
+import { ActivityIndicator, Alert, Animated, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const SEVERITY_PRIORITY: Record<string, number> = {
@@ -133,6 +135,7 @@ export default function SafetyReport() {
     const d = detections[i];
     const dictId = `HAZARD_LABELS.${d.class.toUpperCase()}`;
     const entry = hazardDictionary.find((h) => h.id === dictId);
+    const seed = HAZARD_TYPES.find((h) => h.name === d.class);
 
     const title = entry
       ? entry.title
@@ -141,18 +144,42 @@ export default function SafetyReport() {
           .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
           .join(" ");
 
-    const variant = entry ? entry.default_severity : "low";
+    const baseVariant = (entry ? entry.default_severity : "low") as
+      | "low"
+      | "medium"
+      | "high"
+      | "critical";
+    const variant = baseVariant;
+
+    const disasterTypes = Array.from(
+      new Set<DisasterType>([
+        ...(seed?.disasterTypes ?? []),
+        ...(entry?.disaster_filters ?? []),
+        ...(entry?.highest_risk_disaster ? [entry.highest_risk_disaster] : []),
+      ]),
+    );
 
     mappedHazards.push({
       id: i.toString(),
       title: title,
       variant: variant as "low" | "medium" | "high" | "critical",
       reason:
+        seed?.description ||
         entry?.description ||
         `AI detected this hazard with ${(d.confidence * 100).toFixed(1)}% confidence.`,
       suggestedFix:
+        seed?.recommendation ||
         entry?.fire_fixes?.[0] ||
         "Please inspect the area and resolve the hazard to ensure safety.",
+      disasterTypes,
+      earthquake_reason: entry?.earthquake_reason,
+      typhoon_reason: entry?.typhoon_reason,
+      fire_reason: entry?.fire_reason,
+      earthquake_fixes: entry?.earthquake_fixes,
+      typhoon_fixes: entry?.typhoon_fixes,
+      fire_fixes: entry?.fire_fixes,
+      general_reason: entry?.general_reason,
+      general_fixes: entry?.general_fixes,
       bbox: d.bbox,
     });
   }
@@ -220,6 +247,76 @@ export default function SafetyReport() {
       (SEVERITY_PRIORITY[b.variant] || 0) - (SEVERITY_PRIORITY[a.variant] || 0),
   );
 
+  const activeContextLabel: Record<DisasterType | "all", string> = {
+    all: "All Hazards",
+    earthquake: "Earthquake",
+    typhoon: "Typhoon",
+    fire: "Fire",
+  };
+
+  const sortingContextMessage: Record<DisasterType | "all", string> = {
+    earthquake:
+      "You are viewing earthquake-focused cards. Each reason and suggested fix explains the earthquake safety context of the hazard.",
+    typhoon:
+      "You are viewing typhoon-focused cards. Each reason and suggested fix explains the typhoon safety context of the hazard.",
+    fire: "You are viewing fire-focused cards. Each reason and suggested fix explains the fire safety context of the hazard.",
+    all: "You are viewing all hazards. Reasons and suggested fixes are based on each hazard's most critical risk evaluation.",
+  };
+
+  const handleUploadAnotherImage = useCallback(async () => {
+    try {
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert(
+          "Permission Needed",
+          "We need gallery permissions to select a photo.",
+        );
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        quality: 0.8,
+      });
+
+      if (result.canceled) {
+        return;
+      }
+
+      const uri = result.assets[0]?.uri;
+      if (!uri) {
+        throw new Error("Selected image does not include a URI.");
+      }
+
+      router.replace({
+        pathname: "/loadingScreen",
+        params: { imageUri: uri },
+      });
+    } catch (error) {
+      console.error("Failed to import image:", error);
+      Alert.alert(
+        "Import failed",
+        "We could not process that image. Please try again.",
+      );
+    }
+  }, [router]);
+
+  const handleConfirmScanAnotherRoom = useCallback(() => {
+    Alert.alert(
+      "Scan another room?",
+      "Your current report will stay in history. Continue to camera?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Continue",
+          onPress: () => router.push("/camera"),
+        },
+      ],
+    );
+  }, [router]);
+
   return (
     <View style={{ flex: 1 }}>
       <Animated.ScrollView
@@ -283,7 +380,7 @@ export default function SafetyReport() {
               </Text>
               <Text className="text-lg">
                 After assessing each hazard, apply the recommended fix, and
-                press the hazard assessed button once finished.
+                press the 'Mark as Resolved' button once finished.
               </Text>
             </View>
 
@@ -292,9 +389,17 @@ export default function SafetyReport() {
                 tableName="test"
                 onSortQueryChange={executeDatabaseSearch}
               />
+              <View className="mt-3 rounded-xl bg-surface-light px-4 py-3 border border-border-light">
+                <Text className="text-sm font-semibold text-text-default">
+                  Reason/Fix Context: {activeContextLabel[activeDisasterTab]}
+                </Text>
+                <Text className="text-sm text-text-subtle mt-1 leading-5">
+                  {sortingContextMessage[activeDisasterTab]}
+                </Text>
+              </View>
             </View>
 
-            <View className="mt-7">
+            <View className="mt-1">
               {hasSession && isLoadingSession ? (
                 <View className="items-center justify-center py-10">
                   <ActivityIndicator size="large" color="#0f172a" />
@@ -307,11 +412,15 @@ export default function SafetyReport() {
                   hazards={filteredHazards as HazardData[]}
                   imageUri={finalImageUri as string | undefined}
                   showResolutionAction={hasSession}
+                  activeDisasterTab={activeDisasterTab}
                   onResolved={(updatedSession) => {
                     if (updatedSession) {
                       const oldScore = session?.roomScore ?? finalRoomScore;
                       setSession(updatedSession);
-                      triggerBoost(updatedSession.roomScore || 0, oldScore);
+                      const nextScore = updatedSession.roomScore || 0;
+                      if (nextScore > oldScore) {
+                        triggerBoost(nextScore, oldScore);
+                      }
                     } else {
                       loadSession(true);
                     }
@@ -322,9 +431,15 @@ export default function SafetyReport() {
 
             <View className="w-full gap-4">
               <Button
-                label="Rescan Room"
-                onPress={() => router.push("/camera")}
+                label="Scan Another Room"
+                onPress={handleConfirmScanAnotherRoom}
                 icon={<RefreshIcon color="white" size={26} />}
+              />
+              <Button
+                label="Upload Another Image"
+                variant="secondary"
+                onPress={handleUploadAnotherImage}
+                icon={<PlusIcon color="#006ec2" size={24} />}
               />
               <Button
                 label="Back to Home"
@@ -368,6 +483,7 @@ export default function SafetyReport() {
               value={boostScore}
               initialValue={oldBoostScore}
               score={getRiskVariant(boostScore)}
+              hideStatus={false}
             />
             <View className="bg-surface-default px-10 py-4 rounded-full mt-10 shadow-2xl border-[3px] border-text-low">
               <Text className="text-text-low font-bold text-3xl text-center">
