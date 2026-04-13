@@ -1,18 +1,32 @@
 import ArrowIcon from "@/assets/icons/ArrowIcon";
 import ArrowLeftIcon from "@/assets/icons/ArrowLeftIcon";
 import Button from "@/components/Button";
+import i18n from "@/languages/i18n";
 import { router, useFocusEffect } from "expo-router";
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Animated, Image, Pressable, Text, View } from "react-native";
 
 const HEADER_HEIGHT = 80;
 
-export default function earthquakeArticle() {
+export default function fireArticle() {
   const scrollY = useRef(new Animated.Value(0)).current;
-
   const scrollYClamped = Animated.diffClamp(scrollY, 0, HEADER_HEIGHT);
-
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const { t } = useTranslation();
+  const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
+
+  useEffect(() => {
+    const handleLanguageChanged = () => {
+      setCurrentLanguage(i18n.language);
+    };
+
+    i18n.on("languageChanged", handleLanguageChanged);
+
+    return () => {
+      i18n.off("languageChanged", handleLanguageChanged);
+    };
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -25,6 +39,7 @@ export default function earthquakeArticle() {
       }).start();
     }, [fadeAnim]),
   );
+
   const translateY = scrollYClamped.interpolate({
     inputRange: [0, HEADER_HEIGHT],
     outputRange: [0, -HEADER_HEIGHT],
@@ -32,14 +47,13 @@ export default function earthquakeArticle() {
 
   return (
     <View className="bg-surface-default mt-9 mb-14">
-      {/* Animated Floating Pill Header */}
       <Animated.View
         style={{ transform: [{ translateY }] }}
-        className="absolute -top-3 left-0 right-0 z-10 pt-8 px-6"
+        className="absolute top-[-12px] left-0 right-0 z-10 pt-8 px-6 flex-row justify-between"
       >
         <View className="rounded-full self-start overflow-hidden shadow-sm">
           <Button
-            label="Back"
+            label={t("common.return")}
             variant="return"
             icon={<ArrowLeftIcon size={18} />}
             iconPosition="left"
@@ -48,9 +62,18 @@ export default function earthquakeArticle() {
             }}
           />
         </View>
+        <View className="rounded-full overflow-hidden shadow-sm">
+          <Button
+            label={currentLanguage === "en" ? "TL" : "EN"}
+            variant="secondary"
+            className="w-16"
+            onPress={() => {
+              i18n.changeLanguage(currentLanguage === "en" ? "tl" : "en");
+            }}
+          />
+        </View>
       </Animated.View>
 
-      {/* Main Scrolling Content */}
       <Animated.ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerClassName="px-9 pb-12 gap-6"
@@ -62,236 +85,191 @@ export default function earthquakeArticle() {
       >
         <Animated.View style={{ opacity: fadeAnim, flex: 1 }}>
           <View className="gap-3">
-            <View className="-mx-9">
+            <View className="mx-[-36px]">
               <Image
                 source={require("@/assets/images/fire.jpg")}
                 className="w-full h-[420px]"
                 resizeMode="cover"
               />
             </View>
-            <View className="bg-surface-light -mx-9 px-9 -mt-3 py-3 border-border-secondary border-b border-t">
-              <Text className="leading-7 text-sm text-text-subtle ">
+            <View className="bg-surface-light mx-[-36px] px-9 mt-[-12px] py-3 border-border-secondary border-b border-t">
+              <Text className="leading-7 text-sm text-text-subtle">
                 Image Courtesy: CritterGuard
               </Text>
             </View>
 
             <Text className="text-h3 font-bold leading-8">
-              Home Fires: Essential Safety & Prevention Guide
+              {t("articles.fire.title")}
             </Text>
 
             <Text className="leading-7 text-text-subtle">
-              Article From: Ready
+              {t("articles.fire.source")}
             </Text>
           </View>
 
-          {/* Main Article */}
           <View className="gap-10">
             <Text className="leading-7 text-xl">
-              A fire can become life-threatening in just two minutes, and a
-              residence can be completely engulfed in flames in five.
-              Understanding fire behavior and taking simple preventative steps
-              can save your home and your family.
+              {t("articles.fire.intro")}
             </Text>
 
-            {/* Understanding Fire */}
             <View className="gap-4">
               <Text className="text-2xl font-medium leading-7">
-                Understanding Fire
+                {t("articles.fire.understanding_fire_title")}
               </Text>
 
-              {/* Fire is FAST */}
               <View>
                 <Text className="leading-7 font-medium text-xl">
-                  {"\u2022"} Fire is FAST:
+                  {"\u2022"} {t("articles.fire.fire_fast_title")}
                 </Text>
                 <Text className="leading-7 ml-4 text-xl">
-                  A small flame can turn into a major fire in less than 30
-                  seconds.
+                  {t("articles.fire.fire_fast_content")}
                 </Text>
               </View>
 
-              {/* Fire is HOT */}
               <View>
                 <Text className="leading-7 font-medium text-xl">
-                  {"\u2022"} Fire is HOT:
+                  {"\u2022"} {t("articles.fire.fire_hot_title")}
                 </Text>
                 <Text className="leading-7 ml-4 text-xl">
-                  Heat is more threatening than flames. Room temperatures can
-                  reach 600 degrees at eye level, which can instantly scorch
-                  your lungs.
+                  {t("articles.fire.fire_hot_content")}
                 </Text>
               </View>
 
-              {/* Fire is DARK & DEADLY */}
               <View>
                 <Text className="leading-7 font-medium text-xl">
-                  {"\u2022"} Fire is DARK & DEADLY:
+                  {"\u2022"} {t("articles.fire.fire_dark_title")}
                 </Text>
                 <Text className="leading-7 ml-4 text-xl">
-                  Fire quickly produces thick black smoke and toxic gases. These
-                  gases kill more people than actual flames by causing
-                  disorientation and drowsiness.
+                  {t("articles.fire.fire_dark_content")}
                 </Text>
               </View>
             </View>
 
-            {/* Preparation */}
             <View className="gap-4">
               <Text className="text-2xl font-medium leading-7">
-                Preparation
+                {t("articles.fire.preparation_title")}
               </Text>
 
-              {/* Map Two Exits */}
               <View>
                 <Text className="leading-7 font-medium text-xl">
-                  {"\u2022"} Map Two Exits:
+                  {"\u2022"} {t("articles.fire.map_exits_title")}
                 </Text>
                 <Text className="leading-7 ml-4 text-xl">
-                  Find two ways out of every room in case the primary exit is
-                  blocked. Ensure windows and security bars can be opened
-                  quickly.
+                  {t("articles.fire.map_exits_content")}
                 </Text>
               </View>
 
-              {/* Practice the Escape */}
               <View>
                 <Text className="leading-7 font-medium text-xl">
-                  {"\u2022"} Practice the Escape:
+                  {"\u2022"} {t("articles.fire.practice_escape_title")}
                 </Text>
                 <Text className="leading-7 ml-4 text-xl">
-                  Practice your fire escape plan twice a year, including feeling
-                  your way out in the dark with your eyes closed.
+                  {t("articles.fire.practice_escape_content")}
                 </Text>
               </View>
 
-              {/* Sleep Safely */}
               <View>
                 <Text className="leading-7 font-medium text-xl">
-                  {"\u2022"} Sleep Safely:
+                  {"\u2022"} {t("articles.fire.sleep_safely_title")}
                 </Text>
                 <Text className="leading-7 ml-4 text-xl">
-                  Always sleep with your bedroom door closed to slow the spread
-                  of smoke and heat, and keep a fire extinguisher in the
-                  kitchen.
+                  {t("articles.fire.sleep_safely_content")}
                 </Text>
               </View>
             </View>
 
-            {/* Everyday Fire Prevention */}
             <View className="gap-4">
               <Text className="text-2xl font-medium leading-7">
-                Everyday Fire Prevention
+                {t("articles.fire.prevention_title")}
               </Text>
 
-              {/* Safe Cooking */}
               <View>
                 <Text className="leading-7 font-medium text-xl">
-                  {"\u2022"} Safe Cooking:
+                  {"\u2022"} {t("articles.fire.safe_cooking_title")}
                 </Text>
                 <Text className="leading-7 ml-4 text-xl">
-                  Never leave a frying or broiling stove unattended. Keep
-                  outdoor barbecue grills at least 10 feet away from your home's
-                  siding and deck railings.
+                  {t("articles.fire.safe_cooking_content")}
                 </Text>
               </View>
 
-              {/* Electrical Safety */}
               <View>
                 <Text className="leading-7 font-medium text-xl">
-                  {"\u2022"} Electrical Safety:
+                  {"\u2022"} {t("articles.fire.electrical_safety_title")}
                 </Text>
                 <Text className="leading-7 ml-4 text-xl">
-                  Replace frayed or damaged appliance cords immediately. Never
-                  run cords under rugs, and never overload extension cords.
+                  {t("articles.fire.electrical_safety_content")}
                 </Text>
               </View>
 
-              {/* Protect Children */}
               <View>
                 <Text className="leading-7 font-medium text-xl">
-                  {"\u2022"} Protect Children:
+                  {"\u2022"} {t("articles.fire.protect_children_title")}
                 </Text>
                 <Text className="leading-7 ml-4 text-xl">
-                  Store matches and lighters in locked cabinets out of reach.
-                  Teach children early on that fire is a tool, not a toy.
+                  {t("articles.fire.protect_children_content")}
                 </Text>
               </View>
             </View>
 
-            {/* During a Fire: How to Survive */}
             <View className="gap-4">
               <Text className="text-2xl font-medium leading-7">
-                During a Fire: How to Survive
+                {t("articles.fire.during_fire_title")}
               </Text>
 
-              {/* Crawl Low */}
               <View>
                 <Text className="leading-7 font-medium text-xl">
-                  {"\u2022"} Crawl Low:
+                  {"\u2022"} {t("articles.fire.crawl_low_title")}
                 </Text>
                 <Text className="leading-7 ml-4 text-xl">
-                  Heavy smoke and poisonous gases collect at the ceiling first.
-                  Drop to the floor and crawl under the smoke to your exit.
+                  {t("articles.fire.crawl_low_content")}
                 </Text>
               </View>
 
-              {/* Feel the Doors */}
               <View>
                 <Text className="leading-7 font-medium text-xl">
-                  {"\u2022"} Feel the Doors:
+                  {"\u2022"} {t("articles.fire.feel_doors_title")}
                 </Text>
                 <Text className="leading-7 ml-4 text-xl">
-                  Before opening any door, feel the doorknob and the door
-                  itself. If either is hot, leave it closed and use your second
-                  way out.
+                  {t("articles.fire.feel_doors_content")}
                 </Text>
               </View>
 
-              {/* If You Are Trapped */}
               <View>
                 <Text className="leading-7 font-medium text-xl">
-                  {"\u2022"} If You Are Trapped:
+                  {"\u2022"} {t("articles.fire.if_trapped_title")}
                 </Text>
                 <Text className="leading-7 ml-4 text-xl">
-                  Close the door and cover vents and door cracks with cloth or
-                  tape to keep smoke out. Call emergency services and signal for
-                  help from a window using a flashlight or light-colored cloth.
+                  {t("articles.fire.if_trapped_content")}
                 </Text>
               </View>
 
-              {/* Stop, Drop, and Roll */}
               <View>
                 <Text className="leading-7 font-medium text-xl">
-                  {"\u2022"} Stop, Drop, and Roll:
+                  {"\u2022"} {t("articles.fire.stop_drop_roll_title")}
                 </Text>
-                <Text className="leading-7 ml-4">
-                  If your clothes catch fire, stop immediately, drop to the
-                  ground, cover your face with your hands, and roll back and
-                  forth to smother the flames.
+                <Text className="leading-7 ml-4 text-xl">
+                  {t("articles.fire.stop_drop_roll_content")}
                 </Text>
               </View>
             </View>
+
             <View className="gap-4">
               <Text className="leading-7 text-xl">
-                When it comes to home fires, every second counts. Make fire
-                prevention a daily habit, test your alarms regularly, and ensure
-                your family knows exactly what to do when the alarms sound.
+                {t("articles.fire.closing_text")}
               </Text>
               <Text className="leading-7 italic text-xl">
-                Stay prepared, stay calm, and stay safe!
+                {t("articles.fire.closing_text_italic")}
               </Text>
             </View>
 
-            {/* Divider */}
             <View className="h-[2px] bg-border-secondary my-4" />
 
-            {/* Source Information */}
             <View className="bg-surface-light p-4 rounded-xl border border-border-secondary/30 gap-1 mb-2">
               <Text className="text-xl font-bold text-text-subtle uppercase tracking-wider mb-1">
-                Source Information
+                {t("articles.common.source_information")}
               </Text>
               <Text className="leading-6 text-xl">
-                This content was originally published by Ready.
+                {t("articles.fire.source_info")}
               </Text>
 
               <Pressable
@@ -301,22 +279,21 @@ export default function earthquakeArticle() {
                 }}
               >
                 <Text className="leading-6 text-blue-600 font-semibold text-xl">
-                  Read original article ↗
+                  {t("articles.common.read_original_article")}
                 </Text>
               </Pressable>
             </View>
           </View>
 
-          {/* More Articles Navigation */}
           <View className="mt-4 gap-5">
             <Text className="text-xl font-bold text-text-main">
-              More Articles
+              {t("articles.common.more_articles")}
             </Text>
 
             <View className="justify-between flex-row items-center">
               <View className="w-[110px] h-auto">
                 <Button
-                  label="Previous"
+                  label={t("articles.common.previous")}
                   variant="return"
                   icon={<ArrowLeftIcon size={18} />}
                   iconPosition="left"
@@ -327,7 +304,7 @@ export default function earthquakeArticle() {
               </View>
               <View className="w-[110px] h-auto">
                 <Button
-                  label="Next"
+                  label={t("articles.common.next")}
                   variant="return"
                   icon={<ArrowIcon size={18} />}
                   iconPosition="right"

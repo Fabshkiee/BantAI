@@ -1,10 +1,13 @@
 import ArrowIcon from "@/assets/icons/ArrowIcon";
 import Button from "@/components/Button";
 import { useTFLite } from "@/hooks/useTFLite";
+import i18n from "@/languages/i18n";
 import { useKeepAwake } from "expo-keep-awake";
 import { useFocusEffect, useRouter } from "expo-router";
 import * as ScreenOrientation from "expo-screen-orientation";
 import React, { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+
 import {
   ActivityIndicator,
   Alert,
@@ -28,6 +31,20 @@ export default function CameraScreen() {
   const [isCapturing, setIsCapturing] = useState(false);
   const cameraRef = useRef<Camera>(null);
   const { modelLoaded, error: modelError } = useTFLite();
+  const { t } = useTranslation();
+  const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
+
+  useEffect(() => {
+    const handleLanguageChanged = () => {
+      setCurrentLanguage(i18n.language);
+    };
+
+    i18n.on("languageChanged", handleLanguageChanged);
+
+    return () => {
+      i18n.off("languageChanged", handleLanguageChanged);
+    };
+  }, []);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -83,8 +100,8 @@ export default function CameraScreen() {
     } catch (err) {
       console.error("Camera error:", err);
       Alert.alert(
-        "Capture failed",
-        "We could not capture the photo. Please try again.",
+        t("camera_screen.capture_failed_title"),
+        t("camera_screen.capture_failed_message"),
       );
     } finally {
       setIsCapturing(false);
@@ -102,10 +119,10 @@ export default function CameraScreen() {
           }}
         />
         <Text className="text-center font-text font-semibold text-lg mt-3 mb-4 text-text-default">
-          BantAI need permission to use your camera.
+          {t("camera_screen.permission_message")}
         </Text>
         <Button
-          label="Allow Camera Use"
+          label={t("camera_screen.allow_camera")}
           onPress={requestPermission}
           className="w-56"
           icon={<ArrowIcon color="white" size={18} />}
@@ -119,7 +136,7 @@ export default function CameraScreen() {
     return (
       <View className="flex-1 justify-center items-center bg-surface-default px-8">
         <Text className="text-center font-text font-semibold text-lg mt-3 mb-4 text-text-default">
-          No camera device found.
+          {t("camera_screen.no_device")}
         </Text>
       </View>
     );
@@ -136,13 +153,13 @@ export default function CameraScreen() {
           }}
         />
         <Text className="text-center font-text font-semibold text-lg mt-3 mb-4 text-text-default">
-          Model Loading Failed
+          {t("camera_screen.model_failed")}
         </Text>
         <Text className="text-center text-gray-600 mb-6 text-sm">
           {modelError}
         </Text>
         <Button
-          label="Back to Home"
+          label={t("camera_screen.back_to_home")}
           onPress={() => router.push("/")}
           className="w-56"
           icon={<ArrowIcon color="white" size={18} />}
@@ -157,7 +174,7 @@ export default function CameraScreen() {
       <View className="flex-1 justify-center items-center bg-surface-default px-8">
         <ActivityIndicator size="large" color="#0077cc" />
         <Text className="text-center font-text font-semibold text-lg mt-4 text-text-default">
-          Loading AI Model...
+          {t("camera_screen.loading_model")}
         </Text>
       </View>
     );
@@ -172,6 +189,18 @@ export default function CameraScreen() {
         isActive={true}
         photo={true}
       />
+
+      {/* Language Toggle Button */}
+      <View className="absolute top-4 right-4 z-50">
+        <Button
+          label={currentLanguage === "en" ? "TL" : "EN"}
+          variant="secondary"
+          className="w-16"
+          onPress={() => {
+            i18n.changeLanguage(currentLanguage === "en" ? "tl" : "en");
+          }}
+        />
+      </View>
 
       {/* Feedback Notification Popup */}
       {showNotification && (
@@ -188,7 +217,7 @@ export default function CameraScreen() {
               style={{ minHeight: 64, justifyContent: "center" }}
             >
               <Text className="font-text text-md font-medium text-text-default ml-10">
-                Perfect, you may now take the photo.
+                {t("camera_screen.capture_ready")}
               </Text>
             </View>
 
