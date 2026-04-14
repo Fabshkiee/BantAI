@@ -270,7 +270,7 @@ export default function TabLayout() {
         <CoachmarkOverlay
           title="Start Your Safety Check"
           stepText="1 of 2"
-          description="Tap Scan a Room to begin the guided safety scan tutorial."
+          description="Tap here to let the AI scan your environment for potential hazards."
           ctaLabel="Next"
           onNext={nextHomeStep}
           onSkip={dismissHomeTour}

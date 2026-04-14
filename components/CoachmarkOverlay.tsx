@@ -1,3 +1,4 @@
+import ArrowRightIcon from "@/assets/icons/ArrowRightIcon";
 import React from "react";
 import {
     Pressable,
@@ -217,7 +218,7 @@ export default function CoachmarkOverlay({
         />
       )}
 
-      <View style={[styles.card, positionStyle]}>
+      <View className="bg-default" style={[styles.card, positionStyle]}>
         <View style={styles.headerRow}>
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.stepText}>{stepText}</Text>
@@ -226,7 +227,9 @@ export default function CoachmarkOverlay({
         <Text style={styles.description}>{description}</Text>
 
         <Pressable style={styles.cta} onPress={onNext}>
-          <Text style={styles.ctaText}>{ctaLabel}</Text>
+          <Text style={styles.ctaText}>
+            {ctaLabel} <ArrowRightIcon color="white" size={16} />
+          </Text>
         </Pressable>
 
         <View style={getPointerStyle(pointerSide, pointerOffset)} />
@@ -243,11 +246,10 @@ const styles = StyleSheet.create({
   },
   card: {
     position: "absolute",
-    backgroundColor: CARD_BG,
     borderRadius: 14,
     paddingHorizontal: 18,
     paddingVertical: 16,
-    width: 320,
+    width: 250,
   },
   headerRow: {
     flexDirection: "row",
@@ -261,6 +263,7 @@ const styles = StyleSheet.create({
     color: "#121417",
     fontWeight: "600",
     flexShrink: 1,
+    paddingRight: 20,
   },
   stepText: {
     fontSize: 18,
@@ -273,6 +276,7 @@ const styles = StyleSheet.create({
     fontSize: 17,
     lineHeight: 29,
     color: "#121417",
+    paddingRight: 20,
   },
   cta: {
     marginTop: 18,
@@ -280,7 +284,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#0d72c8",
     alignItems: "center",
     justifyContent: "center",
-    height: 58,
+    height: 48,
+    maxWidth: 150,
   },
   ctaText: {
     color: "#f4f9ff",
