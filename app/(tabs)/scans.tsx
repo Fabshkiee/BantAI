@@ -60,6 +60,19 @@ export default function ScansScreen() {
 
         <Text className="text-h2 font-bold mb-4">Recent Scans</Text>
 
+        {/* Mock ScansCard for UI Testing */}
+        <ScansCard
+          id={999}
+          title="Test Living Room"
+          scannedAt={Math.floor(Date.now() / 1000)} // Current time in seconds
+          roomScore={47}
+          riskVariant="critical" // Try changing to "high" or "medium" to test styles
+          photoPath={null} // Passing null triggers your default room.png fallback
+          hazardCount={3}
+          assessedCount={1}
+          status="completed"
+        />
+
         {isLoading ? (
           <View className="py-10 items-center justify-center">
             <ActivityIndicator size="large" color="#0f172a" />
@@ -87,7 +100,7 @@ export default function ScansScreen() {
             </Text>
           </View>
         ) : (
-          <View className="flex gap-6">
+          <View className="flex gap-3">
             {sessions.map((session) => (
               <ScansCard
                 key={session.id}
