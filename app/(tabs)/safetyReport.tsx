@@ -1,10 +1,13 @@
+import ArrowIcon from "@/assets/icons/ArrowIcon";
 import ArrowLeftIcon from "@/assets/icons/ArrowLeftIcon";
 import PlusIcon from "@/assets/icons/PlusIcon";
 import RefreshIcon from "@/assets/icons/RefreshIcon";
 import Button from "@/components/Button";
+import CoachmarkOverlay from "@/components/CoachmarkOverlay";
 import HazardCard, { HazardData } from "@/components/HazardCard";
 import HazardSortingButtons from "@/components/HazardSortingButons";
 import MascotReporter, { getRiskVariant } from "@/components/MascotReporter";
+import { useCoachmarks } from "@/context/CoachmarkContext";
 import { getScanSessionDetails, type ScanSessionDetails } from "@/db/db";
 import { HAZARD_TYPES, type DisasterType } from "@/db/hazards";
 import { hazardDictionary } from "@/hazardDictionary";
@@ -67,6 +70,13 @@ export default function SafetyReport() {
   const [activeDisasterTab, setActiveDisasterTab] = useState<
     DisasterType | "all"
   >("all");
+  const {
+    scanStep,
+    advanceScanStep,
+    dismissScanTour,
+    showScanFinale,
+    hideScanFinale,
+  } = useCoachmarks();
 
   const [showBoost, setShowBoost] = useState(false);
   const [boostScore, setBoostScore] = useState(0);
@@ -579,6 +589,97 @@ export default function SafetyReport() {
             </View>
           </Animated.View>
         </Animated.View>
+      )}
+
+      {scanStep === 3 && (
+        <CoachmarkOverlay
+          title="Your Safety Score"
+          stepText="3 of 5"
+          description="This is your room's overall safety rating out of 100. A lower score means higher risk. Let's work on getting this number up!"
+          ctaLabel="Next"
+          onNext={advanceScanStep}
+          onSkip={dismissScanTour}
+          pointerSide="top"
+          pointerOffset={270}
+          positionStyle={{ left: 22, top: 228, width: 360 }}
+        />
+      )}
+
+      {scanStep === 4 && (
+        <CoachmarkOverlay
+          title="Immediate Action Required"
+          stepText="4 of 5"
+          description={
+            'Hazards marked as "Critical" pose severe, life-threatening risks. Read the suggested fix and tap "Mark as Resolved" once you have secured it.'
+          }
+          ctaLabel="Next"
+          onNext={advanceScanStep}
+          onSkip={dismissScanTour}
+          pointerSide="top"
+          pointerOffset={300}
+          positionStyle={{ left: 22, bottom: 88, width: 360 }}
+        />
+      )}
+
+      {scanStep === 5 && (
+        <CoachmarkOverlay
+          title="Prioritize Your Fixes"
+          stepText="5 of 5"
+          description={
+            '"High" and "Medium" risks are serious but secondary. Tap the drop-down arrow to read the mitigation guides for these items when you are ready.'
+          }
+          ctaLabel="Got It!"
+          onNext={advanceScanStep}
+          onSkip={dismissScanTour}
+          pointerSide="bottom"
+          pointerOffset={52}
+          positionStyle={{ right: 24, top: 260, width: 360 }}
+        />
+      )}
+
+      {showScanFinale && (
+        <View
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 9999,
+            backgroundColor: "rgba(0,0,0,0.58)",
+            justifyContent: "center",
+            alignItems: "center",
+            paddingHorizontal: 20,
+          }}
+        >
+          <View style={{ width: "100%", maxWidth: 620, alignItems: "center" }}>
+            <Image
+              source={require("@/assets/mascot/MascotWave.png")}
+              resizeMode="contain"
+              style={{ width: 360, height: 260, marginBottom: -22, zIndex: 2 }}
+            />
+
+            <View className="bg-surface-light rounded-2xl px-6 pb-7 pt-9 w-full border border-border-light">
+              <Text className="text-h2 font-bold text-center mb-3">
+                Now It's Your Turn!
+              </Text>
+              <Text className="text-center text-lg leading-7 mb-6">
+                You know how to take a great photo and read your safety report.
+                Let&apos;s open your camera and run a real safety check on your
+                space right now.
+              </Text>
+              <Button
+                label="Start My Scan"
+                icon={<ArrowIcon color="white" size={20} />}
+                iconPosition="right"
+                onPress={() => {
+                  hideScanFinale();
+                  router.push("/camera");
+                }}
+              />
+            </View>
+          </View>
+        </View>
       )}
     </View>
   );
