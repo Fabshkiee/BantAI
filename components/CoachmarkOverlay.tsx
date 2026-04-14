@@ -132,7 +132,6 @@ export default function CoachmarkOverlay({
         ].join(" ");
       })()
     : "";
-
   return (
     <View style={styles.overlay} pointerEvents="box-none">
       {spotlightRect ? (

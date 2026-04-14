@@ -220,7 +220,13 @@ export default function TabLayout() {
             tabBarStyle: { display: "none" },
             tabBarButton: () => (
               <Pressable
-                onPress={() => setIsModalOpen(true)}
+                onPress={() => {
+                  if (homeStep === 1) {
+                    nextHomeStep();
+                    return;
+                  }
+                  setIsModalOpen(true);
+                }}
                 className="flex-1 items-center justify-center"
                 style={{ top: -10 }}
               >
@@ -299,7 +305,7 @@ export default function TabLayout() {
           onSkip={dismissHomeTour}
           pointerSide="bottom"
           pointerOffset={44}
-          positionStyle={{ right: 130, top: 245}}
+          positionStyle={{ right: 130, top: 245 }}
           spotlightRect={{ x: 10, y: 520, width: 390, height: 265 }}
           // COACHMARK TUNE: match button roundness.
           spotlightRadius={20}
