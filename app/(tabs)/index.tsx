@@ -31,7 +31,7 @@ export default function HomeScreen() {
           </Text>
           <Button
             label="Scan a Room"
-            icon={<ScanIcon size={24} />}
+            icon={<ScanIcon color="white" size={24} />}
             iconPosition="left"
             onPress={() => {
               router.push("/photoInstructions");

@@ -1,10 +1,10 @@
-import HistoryCard from "@/components/HistoryCard";
+import ScansCard from "@/components/ScansCard";
 import { getRecentScanSessions, type ScanSessionSummary } from "@/db/db";
 import { useFocusEffect } from "expo-router";
 import React, { useCallback, useState } from "react";
 import { ActivityIndicator, Image, ScrollView, Text, View } from "react-native";
 
-export default function HistoryScreen() {
+export default function ScansScreen() {
   const [sessions, setSessions] = useState<ScanSessionSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -77,7 +77,7 @@ export default function HistoryScreen() {
             </Text>
           </View>
         ) : sessions.length === 0 ? (
-          <View className="py-10 items-center justify-center rounded-2xl bg-surface-light px-6">
+          <View className="py-10 items-center justify-center rounded-2xl px-6">
             <Text className="text-lg font-semibold text-center">
               No scans saved yet
             </Text>
@@ -89,7 +89,7 @@ export default function HistoryScreen() {
         ) : (
           <View className="flex gap-6">
             {sessions.map((session) => (
-              <HistoryCard
+              <ScansCard
                 key={session.id}
                 id={session.id}
                 title={`Safety Scan #${session.id}`}

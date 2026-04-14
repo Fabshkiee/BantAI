@@ -3,7 +3,7 @@ import React from "react";
 import { Image, Pressable, Text, View } from "react-native";
 import MascotReporter, { type RiskVariant } from "./MascotReporter";
 
-type HistoryCardProps = {
+type ScansCardProps = {
   id: number;
   title: string;
   scannedAt: number;
@@ -22,7 +22,7 @@ const formatScanDate = (timestamp: number) =>
     year: "numeric",
   });
 
-export default function HistoryCard({
+export default function ScansCard({
   id,
   title,
   scannedAt,
@@ -32,7 +32,7 @@ export default function HistoryCard({
   hazardCount,
   assessedCount,
   status,
-}: HistoryCardProps) {
+}: ScansCardProps) {
   const score = roomScore ?? 0;
   const displayVariant = riskVariant ?? "critical";
   const imageSource = photoPath
@@ -44,7 +44,7 @@ export default function HistoryCard({
     if (hazardCount === 0) {
       return "No hazards";
     }
-    
+
     return `${assessedCount}/${hazardCount} Hazards Resolved`;
   };
 

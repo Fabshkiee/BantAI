@@ -1,6 +1,6 @@
 import CameraIcon from "@/assets/icons/CameraIcon";
-import HistoryIcon from "@/assets/icons/HistoryIcon";
 import HomeIcon from "@/assets/icons/HomeIcon";
+import ScanIcon from "@/assets/icons/ScanIcon";
 import * as ImagePicker from "expo-image-picker";
 import { router, Tabs } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
@@ -236,13 +236,13 @@ export default function TabLayout() {
           }}
         />
 
-        {/* History Tab */}
+        {/* Scans Tab */}
         <Tabs.Screen
-          name="history"
+          name="scans"
           options={{
-            title: "History",
+            title: "Scans",
             tabBarIconStyle: { paddingBottom: 8 },
-            tabBarIcon: ({ color }) => <HistoryIcon color={color} size={32} />,
+            tabBarIcon: ({ color }) => <ScanIcon color={color} size={32} />,
             animation: "fade",
           }}
         />
