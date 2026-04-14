@@ -1,5 +1,7 @@
 import ArrowIcon from "@/assets/icons/ArrowIcon";
 import Button from "@/components/Button";
+import CoachmarkOverlay from "@/components/CoachmarkOverlay";
+import { useCoachmarks } from "@/context/CoachmarkContext";
 import { useTFLite } from "@/hooks/useTFLite";
 import { useKeepAwake } from "expo-keep-awake";
 import { useFocusEffect, useRouter } from "expo-router";
@@ -28,9 +30,12 @@ export default function CameraScreen() {
   const [isCapturing, setIsCapturing] = useState(false);
   const cameraRef = useRef<Camera>(null);
   const { modelLoaded, error: modelError } = useTFLite();
+  const { scanStep, startScanTour, advanceScanStep, dismissScanTour } =
+    useCoachmarks();
 
   useFocusEffect(
     React.useCallback(() => {
+      startScanTour();
       ScreenOrientation.lockAsync(
         ScreenOrientation.OrientationLock.LANDSCAPE_RIGHT,
       );
@@ -40,7 +45,7 @@ export default function CameraScreen() {
           ScreenOrientation.OrientationLock.PORTRAIT_UP,
         );
       };
-    }, []),
+    }, [startScanTour]),
   );
 
   useEffect(() => {
@@ -221,6 +226,20 @@ export default function CameraScreen() {
           />
         </TouchableOpacity>
       </View>
+
+      {scanStep === 1 && (
+        <CoachmarkOverlay
+          title="Frame the Hazards"
+          stepText="1 of 5"
+          description="Ensure potential risks, like tangled cords or precarious furniture, are clearly visible in the frame before snapping your photo."
+          ctaLabel="Next"
+          onNext={advanceScanStep}
+          onSkip={dismissScanTour}
+          pointerSide="right"
+          pointerOffset={42}
+          positionStyle={{ right: 172, top: 154, width: 360 }}
+        />
+      )}
     </View>
   );
 }
