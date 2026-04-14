@@ -327,12 +327,12 @@ export default function SafetyReport() {
   return (
     <View style={{ flex: 1 }}>
       <Animated.ScrollView
-        className="flex-1 mt-9 pb-56 mb-14 bg-surface-default"
+        className="flex-1 mt-9 pb-56 mb-8 bg-surface-default"
         showsVerticalScrollIndicator={false}
         contentContainerClassName="pb-14"
       >
-        <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
-          <View className="absolute -top-9 left-0 px-6 pt-8 z-10">
+        <Animated.View style={{ flex: 1 }}>
+          <View className="flex flex-row items-center ml-6">
             <Button
               label="Return"
               variant="return"
@@ -342,11 +342,8 @@ export default function SafetyReport() {
             />
           </View>
 
-          <View className="mx-7 gap-7">
+          <View className="mx-7 mt-7 gap-7">
             <View className="flex-1 justify-center items-center gap-4">
-              <Text className="text-h2 font-bold text-center mt-14">
-                Room Safety Report
-              </Text>
               <View className="relative">
                 <MascotReporter
                   score={finalRiskVariant}
@@ -355,21 +352,21 @@ export default function SafetyReport() {
               </View>
             </View>
 
-            <Text className="text-text-subtle -mt-5 text-center text-sm">
+            <Text className="text-text-default -mt-5 text-center text-md">
               BantAI scans provide directional and informational guidance.
               Results are purely advisory and each must be validated by your own
               physical inspection.
             </Text>
 
             {hasSession && loadError ? (
-              <View className="rounded-2xl bg-surface-light px-4 py-3">
+              <View className="rounded-lg bg-surface-light px-4 py-3">
                 <Text className="font-semibold">Saved scan unavailable</Text>
                 <Text className="text-text-subtle mt-1">{loadError}</Text>
               </View>
             ) : null}
 
             {finalSpatialInsights && finalSpatialInsights.length > 0 && (
-              <View className="bg-surface-critical/10 border border-surface-critical p-4 rounded-xl gap-2">
+              <View className="bg-surface-critical/10 border border-surface-critical p-4 rounded-lg gap-2">
                 <Text className="text-text-critical font-bold text-lg">
                   ⚠️ Spatial Warnings
                 </Text>
@@ -408,22 +405,26 @@ export default function SafetyReport() {
               </Text>
             </View>
 
-            <View>
-              <HazardSortingButtons
-                tableName="test"
-                onSortQueryChange={executeDatabaseSearch}
-              />
-              <View className="mt-3 rounded-xl bg-surface-light px-4 py-3 border border-border-light">
-                <Text className="text-sm font-semibold text-text-default">
-                  Reason/Fix Context: {activeContextLabel[activeDisasterTab]}
+            <View className="-mt-6">
+              <View className="mb-5">
+                <HazardSortingButtons
+                  tableName="test"
+                  onSortQueryChange={executeDatabaseSearch}
+                />
+              </View>
+
+              <View className=" rounded-lg bg-surface-default px-5 py-3 border border-border-secondary">
+                <Text className="text-md font-semibold text-text-default">
+                  Reason & Solution Context:{" "}
+                  {activeContextLabel[activeDisasterTab]}
                 </Text>
-                <Text className="text-sm text-text-subtle mt-1 leading-5">
+                <Text className="text-md text-text-subtle mt-2 leading-5">
                   {sortingContextMessage[activeDisasterTab]}
                 </Text>
               </View>
             </View>
 
-            <View className="mt-1">
+            <View>
               {hasSession && isLoadingSession ? (
                 <View className="items-center justify-center py-10">
                   <ActivityIndicator size="large" color="#0f172a" />
@@ -453,7 +454,7 @@ export default function SafetyReport() {
               )}
             </View>
 
-            <View className="w-full gap-4">
+            <View className="w-full gap-3">
               <Button
                 label="Scan Another Room"
                 onPress={handleConfirmScanAnotherRoom}
