@@ -5,19 +5,19 @@ import HighRiskIcon from "@/assets/icons/HighRiskIcon";
 import LowRiskIcon from "@/assets/icons/LowRiskIcon";
 import MediumRiskIcon from "@/assets/icons/MediumRiskIcon";
 import {
-    fetchDataFromDB,
-    markHazardAsAssessed,
-    markHazardAsUnassessed,
-    type ScanSessionDetails,
+  fetchDataFromDB,
+  markHazardAsAssessed,
+  markHazardAsUnassessed,
+  type ScanSessionDetails,
 } from "@/db/db";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Image, Pressable, Text, View } from "react-native";
 import Animated, {
-    FadeInUp,
-    FadeOutUp,
-    LinearTransition,
-    useSharedValue,
-    withSpring,
+  FadeInUp,
+  FadeOutUp,
+  LinearTransition,
+  useSharedValue,
+  withSpring,
 } from "react-native-reanimated";
 import Button from "./Button";
 import RiskStatus from "./RiskStatus";
@@ -125,7 +125,7 @@ function HazardCardDesign({
   return (
     <Animated.View
       layout={LinearTransition.damping(18).stiffness(120)}
-      className="bg-surface-light rounded-2xl flex-col shadow-sm border border-border-secondary p-4 overflow-hidden"
+      className="bg-surface-light rounded-lg flex-col shadow-sm border border-border-secondary p-4 overflow-hidden"
     >
       <Pressable className="flex-row items-center gap-4" onPress={toggleExpand}>
         {riskIcons[data.variant]}
@@ -153,7 +153,7 @@ function HazardCardDesign({
           className="flex-col gap-7 mt-4"
         >
           {/* Image & Bbox Logic */}
-          <View className="relative w-full h-64 mt-2 rounded-2xl overflow-hidden bg-gray-100 border border-border-secondary">
+          <View className="relative w-full h-64 mt-2 rounded-lg overflow-hidden bg-gray-100 border border-border-secondary">
             {(() => {
               const hasBbox = data.bbox && data.bbox.length === 4;
               let transformStyles = {};
@@ -356,7 +356,7 @@ const HazardCard = ({
 
   if (loadedHazards.length === 0) {
     return (
-      <View className="bg-surface-light rounded-2xl p-8 items-center border-2 border-dashed border-border-secondary">
+      <View className="bg-surface-light rounded-lg p-8 items-center border-2 border-dashed border-border-secondary">
         <Text className="text-xl font-semibold text-gray-500 text-center">
           No Hazards Detected
         </Text>
