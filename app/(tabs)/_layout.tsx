@@ -6,15 +6,7 @@ import { useCoachmarks } from "@/context/CoachmarkContext";
 import * as ImagePicker from "expo-image-picker";
 import { router, Tabs } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
-import {
-  Alert,
-  Animated,
-  Modal,
-  Pressable,
-  Text,
-  View,
-  type View as RNView,
-} from "react-native";
+import { Alert, Animated, Modal, Pressable, Text, View } from "react-native";
 
 // Static configurations
 const TAB_BAR_OPTIONS = {
@@ -202,31 +194,8 @@ const CameraActionModal = ({
 // Main tab layout
 export default function TabLayout() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [cameraButtonRect, setCameraButtonRect] = useState<{
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  } | null>(null);
-  const cameraButtonRef = useRef<RNView>(null);
-
-  const { homeStep, nextHomeStep, dismissHomeTour } = useCoachmarks();
-
-  const measureCameraButton = () => {
-    cameraButtonRef.current?.measureInWindow((x, y, width, height) => {
-      if (!width || !height) {
-        return;
-      }
-      setCameraButtonRect({ x, y, width, height });
-    });
-  };
-
-  useEffect(() => {
-    if (homeStep === 1) {
-      const timer = setTimeout(measureCameraButton, 0);
-      return () => clearTimeout(timer);
-    }
-  }, [homeStep]);
+  const { homeStep, nextHomeStep, dismissHomeTour, homeScanButtonRect } =
+    useCoachmarks();
 
   return (
     <>
@@ -250,19 +219,11 @@ export default function TabLayout() {
             tabBarStyle: { display: "none" },
             tabBarButton: () => (
               <Pressable
-                onPress={() => {
-                  if (homeStep === 1) {
-                    nextHomeStep();
-                    return;
-                  }
-                  setIsModalOpen(true);
-                }}
+                onPress={() => setIsModalOpen(true)}
                 className="flex-1 items-center justify-center"
                 style={{ top: -10 }}
-                onLayout={measureCameraButton}
               >
                 <View
-                  ref={cameraButtonRef}
                   className="bg-surface-primary rounded-[56px] p-4"
                   style={{
                     elevation: 10,
@@ -306,20 +267,28 @@ export default function TabLayout() {
         onClose={() => setIsModalOpen(false)}
       />
 
-      {homeStep === 1 && (
+      {/* COACHMARK STEP 1: Spotlight the Home screen "Scan a Room" button. */}
+      {homeStep === 1 && homeScanButtonRect && (
         <CoachmarkOverlay
           title="Start Your Safety Check"
           stepText="1 of 2"
-          description="Tap the camera button to begin the guided safety scan tutorial."
+          description="Tap Scan a Room to begin the guided safety scan tutorial."
           ctaLabel="Next"
           onNext={nextHomeStep}
           onSkip={dismissHomeTour}
           pointerSide="bottom"
-          pointerOffset={122}
-          positionStyle={{ left: 16, right: 16, bottom: 550 }}
-          //spotlightRect={{ x: 16, y: 16, width: 64, height: 64 }}
-          spotlightRadius={56}
-          onSpotlightPress={nextHomeStep}
+          pointerOffset={140}
+          // COACHMARK TUNE: adjust card position here.
+          positionStyle={{ left: 16, right: 16, bottom: 500 }}
+          // COACHMARK TARGET: rectangle measured from Home screen button.
+          spotlightRect={{ x: 16, y: 420, width: 380, height: 80 }}
+          // COACHMARK TUNE: match button roundness.
+          spotlightRadius={36}
+          // COACHMARK FLOW: tap highlighted button -> proceed to next step + navigate.
+          onSpotlightPress={() => {
+            nextHomeStep();
+            router.push("/photoInstructions");
+          }}
         />
       )}
 
