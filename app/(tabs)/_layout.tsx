@@ -14,7 +14,7 @@ const TAB_BAR_OPTIONS = {
   tabBarItemStyle: { justifyContent: "center", alignItems: "center" } as any,
   tabBarStyle: {
     height: 120,
-    backgroundColor: "#f0f8ff",
+    backgroundColor: "#f5faff",
     borderStartWidth: 2,
     borderTopWidth: 2,
     borderEndWidth: 2,
