@@ -1,12 +1,12 @@
 import ArrowRightIcon from "@/assets/icons/ArrowRightIcon";
 import React from "react";
 import {
-    Pressable,
-    StyleSheet,
-    Text,
-    useWindowDimensions,
-    View,
-    ViewStyle,
+  Pressable,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+  ViewStyle,
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
 
@@ -276,8 +276,8 @@ const styles = StyleSheet.create({
     fontSize: 17,
     lineHeight: 29,
     color: "#121417",
-    paddingRight: 20,
-    maxWidth: 250,
+    //paddingRight: 20,
+    // maxWidth: 250,
   },
   cta: {
     marginTop: 18,
