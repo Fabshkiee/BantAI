@@ -13,6 +13,9 @@ type CoachmarkOverlayProps = {
   positionStyle: ViewStyle;
   pointerSide?: PointerSide;
   pointerOffset?: number;
+  spotlightRect?: { x: number; y: number; width: number; height: number };
+  spotlightRadius?: number;
+  onSpotlightPress?: () => void;
 };
 
 const CARD_BG = "#e8eef4";
@@ -89,13 +92,91 @@ export default function CoachmarkOverlay({
   positionStyle,
   pointerSide = "top",
   pointerOffset = 120,
+  spotlightRect,
+  spotlightRadius = 18,
+  onSpotlightPress,
 }: CoachmarkOverlayProps) {
+  const canSpotlightTap = Boolean(spotlightRect && onSpotlightPress);
+
   return (
     <View style={styles.overlay} pointerEvents="box-none">
-      <Pressable
-        style={StyleSheet.absoluteFill}
-        onPress={onSkip ?? (() => null)}
-      />
+      {spotlightRect ? (
+        <>
+          <Pressable
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              height: Math.max(0, spotlightRect.y),
+            }}
+            onPress={onSkip ?? (() => null)}
+          />
+          <Pressable
+            style={{
+              position: "absolute",
+              top: spotlightRect.y,
+              left: 0,
+              width: Math.max(0, spotlightRect.x),
+              height: spotlightRect.height,
+            }}
+            onPress={onSkip ?? (() => null)}
+          />
+          <Pressable
+            style={{
+              position: "absolute",
+              top: spotlightRect.y,
+              left: spotlightRect.x + spotlightRect.width,
+              right: 0,
+              height: spotlightRect.height,
+            }}
+            onPress={onSkip ?? (() => null)}
+          />
+          <Pressable
+            style={{
+              position: "absolute",
+              top: spotlightRect.y + spotlightRect.height,
+              left: 0,
+              right: 0,
+              bottom: 0,
+            }}
+            onPress={onSkip ?? (() => null)}
+          />
+
+          <Pressable
+            disabled={!canSpotlightTap}
+            style={{
+              position: "absolute",
+              left: spotlightRect.x,
+              top: spotlightRect.y,
+              width: spotlightRect.width,
+              height: spotlightRect.height,
+              borderRadius: spotlightRadius,
+              backgroundColor: "transparent",
+            }}
+            onPress={onSpotlightPress}
+          />
+
+          <View
+            pointerEvents="none"
+            style={{
+              position: "absolute",
+              left: spotlightRect.x,
+              top: spotlightRect.y,
+              width: spotlightRect.width,
+              height: spotlightRect.height,
+              borderRadius: spotlightRadius,
+              borderWidth: 2,
+              borderColor: "rgba(255,255,255,0.95)",
+            }}
+          />
+        </>
+      ) : (
+        <Pressable
+          style={StyleSheet.absoluteFill}
+          onPress={onSkip ?? (() => null)}
+        />
+      )}
 
       <View style={[styles.card, positionStyle]}>
         <View style={styles.headerRow}>
