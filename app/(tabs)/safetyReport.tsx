@@ -263,11 +263,11 @@ export default function SafetyReport() {
 
   const sortingContextMessage: Record<DisasterType | "all", string> = {
     earthquake:
-      "You are viewing earthquake-focused cards. Each reason and suggested fix explains the earthquake safety context of the hazard.",
+      "You are viewing earthquake-focused cards. Each reason and suggested solution explains the earthquake safety context of the hazard.",
     typhoon:
-      "You are viewing typhoon-focused cards. Each reason and suggested fix explains the typhoon safety context of the hazard.",
-    fire: "You are viewing fire-focused cards. Each reason and suggested fix explains the fire safety context of the hazard.",
-    all: "You are viewing all hazards. Reasons and suggested fixes are based on each hazard's most critical risk evaluation.",
+      "You are viewing typhoon-focused cards. Each reason and suggested solution explains the typhoon safety context of the hazard.",
+    fire: "You are viewing fire-focused cards. Each reason and suggested solution explains the fire safety context of the hazard.",
+    all: "You are viewing all hazards. Reasons and suggested sollutions are based on each hazard's most critical risk evaluation.",
   };
 
   const handleUploadAnotherImage = useCallback(async () => {
@@ -335,6 +335,7 @@ export default function SafetyReport() {
         <Animated.View style={{ flex: 1 }}>
           <View className="flex flex-row items-center ml-6">
             <Button
+              label=""
               variant="return"
               icon={<ArrowLeftIcon color="black" size={18} />}
               iconPosition="left"
@@ -403,7 +404,7 @@ export default function SafetyReport() {
                 Identified Hazards ({finalHazardCount})
               </Text>
               <Text className="text-lg">
-                After assessing each hazard, apply the recommended fix, and
+                After assessing each hazard, apply the recommended solution, and
                 press the 'Mark as Resolved' button once finished.
               </Text>
             </View>
