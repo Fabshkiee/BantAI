@@ -50,7 +50,7 @@ export default function ScansCard({
 
   return (
     <Pressable
-      className="flex-row p-3 gap-3 justify-between items-start bg-surface-light rounded-2xl shadow-xl shadow-border-default transition-all active:scale-[0.95]"
+      className="flex-row py-4 gap-3 justify-between items-start bg-surface-default border-b border-b-border-secondary transition-all active:scale-[0.95]"
       onPress={() => {
         router.push({
           pathname: "/safetyReport",
@@ -63,7 +63,7 @@ export default function ScansCard({
         <Image
           source={imageSource}
           resizeMode="cover"
-          className="w-20 h-20 rounded-xl"
+          className="w-20 h-20 rounded-md"
         />
 
         <View className="flex-1 justify-center">
