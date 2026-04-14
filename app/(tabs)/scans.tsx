@@ -1,10 +1,10 @@
-import HistoryCard from "@/components/HistoryCard";
+import ScansCard from "@/components/ScansCard";
 import { getRecentScanSessions, type ScanSessionSummary } from "@/db/db";
 import { useFocusEffect } from "expo-router";
 import React, { useCallback, useState } from "react";
 import { ActivityIndicator, Image, ScrollView, Text, View } from "react-native";
 
-export default function HistoryScreen() {
+export default function ScansScreen() {
   const [sessions, setSessions] = useState<ScanSessionSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -60,6 +60,19 @@ export default function HistoryScreen() {
 
         <Text className="text-h2 font-bold mb-4">Recent Scans</Text>
 
+        {/* Mock ScansCard for UI Testing */}
+        <ScansCard
+          id={999}
+          title="Test Living Room"
+          scannedAt={Math.floor(Date.now() / 1000)} // Current time in seconds
+          roomScore={47}
+          riskVariant="critical" // Try changing to "high" or "medium" to test styles
+          photoPath={null} // Passing null triggers your default room.png fallback
+          hazardCount={3}
+          assessedCount={1}
+          status="completed"
+        />
+
         {isLoading ? (
           <View className="py-10 items-center justify-center">
             <ActivityIndicator size="large" color="#0f172a" />
@@ -77,7 +90,7 @@ export default function HistoryScreen() {
             </Text>
           </View>
         ) : sessions.length === 0 ? (
-          <View className="py-10 items-center justify-center rounded-2xl bg-surface-light px-6">
+          <View className="py-10 items-center justify-center rounded-2xl px-6">
             <Text className="text-lg font-semibold text-center">
               No scans saved yet
             </Text>
@@ -87,9 +100,9 @@ export default function HistoryScreen() {
             </Text>
           </View>
         ) : (
-          <View className="flex gap-6">
+          <View className="flex gap-3">
             {sessions.map((session) => (
-              <HistoryCard
+              <ScansCard
                 key={session.id}
                 id={session.id}
                 title={`Safety Scan #${session.id}`}

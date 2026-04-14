@@ -12,7 +12,14 @@ import { calculateRoomRisk, type Detection } from "@/lib/riskEngine";
 import * as ImagePicker from "expo-image-picker";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { ActivityIndicator, Alert, Animated, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  Animated,
+  Image,
+  Text,
+  View,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const SEVERITY_PRIORITY: Record<string, number> = {
@@ -256,11 +263,11 @@ export default function SafetyReport() {
 
   const sortingContextMessage: Record<DisasterType | "all", string> = {
     earthquake:
-      "You are viewing earthquake-focused cards. Each reason and suggested fix explains the earthquake safety context of the hazard.",
+      "You are viewing earthquake-focused cards. Each reason and suggested solution explains the earthquake safety context of the hazard.",
     typhoon:
-      "You are viewing typhoon-focused cards. Each reason and suggested fix explains the typhoon safety context of the hazard.",
-    fire: "You are viewing fire-focused cards. Each reason and suggested fix explains the fire safety context of the hazard.",
-    all: "You are viewing all hazards. Reasons and suggested fixes are based on each hazard's most critical risk evaluation.",
+      "You are viewing typhoon-focused cards. Each reason and suggested solution explains the typhoon safety context of the hazard.",
+    fire: "You are viewing fire-focused cards. Each reason and suggested solution explains the fire safety context of the hazard.",
+    all: "You are viewing all hazards. Reasons and suggested sollutions are based on each hazard's most critical risk evaluation.",
   };
 
   const handleUploadAnotherImage = useCallback(async () => {
@@ -320,26 +327,27 @@ export default function SafetyReport() {
   return (
     <View style={{ flex: 1 }}>
       <Animated.ScrollView
-        className="flex-1 mt-9 pb-56 mb-14 bg-surface-default"
+        className="flex-1 mt-9 pb-56 mb-8 bg-surface-default"
         showsVerticalScrollIndicator={false}
         contentContainerClassName="pb-14"
+        style={{ opacity: fadeAnim }}
       >
-        <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
-          <View className="absolute -top-9 left-0 px-6 pt-8 z-10">
+        <Animated.View style={{ flex: 1 }}>
+          <View className="flex flex-row items-center ml-6">
             <Button
-              label="Return"
+              label=""
               variant="return"
               icon={<ArrowLeftIcon color="black" size={18} />}
               iconPosition="left"
-              onPress={() => router.push("/history")}
+              onPress={() => router.push("/scans")}
             />
+            <Text className="text-h3 font-bold text-center -ml-2">
+              Safety Report
+            </Text>
           </View>
 
-          <View className="mx-7 gap-7">
+          <View className="mx-7 mt-7 gap-7">
             <View className="flex-1 justify-center items-center gap-4">
-              <Text className="text-h2 font-bold text-center mt-14">
-                Room Safety Report
-              </Text>
               <View className="relative">
                 <MascotReporter
                   score={finalRiskVariant}
@@ -348,21 +356,21 @@ export default function SafetyReport() {
               </View>
             </View>
 
-            <Text className="text-text-subtle -mt-5 text-center text-sm">
+            <Text className="text-text-default -mt-5 text-center text-md">
               BantAI scans provide directional and informational guidance.
               Results are purely advisory and each must be validated by your own
               physical inspection.
             </Text>
 
             {hasSession && loadError ? (
-              <View className="rounded-2xl bg-surface-light px-4 py-3">
+              <View className="rounded-lg bg-surface-light px-4 py-3">
                 <Text className="font-semibold">Saved scan unavailable</Text>
                 <Text className="text-text-subtle mt-1">{loadError}</Text>
               </View>
             ) : null}
 
             {finalSpatialInsights && finalSpatialInsights.length > 0 && (
-              <View className="bg-surface-critical/10 border border-surface-critical p-4 rounded-xl gap-2">
+              <View className="bg-surface-critical/10 border border-surface-critical p-4 rounded-lg gap-2">
                 <Text className="text-text-critical font-bold text-lg">
                   ⚠️ Spatial Warnings
                 </Text>
@@ -375,31 +383,52 @@ export default function SafetyReport() {
             )}
 
             <View>
-              <Text className="text-2xl font-bold mt-10 mb-1">
+              <Text className="text-2xl font-bold mt-10 mb-5">
+                Captured Image
+              </Text>
+              <View
+                className="w-full rounded-lg"
+                style={{ overflow: "hidden", aspectRatio: 4 / 3 }}
+              >
+                {/* Change to the uploaded image in the db*/}
+                <Image
+                  source={require("@/assets/images/room.png")}
+                  style={{ width: "100%", height: "100%" }}
+                  resizeMode="cover"
+                />
+              </View>
+            </View>
+
+            <View className="mb-5">
+              <Text className="text-2xl font-bold mb-1">
                 Identified Hazards ({finalHazardCount})
               </Text>
               <Text className="text-lg">
-                After assessing each hazard, apply the recommended fix, and
+                After assessing each hazard, apply the recommended solution, and
                 press the 'Mark as Resolved' button once finished.
               </Text>
             </View>
 
-            <View>
-              <HazardSortingButtons
-                tableName="test"
-                onSortQueryChange={executeDatabaseSearch}
-              />
-              <View className="mt-3 rounded-xl bg-surface-light px-4 py-3 border border-border-light">
-                <Text className="text-sm font-semibold text-text-default">
-                  Reason/Fix Context: {activeContextLabel[activeDisasterTab]}
+            <View className="-mt-6">
+              <View className="mb-5">
+                <HazardSortingButtons
+                  tableName="test"
+                  onSortQueryChange={executeDatabaseSearch}
+                />
+              </View>
+
+              <View className=" rounded-lg bg-surface-default px-5 py-3 border border-border-secondary">
+                <Text className="text-md font-semibold text-text-default">
+                  Reason & Solution Context:{" "}
+                  {activeContextLabel[activeDisasterTab]}
                 </Text>
-                <Text className="text-sm text-text-subtle mt-1 leading-5">
+                <Text className="text-md text-text-subtle mt-2 leading-5">
                   {sortingContextMessage[activeDisasterTab]}
                 </Text>
               </View>
             </View>
 
-            <View className="mt-1">
+            <View>
               {hasSession && isLoadingSession ? (
                 <View className="items-center justify-center py-10">
                   <ActivityIndicator size="large" color="#0f172a" />
@@ -429,7 +458,7 @@ export default function SafetyReport() {
               )}
             </View>
 
-            <View className="w-full gap-4">
+            <View className="w-full gap-3">
               <Button
                 label="Scan Another Room"
                 onPress={handleConfirmScanAnotherRoom}

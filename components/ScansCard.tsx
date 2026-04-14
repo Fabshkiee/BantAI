@@ -3,7 +3,7 @@ import React from "react";
 import { Image, Pressable, Text, View } from "react-native";
 import MascotReporter, { type RiskVariant } from "./MascotReporter";
 
-type HistoryCardProps = {
+type ScansCardProps = {
   id: number;
   title: string;
   scannedAt: number;
@@ -22,7 +22,7 @@ const formatScanDate = (timestamp: number) =>
     year: "numeric",
   });
 
-export default function HistoryCard({
+export default function ScansCard({
   id,
   title,
   scannedAt,
@@ -32,7 +32,7 @@ export default function HistoryCard({
   hazardCount,
   assessedCount,
   status,
-}: HistoryCardProps) {
+}: ScansCardProps) {
   const score = roomScore ?? 0;
   const displayVariant = riskVariant ?? "critical";
   const imageSource = photoPath
@@ -44,13 +44,13 @@ export default function HistoryCard({
     if (hazardCount === 0) {
       return "No hazards";
     }
-    
+
     return `${assessedCount}/${hazardCount} Hazards Resolved`;
   };
 
   return (
     <Pressable
-      className="flex-row p-3 gap-3 justify-between items-start bg-surface-light rounded-2xl shadow-xl shadow-border-default transition-all active:scale-[0.95]"
+      className="flex-row py-4 gap-3 justify-between items-start bg-surface-default border-b border-b-border-secondary transition-all active:scale-[0.95]"
       onPress={() => {
         router.push({
           pathname: "/safetyReport",
@@ -63,7 +63,7 @@ export default function HistoryCard({
         <Image
           source={imageSource}
           resizeMode="cover"
-          className="w-20 h-20 rounded-xl"
+          className="w-20 h-20 rounded-md"
         />
 
         <View className="flex-1 justify-center">
