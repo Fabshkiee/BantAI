@@ -12,7 +12,14 @@ import { calculateRoomRisk, type Detection } from "@/lib/riskEngine";
 import * as ImagePicker from "expo-image-picker";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { ActivityIndicator, Alert, Animated, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  Animated,
+  Image,
+  Text,
+  View,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const SEVERITY_PRIORITY: Record<string, number> = {
@@ -375,7 +382,24 @@ export default function SafetyReport() {
             )}
 
             <View>
-              <Text className="text-2xl font-bold mt-10 mb-1">
+              <Text className="text-2xl font-bold mt-10 mb-5">
+                Captured Image
+              </Text>
+              <View
+                className="w-full rounded-lg"
+                style={{ overflow: "hidden", aspectRatio: 4 / 3 }}
+              >
+                {/* Change to the uploaded image in the db*/}
+                <Image
+                  source={require("@/assets/images/room.png")}
+                  style={{ width: "100%", height: "100%" }}
+                  resizeMode="cover"
+                />
+              </View>
+            </View>
+
+            <View className="mb-5">
+              <Text className="text-2xl font-bold mb-1">
                 Identified Hazards ({finalHazardCount})
               </Text>
               <Text className="text-lg">
