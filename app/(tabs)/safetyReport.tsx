@@ -17,7 +17,14 @@ import * as ImagePicker from "expo-image-picker";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ActivityIndicator, Alert, Animated, Image, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  Animated,
+  Image,
+  Text,
+  View,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const SEVERITY_PRIORITY: Record<string, number> = {
@@ -381,7 +388,6 @@ export default function SafetyReport() {
               onPress={() => router.push("/scans" as any)}
             />
           </View>
-
 
           <View className="ml-auto flex-row gap-2 items-center">
             {hasSession ? (

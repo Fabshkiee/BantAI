@@ -49,7 +49,6 @@ export default function CameraScreen() {
       i18n.off("languageChanged", handleLanguageChanged);
     };
   }, []);
-
   useFocusEffect(
     useCallback(() => {
       startScanTour();

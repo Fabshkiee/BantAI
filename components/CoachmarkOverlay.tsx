@@ -1,12 +1,12 @@
 import ArrowRightIcon from "@/assets/icons/ArrowRightIcon";
 import React from "react";
 import {
-    Pressable,
-    StyleSheet,
-    Text,
-    useWindowDimensions,
-    View,
-    ViewStyle,
+  Pressable,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+  ViewStyle,
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
 
@@ -206,8 +206,8 @@ export default function CoachmarkOverlay({
               width: spotlightRect.width,
               height: spotlightRect.height,
               borderRadius: spotlightRadius,
-            //   borderWidth: 2,
-            //   borderColor: "rgba(255,255,255,0.95)",
+              //   borderWidth: 2,
+              //   borderColor: "rgba(255,255,255,0.95)",
             }}
           />
         </>
@@ -218,7 +218,7 @@ export default function CoachmarkOverlay({
         />
       )}
 
-      <View className="bg-default" style={[styles.card, positionStyle]}>
+      <View style={[styles.card, positionStyle]}>
         <View style={styles.headerRow}>
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.stepText}>{stepText}</Text>
@@ -242,14 +242,15 @@ const styles = StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,
     zIndex: 9998,
-    backgroundColor: "transparent",
+    backgroundColor: "rgba(0, 0, 0, 0.58)",
   },
   card: {
     position: "absolute",
+    backgroundColor: CARD_BG,
     borderRadius: 14,
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-    maxWidth: 250,
+    paddingHorizontal: 18,
+    paddingVertical: 16,
+    width: 320,
   },
   headerRow: {
     flexDirection: "row",
@@ -263,7 +264,6 @@ const styles = StyleSheet.create({
     color: "#121417",
     fontWeight: "600",
     flexShrink: 1,
-    paddingRight: 20,
   },
   stepText: {
     fontSize: 18,
@@ -276,8 +276,6 @@ const styles = StyleSheet.create({
     fontSize: 17,
     lineHeight: 29,
     color: "#121417",
-    //paddingRight: 20,
-   // maxWidth: 250,
   },
   cta: {
     marginTop: 18,
@@ -285,8 +283,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#0d72c8",
     alignItems: "center",
     justifyContent: "center",
-    height: 48,
-    maxWidth: 150,
+    height: 58,
   },
   ctaText: {
     color: "#f4f9ff",

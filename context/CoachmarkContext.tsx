@@ -1,9 +1,9 @@
 import React, {
-    createContext,
-    PropsWithChildren,
-    useContext,
-    useMemo,
-    useState,
+  createContext,
+  PropsWithChildren,
+  useContext,
+  useMemo,
+  useState,
 } from "react";
 
 type HomeStep = 0 | 1 | 2;
