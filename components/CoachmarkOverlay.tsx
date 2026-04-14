@@ -132,6 +132,7 @@ export default function CoachmarkOverlay({
         ].join(" ");
       })()
     : "";
+
   return (
     <View style={styles.overlay} pointerEvents="box-none">
       {spotlightRect ? (
@@ -148,7 +149,6 @@ export default function CoachmarkOverlay({
               left: 0,
               right: 0,
               height: Math.max(0, spotlightRect.y),
-              backgroundColor: DIM_BG,
             }}
             onPress={onSkip ?? (() => null)}
           />
@@ -159,7 +159,6 @@ export default function CoachmarkOverlay({
               left: 0,
               width: Math.max(0, spotlightRect.x),
               height: spotlightRect.height,
-              backgroundColor: DIM_BG,
             }}
             onPress={onSkip ?? (() => null)}
           />
@@ -170,7 +169,6 @@ export default function CoachmarkOverlay({
               left: spotlightRect.x + spotlightRect.width,
               right: 0,
               height: spotlightRect.height,
-              backgroundColor: DIM_BG,
             }}
             onPress={onSkip ?? (() => null)}
           />
@@ -181,7 +179,6 @@ export default function CoachmarkOverlay({
               left: 0,
               right: 0,
               bottom: 0,
-              backgroundColor: DIM_BG,
             }}
             onPress={onSkip ?? (() => null)}
           />
