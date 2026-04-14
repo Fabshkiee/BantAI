@@ -1,7 +1,6 @@
 import ScanIcon from "@/assets/icons/ScanIcon";
 import ArticleCard from "@/components/ArticleCard";
 import Button from "@/components/Button";
-import CoachmarkOverlay from "@/components/CoachmarkOverlay";
 import TopNavBar from "@/components/TopBar";
 import { useCoachmarks } from "@/context/CoachmarkContext";
 import { useFocusEffect, useRouter } from "expo-router";
@@ -12,8 +11,7 @@ import { Image, ScrollView, Text, View } from "react-native";
 export default function HomeScreen() {
   const router = useRouter();
   const { t } = useTranslation();
-  const { homeStep, startHomeTour, nextHomeStep, dismissHomeTour } =
-    useCoachmarks();
+  const { startHomeTour } = useCoachmarks();
 
   useFocusEffect(
     useCallback(() => {
@@ -64,34 +62,6 @@ export default function HomeScreen() {
           </View>
         </View>
       </ScrollView>
-
-      {homeStep === 1 && (
-        <CoachmarkOverlay
-          title="Start Your Safety Check"
-          stepText="1 of 2"
-          description="Tap here to let the AI scan your environment for potential hazards."
-          ctaLabel="Next"
-          onNext={nextHomeStep}
-          onSkip={dismissHomeTour}
-          pointerSide="top"
-          pointerOffset={230}
-          positionStyle={{ left: 16, right: 16, bottom: 106 }}
-        />
-      )}
-
-      {homeStep === 2 && (
-        <CoachmarkOverlay
-          title="Be Prepared"
-          stepText="2 of 2"
-          description="Read these quick guides anytime to learn how to mitigate risks and handle emergencies."
-          ctaLabel="Got It!"
-          onNext={nextHomeStep}
-          onSkip={dismissHomeTour}
-          pointerSide="bottom"
-          pointerOffset={44}
-          positionStyle={{ right: 30, top: 230, width: 360, maxWidth: 360 }}
-        />
-      )}
     </View>
   );
 }

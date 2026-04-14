@@ -1,6 +1,8 @@
 import CameraIcon from "@/assets/icons/CameraIcon";
 import HomeIcon from "@/assets/icons/HomeIcon";
 import ScanIcon from "@/assets/icons/ScanIcon";
+import CoachmarkOverlay from "@/components/CoachmarkOverlay";
+import { useCoachmarks } from "@/context/CoachmarkContext";
 import "@/languages/i18n";
 import * as ImagePicker from "expo-image-picker";
 import { router, Tabs } from "expo-router";
@@ -195,6 +197,33 @@ const CameraActionModal = ({
 export default function TabLayout() {
   const { t } = useTranslation();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [cameraButtonRect, setCameraButtonRect] = useState<{
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  } | null>(null);
+  const cameraButtonRef = useRef<any>(null);
+
+  const { homeStep, nextHomeStep, dismissHomeTour } = useCoachmarks();
+
+  const measureCameraButton = () => {
+    cameraButtonRef.current?.measureInWindow(
+      (x: number, y: number, width: number, height: number) => {
+        if (!width || !height) {
+          return;
+        }
+        setCameraButtonRect({ x, y, width, height });
+      },
+    );
+  };
+
+  useEffect(() => {
+    if (homeStep === 1) {
+      const timer = setTimeout(measureCameraButton, 0);
+      return () => clearTimeout(timer);
+    }
+  }, [homeStep]);
 
   return (
     <>
@@ -216,11 +245,19 @@ export default function TabLayout() {
             tabBarStyle: { display: "none" },
             tabBarButton: () => (
               <Pressable
-                onPress={() => setIsModalOpen(true)}
+                onPress={() => {
+                  if (homeStep === 1) {
+                    nextHomeStep();
+                    return;
+                  }
+                  setIsModalOpen(true);
+                }}
                 className="flex-1 items-center justify-center"
                 style={{ top: -10 }}
+                onLayout={measureCameraButton}
               >
                 <View
+                  ref={cameraButtonRef}
                   className="bg-surface-primary rounded-[56px] p-4"
                   style={{
                     elevation: 10,
@@ -260,6 +297,37 @@ export default function TabLayout() {
         isVisible={isModalOpen}
         onClose={() => setIsModalOpen(false)}
       />
+
+      {homeStep === 1 && (
+        <CoachmarkOverlay
+          title="Start Your Safety Check"
+          stepText="1 of 2"
+          description="Tap the camera button to begin the guided safety scan tutorial."
+          ctaLabel="Next"
+          onNext={nextHomeStep}
+          onSkip={dismissHomeTour}
+          pointerSide="bottom"
+          pointerOffset={122}
+          positionStyle={{ left: 16, right: 16, bottom: 550 }}
+          //spotlightRect={{ x: 16, y: 16, width: 64, height: 64 }}
+          spotlightRadius={56}
+          onSpotlightPress={nextHomeStep}
+        />
+      )}
+
+      {homeStep === 2 && (
+        <CoachmarkOverlay
+          title="Be Prepared"
+          stepText="2 of 2"
+          description="Read these quick guides anytime to learn how to mitigate risks and handle emergencies."
+          ctaLabel="Got It!"
+          onNext={nextHomeStep}
+          onSkip={dismissHomeTour}
+          pointerSide="bottom"
+          pointerOffset={44}
+          positionStyle={{ right: 30, top: 230, width: 360, maxWidth: 360 }}
+        />
+      )}
     </>
   );
 }
