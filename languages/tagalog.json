@@ -4,7 +4,7 @@
     "loading": "Naglo-load ang BantAI...",
     "cancel": "Kanselahin",
     "return": "Bumalik",
-    "proceed": "Ituloy",
+    "proceed": "Magpatuloy",
     "back_to_home": "Bumalik sa Home",
     "permission_needed": "Kailangan ng Pahintulot",
     "import_failed": "Hindi Na-import",
@@ -12,18 +12,18 @@
     "could_not_process_image": "Hindi namin maproseso ang larawang iyon. Subukan muli."
   },
   "hazard_titles": {
-    "overloaded_socket": "Sobrang Karga ng Socket",
-    "damaged_wire": "Sirang Kawad",
+    "overloaded_socket": "Overloaded na Saksakan",
+    "damaged_wire": "Sirang Linya ng Kuryente",
     "floor_appliance": "Appliance sa Sahig",
     "major_crack": "Malaking Bitak",
     "minor_crack": "Maliit na Bitak",
-    "collapsed_structure": "Gumuho ang Istruktura",
-    "broken_glass": "Basag na Salamin",
+    "collapsed_structure": "Istrukturang Gumuho",
+    "broken_glass": "Basag na Kristal",
     "electronic_hazard": "Panganib sa Elektroniko",
     "elevated_breakables": "Babasagin sa Mataas na Lugar",
-    "exposed_breaker": "Bukas na Breaker",
-    "exposed_ceiling_lights": "Bukas na Ilaw sa Kisame",
-    "heavy_wooden_furniture": "Mabigat na Kasangkapang Kahoy",
+    "exposed_breaker": "Nakalitaw na Breaker",
+    "exposed_ceiling_lights": "Nakalitaw na Ilaw sa Kisame",
+    "heavy_wooden_furniture": "Mabigat na Kagamitang Kahoy",
     "open_flame_hazard": "Bukas na Apoy"
   },
   "hazard_content": {
@@ -132,7 +132,7 @@
       ]
     },
     "heavy_wooden_furniture": {
-      "general_reason": "Malalaking kasangkapan tulad ng aparador na hindi nakakabit sa pader at madaling matumba.",
+      "general_reason": "Malalaking kagamitan tulad ng aparador na hindi nakakabit sa pader at madaling matumba.",
       "general_fixes": [
         "I-anchor ang tuktok ng mga cabinet direkta sa kongkretong pader.",
         "Ilipat ang pinakamabibigat na gamit sa pinakamababang istante.",
@@ -148,7 +148,7 @@
       "typhoon_fixes": [
         "Ilayo ang mga mesa mula sa mga bintanang salamin bago dumating ang bagyo.",
         "Alisan ng laman ang mga ibabang drawer kung inaasahan ang baha.",
-        "Lagyan ng rubber cup sa ilalim ng mga paa ng kasangkapang may gulong."
+        "Lagyan ng rubber cup sa ilalim ng mga paa ng kagamitan na may gulong."
       ],
       "fire_reason": "Ang kahoy ay madaling masunog at nagsisilbing panggatong na nagpapalaki ng apoy.",
       "fire_fixes": [
@@ -272,7 +272,7 @@
       "earthquake_fixes": [
         "Sukatin ang bitak — kung lumagpas na ng 5mm, mapanganib na ito.",
         "Bantayan ang diagonal na bitak malapit sa bintana dahil senyales ito ng pagkasira ng istruktura.",
-        "Huwag isandal ang mabibigat na kasangkapan sa pader na may malaking bitak."
+        "Huwag isandal ang mabibigat na kagamitan sa pader na may malaking bitak."
       ],
       "typhoon_reason": "Kinakalawang ng tubig-ulan ang bakal sa loob ng semento na lalong nagpapahina sa pader.",
       "typhoon_fixes": [
@@ -371,7 +371,7 @@
     "history": "Kasaysayan"
   },
   "camera_modal": {
-    "title": "Handa na ba para sa Safety Check?",
+    "title": "Handa ka na ba para sa Safety Check?",
     "snap_photo": "Kumuha ng Larawan",
     "choose_gallery": "Pumili mula sa Gallery",
     "cancel": "Kanselahin",
@@ -438,7 +438,7 @@
     "disclaimer": "Ang mga scan ng BantAI ay nagbibigay ng gabay at impormasyon lamang. Ang mga resulta ay payo lamang at dapat pa ring suriin ng bawat isa sa pamamagitan ng sariling pisikal na inspeksyon.",
     "spatial_warnings_title": "⚠️ Mga Babala sa Espasyo",
     "identified_hazards": "Mga Natukoy na Panganib ({{count}})",
-    "hazards_instruction": "Suriin ang bawat panganib, ilapat ang inirerekomendang ayos, at pindutin ang 'Markahan bilang Naayos' kapag tapos na.",
+    "hazards_instruction": "Suriin ang bawat panganib, gawin ang inirerekomendang solusyon, at pindutin ang 'Markahan bilang Naayos' kapag tapos na.",
     "loading_scan": "Naglo-load ng mga detalye ng na-save na scan...",
     "saved_scan_unavailable": "Hindi available ang na-save na scan",
     "scan_another_room": "I-scan ang Ibang Silid",
@@ -451,28 +451,28 @@
     "upload_permission_message": "Kailangan namin ng pahintulot sa gallery para makapili ng larawan.",
     "upload_failed_title": "Hindi Na-import",
     "upload_failed_message": "Hindi namin maproseso ang larawang iyon. Subukan muli.",
-    "reason_context_label": "Konteksto ng Dahilan/Ayos: {{context}}",
+    "reason_context_label": "Konteksto ng Dahilan/Solusyon: {{context}}",
     "context_all": "Lahat ng Panganib",
     "context_earthquake": "Lindol",
     "context_typhoon": "Bagyo",
     "context_fire": "Sunog",
-    "sorting_message_all": "Tinitingnan mo ang lahat ng panganib. Ang mga dahilan at mungkahing ayos ay batay sa pinaka-kritikal na pagsusuri para sa bawat isa.",
-    "sorting_message_earthquake": "Tinitingnan mo ang mga panganib na may kaugnayan sa lindol. Ang bawat dahilan at mungkahing ayos ay nagpapaliwanag ng kaligtasan sa konteksto ng lindol.",
-    "sorting_message_typhoon": "Tinitingnan mo ang mga panganib na may kaugnayan sa bagyo. Ang bawat dahilan at mungkahing ayos ay nagpapaliwanag ng kaligtasan sa konteksto ng bagyo.",
-    "sorting_message_fire": "Tinitingnan mo ang mga panganib na may kaugnayan sa sunog. Ang bawat dahilan at mungkahing ayos ay nagpapaliwanag ng kaligtasan sa konteksto ng sunog.",
+    "sorting_message_all": "Nakalahad ang lahat ng panganib. Ang mga dahilan at mungkahing solusyon ay batay sa pinaka-kritikal na pagsusuri para sa bawat isa.",
+    "sorting_message_earthquake": "TNakalahad ang mga panganib na may kaugnayan sa lindol. Ang bawat dahilan at mungkahing solusyon ay nagpapaliwanag ng kaligtasan sa konteksto ng lindol.",
+    "sorting_message_typhoon": "Nakalahad ang mga panganib na may kaugnayan sa bagyo. Ang bawat dahilan at mungkahing solusyon ay nagpapaliwanag ng kaligtasan sa konteksto ng bagyo.",
+    "sorting_message_fire": "Nakalahad ang mga panganib na may kaugnayan sa sunog. Ang bawat dahilan at mungkahing solusyon ay nagpapaliwanag ng kaligtasan sa konteksto ng sunog.",
     "fallback_reason": "Natukoy ng AI ang panganib na ito nang may {{confidence}}% kumpiyansa.",
-    "fallback_fix": "Mangyaring suriin ang lugar at ayusin ang panganib para matiyak ang kaligtasan."
+    "fallback_fix": "Mangyaring suriin ang lugar at resolbahin ang panganib para matiyak ang kaligtasan."
   },
   "hazard_card": {
     "reason_label": "Dahilan:",
-    "fixes_label": "Mga Mungkahing Ayos:",
-    "mark_resolved": "Markahan bilang Naayos",
+    "fixes_label": "Mga Mungkahing Solusyon:",
+    "mark_resolved": "Markahan bilang Naresolba",
     "unmark_resolved": "Alisin ang Marka",
     "loading": "Naglo-load ng mga panganib...",
     "no_hazards_title": "Walang Natukoy na Panganib",
     "no_hazards_message": "Mukhang ligtas ang lugar na ito batay sa kasalukuyang scan.",
     "reason_unavailable": "Ang dahilan para sa {{disaster}} ay wala pa para sa panganib na ito.",
-    "fix_unavailable": "Ang ayos para sa {{disaster}} ay wala pa. Siguraduhin muna ang lugar at humingi ng manu-manong pagsusuri."
+    "fix_unavailable": "Ang solusyon para sa {{disaster}} ay wala pa. Siguraduhin muna ang lugar at humingi ng manu-manong pagsusuri."
   },
   "risk_status": {
     "low": "Mababa",
@@ -497,7 +497,7 @@
     ]
   },
   "articles": {
-    "earthquake_title": "Paghahanda ng Inyong Tahanan para sa Lindol: 6 Mahahalagang Tip",
+    "earthquake_title": "Paghahanda ng Inyong Tahanan para sa Lindol: 6 na Mahalagang Tip",
     "earthquake_desc": "Ang pamumuhay sa lugar na madaling matamaan ng lindol ay hindi lang kaalaman ang kailangan — kailangan din ng aktibong hakbang para maprotektahan ang inyong tahanan at pamilya.",
     "typhoon_title": "Ihanda ang Inyong Tahanan: Paano Maghanda para sa Bagyo",
     "typhoon_desc": "Nakapasok na tayo sa gitna ng taon — at kasabay nito ang panahon ng mga bagyo at malakas na ulan. Panahon na para mag-ihanda bago pa dumating.",
@@ -512,7 +512,7 @@
       "image_courtesy": "Larawan mula sa: {{source}}"
     },
     "earthquake": {
-      "title": "Paghahanda ng Inyong Tahanan at Ari-arian para sa Lindol: 6 Mahahalagang Tip",
+      "title": "Paghahanda ng Inyong Tahanan at Ari-arian para sa Lindol: 6 na Mahalagang Tip",
       "source": "Artikulo mula sa: GeoVera",
       "source_info": "Ang nilalamang ito ay orihinal na inilathala ng GeoVera.",
       "intro": "Ang pamumuhay sa lugar na madaling matamaan ng lindol ay nangangailangan ng aktibong paghahanda. Walang babala ang mga lindol bago dumating, kaya ang pagsunod sa mga simpleng hakbang na ito ay malaking makakatulong para mabawasan ang panganib at maprotektahan ang iyong pamilya.",
@@ -522,7 +522,7 @@
       "section2_content": "Mahalaga ang mabilis na pagtakas tuwing may emergency. Laging tiyakin na malinis at walang hadlang ang mga daanan patungo sa lahat ng pinto at bintana.",
       "section3_title": "3. Malaman Kung Paano Protektahan ang Sarili",
       "section3_content": "Ituro sa buong pamilya ang 'Drop, Cover, and Hold On' at magsanay nito nang regular. Alamin kung saan ang ligtas na lugar sa bawat silid — tulad ng ilalim ng matibay na mesa o laban sa panloob na pader, malayo sa mga bintana at gamit na maaaring matumba.",
-      "section4_title": "4. I-anchor ang Mabibigat na Kasangkapan",
+      "section4_title": "4. I-anchor ang Mabibigat na Kagamitan",
       "section4_content": "Ang mataas at mabibigat na gamit tulad ng bookcase, aparador, at shelves ay dapat matibay na nakakabit sa pader. Ilipat ang mabibigat na bagay sa mas mababang shelf, at siguraduhing naka-secure ang mga TV at computer monitor.",
       "section5_title": "5. Siguraduhin ang mga Utilities at Flammables",
       "section5_content": "Ang water heater, gas fixture, at iba pang utility ay dapat nakakabit at may flexible connector para maiwasan ang mapanganib na tagas. Itago ang mga flammable o toxic na bagay (tulad ng cleaning supplies o pintura) sa mababang lugar kung saan hindi madaling matumba.",
@@ -581,7 +581,7 @@
       "trim_trees_content": "Putulin ang mga mahinang sanga at labis na halaman para mabawasan ang mapanganib na flying debris tuwing may malakas na hangin.",
       "interior_title": "Kaligtasan sa Loob ng Bahay",
       "secure_windows_title": "Siguraduhin ang mga Bintana at Pinto:",
-      "secure_windows_content": "Tiyaking matibay ang mga frame at kayang tiisin ang malakas na hangin. Dalhin ang lahat ng panlabas na kasangkapan sa loob.",
+      "secure_windows_content": "Tiyaking matibay ang mga frame at kayang tiisin ang malakas na hangin. Dalhin ang lahat ng panlabas na kagamitan sa loob.",
       "check_wiring_title": "Suriin ang Wiring at Plumbing:",
       "check_wiring_content": "Ayusin ang anumang sirang wiring o grounded switch para maiwasan ang electric shock sa panahon ng brownout. Ipasuri sa plumber ang mga nagtatagasang tubo nang maaga pa.",
       "supplies_title": "Mga Emergency na Suplay",
@@ -598,7 +598,7 @@
       "emergency_numbers_content": "Isulat ang numero ng lokal na pulis, bumbero, at disaster hotline. Magsanay ng pagtawag sa mga numerong ito kasama ang mga bata.",
       "plan_evacuation_title": "Planuhin ang Evacuation:",
       "plan_evacuation_content": "Alamin ang ruta ng evacuation at kung saan magkikita ang pamilya. Siguraduhing alam ng lahat kung paano makipag-ugnayan kung mahiwalay. Magtago ng printed na mapa at listahan sa emergency kit.",
-      "check_loved_ones_title": "Suriin ang mga Mahal sa Buhay:",
+      "check_loved_ones_title": "Kumustahin ang mga Mahal sa Buhay:",
       "check_loved_ones_content": "Magtalaga ng mapagkakatiwalaang kamag-anak o kaibigan sa ibang lugar na maaaring tawagan. Tawagan ang taong ito kung nahiwalay ang pamilya para malaman ng lahat na ligtas kayo.",
       "closing_text": "Manatiling ligtas, manatiling tuyo, at laging subaybayan ang mga lokal na balita sa panahon."
     }
