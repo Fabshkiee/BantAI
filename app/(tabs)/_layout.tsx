@@ -220,13 +220,7 @@ export default function TabLayout() {
             tabBarStyle: { display: "none" },
             tabBarButton: () => (
               <Pressable
-                onPress={() => {
-                  if (homeStep === 1) {
-                    nextHomeStep();
-                    return;
-                  }
-                  setIsModalOpen(true);
-                }}
+                onPress={() => setIsModalOpen(true)}
                 className="flex-1 items-center justify-center"
                 style={{ top: -10 }}
               >
