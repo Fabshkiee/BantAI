@@ -206,8 +206,8 @@ export default function CoachmarkOverlay({
               width: spotlightRect.width,
               height: spotlightRect.height,
               borderRadius: spotlightRadius,
-              borderWidth: 2,
-              borderColor: "rgba(255,255,255,0.95)",
+            //   borderWidth: 2,
+            //   borderColor: "rgba(255,255,255,0.95)",
             }}
           />
         </>
@@ -276,8 +276,8 @@ const styles = StyleSheet.create({
     fontSize: 17,
     lineHeight: 29,
     color: "#121417",
-    paddingRight: 20,
-    maxWidth: 250,
+    //paddingRight: 20,
+   // maxWidth: 250,
   },
   cta: {
     marginTop: 18,
