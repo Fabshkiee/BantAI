@@ -4,20 +4,44 @@ import Button from "@/components/Button";
 import TopNavBar from "@/components/TopBar";
 import { useCoachmarks } from "@/context/CoachmarkContext";
 import { useFocusEffect, useRouter } from "expo-router";
-import { useCallback } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Image, ScrollView, Text, View } from "react-native";
 
 export default function HomeScreen() {
   const router = useRouter();
   const { t } = useTranslation();
-  const { startHomeTour } = useCoachmarks();
+  const { startHomeTour, homeStep, setHomeScanButtonRect } = useCoachmarks();
+  const scanButtonWrapperRef = useRef<any>(null);
 
   useFocusEffect(
     useCallback(() => {
       startHomeTour();
     }, [startHomeTour]),
   );
+
+  // COACHMARK TARGET: measure the real "Scan a Room" button location.
+  const measureHomeScanButton = useCallback(() => {
+    scanButtonWrapperRef.current?.measureInWindow(
+      (x: number, y: number, width: number, height: number) => {
+        if (!width || !height) {
+          return;
+        }
+        setHomeScanButtonRect({ x, y, width, height });
+      },
+    );
+  }, [setHomeScanButtonRect]);
+
+  useEffect(() => {
+    if (homeStep === 1) {
+      const timer = setTimeout(measureHomeScanButton, 0);
+      return () => clearTimeout(timer);
+    }
+  }, [homeStep, measureHomeScanButton]);
+
+  useEffect(() => {
+    return () => setHomeScanButtonRect(null);
+  }, [setHomeScanButtonRect]);
 
   return (
     <View className="flex-1 bg-surface-default">
@@ -41,15 +65,21 @@ export default function HomeScreen() {
               <Text className="text-h3 font-bold mt-4 text-center">
                 {t("home_screen.ready_title")}
               </Text>
-              <Button
-                label={t("home_screen.scan_room")}
-                icon={<ScanIcon color="white" size={24} />}
-                iconPosition="left"
-                onPress={() => {
-                  router.push("/photoInstructions");
-                }}
+              <View
+                ref={scanButtonWrapperRef}
+                onLayout={measureHomeScanButton}
                 className="w-full"
-              />
+              >
+                <Button
+                  label={t("home_screen.scan_room")}
+                  icon={<ScanIcon color="white" size={24} />}
+                  iconPosition="left"
+                  onPress={() => {
+                    router.push("/photoInstructions");
+                  }}
+                  className="w-full"
+                />
+              </View>
             </View>
 
             {/* Articles */}
