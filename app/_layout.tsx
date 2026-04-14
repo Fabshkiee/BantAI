@@ -1,4 +1,5 @@
 import MascotLoader from "@/components/MascotLoader";
+import { CoachmarkProvider } from "@/context/CoachmarkContext";
 import { initDatabase } from "@/db/db";
 import { DefaultTheme, ThemeProvider } from "@react-navigation/native";
 import { Stack } from "expo-router";
@@ -46,15 +47,17 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={BgTheme}>
       <SafeAreaProvider>
-        <Stack
-          screenOptions={{
-            animation: "slide_from_right",
-            animationDuration: 250,
-            headerShown: false,
-            contentStyle: { backgroundColor: "transparent" },
-          }}
-        />
-        <MascotLoader />
+        <CoachmarkProvider>
+          <Stack
+            screenOptions={{
+              animation: "slide_from_right",
+              animationDuration: 250,
+              headerShown: false,
+              contentStyle: { backgroundColor: "transparent" },
+            }}
+          />
+          <MascotLoader />
+        </CoachmarkProvider>
       </SafeAreaProvider>
     </ThemeProvider>
   );

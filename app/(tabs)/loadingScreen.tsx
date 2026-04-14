@@ -1,4 +1,6 @@
+import CoachmarkOverlay from "@/components/CoachmarkOverlay";
 import ProgressBar from "@/components/ProgressBar";
+import { useCoachmarks } from "@/context/CoachmarkContext";
 import { createScanSession, insertDetectedHazards } from "@/db/db";
 import { useTFLite } from "@/hooks/useTFLite";
 import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
@@ -44,6 +46,7 @@ export default function LoadingScreen() {
   const router = useRouter();
   const { imageUri } = useLocalSearchParams();
   const { modelLoaded, runInference } = useTFLite();
+  const { scanStep, advanceScanStep, dismissScanTour } = useCoachmarks();
   const [progress, setProgress] = useState(0);
   const [statusText, setStatusText] = useState("Initializing AI engine...");
   const cancelRequestedRef = useRef(false);
@@ -151,6 +154,20 @@ export default function LoadingScreen() {
         statusText={statusText}
         onCancel={handleCancelAnalysis}
       />
+
+      {scanStep === 2 && (
+        <CoachmarkOverlay
+          title="Sit Tight!"
+          stepText="2 of 5"
+          description="BantAI is carefully scanning your photo to identify and map out any potential hazards. This will only take a few seconds."
+          ctaLabel="Next"
+          onNext={advanceScanStep}
+          onSkip={dismissScanTour}
+          pointerSide="top"
+          pointerOffset={250}
+          positionStyle={{ left: 24, bottom: 86, width: 360 }}
+        />
+      )}
     </View>
   );
 }
