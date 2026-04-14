@@ -280,7 +280,7 @@ export default function TabLayout() {
           positionStyle={{ left: 16, right: 16, bottom: 500 }}
           spotlightRect={homeScanButtonRect}
           // COACHMARK TUNE: match button roundness.
-          spotlightRadius={36}
+          spotlightRadius={20}
           // COACHMARK FLOW: tap highlighted button -> proceed to next step + navigate.
           onSpotlightPress={() => {
             nextHomeStep();
@@ -302,7 +302,7 @@ export default function TabLayout() {
           positionStyle={{ right: 130, top: 210}}
           spotlightRect={{ x: 10, y: 520, width: 390, height: 265 }}
           // COACHMARK TUNE: match button roundness.
-          spotlightRadius={36}
+          spotlightRadius={20}
         />
       )}
     </>
