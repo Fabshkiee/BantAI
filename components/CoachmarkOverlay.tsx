@@ -247,9 +247,9 @@ const styles = StyleSheet.create({
   card: {
     position: "absolute",
     borderRadius: 14,
-    paddingHorizontal: 18,
-    paddingVertical: 16,
-    width: 250,
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    maxWidth: 250,
   },
   headerRow: {
     flexDirection: "row",
@@ -277,6 +277,7 @@ const styles = StyleSheet.create({
     lineHeight: 29,
     color: "#121417",
     paddingRight: 20,
+    maxWidth: 250,
   },
   cta: {
     marginTop: 18,
