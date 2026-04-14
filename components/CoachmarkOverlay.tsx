@@ -19,6 +19,7 @@ type CoachmarkOverlayProps = {
 };
 
 const CARD_BG = "#e8eef4";
+const DIM_BG = "rgba(0, 0, 0, 0.58)";
 
 function getPointerStyle(side: PointerSide, offset: number) {
   switch (side) {
@@ -109,6 +110,7 @@ export default function CoachmarkOverlay({
               left: 0,
               right: 0,
               height: Math.max(0, spotlightRect.y),
+              backgroundColor: DIM_BG,
             }}
             onPress={onSkip ?? (() => null)}
           />
@@ -119,6 +121,7 @@ export default function CoachmarkOverlay({
               left: 0,
               width: Math.max(0, spotlightRect.x),
               height: spotlightRect.height,
+              backgroundColor: DIM_BG,
             }}
             onPress={onSkip ?? (() => null)}
           />
@@ -129,6 +132,7 @@ export default function CoachmarkOverlay({
               left: spotlightRect.x + spotlightRect.width,
               right: 0,
               height: spotlightRect.height,
+              backgroundColor: DIM_BG,
             }}
             onPress={onSkip ?? (() => null)}
           />
@@ -139,6 +143,7 @@ export default function CoachmarkOverlay({
               left: 0,
               right: 0,
               bottom: 0,
+              backgroundColor: DIM_BG,
             }}
             onPress={onSkip ?? (() => null)}
           />
@@ -173,7 +178,7 @@ export default function CoachmarkOverlay({
         </>
       ) : (
         <Pressable
-          style={StyleSheet.absoluteFill}
+          style={[StyleSheet.absoluteFill, { backgroundColor: DIM_BG }]}
           onPress={onSkip ?? (() => null)}
         />
       )}
@@ -200,7 +205,7 @@ const styles = StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,
     zIndex: 9998,
-    backgroundColor: "rgba(0, 0, 0, 0.58)",
+    backgroundColor: "transparent",
   },
   card: {
     position: "absolute",

@@ -8,14 +8,17 @@ import React, {
 
 type HomeStep = 0 | 1 | 2;
 type ScanStep = 0 | 1 | 2 | 3 | 4 | 5;
+type Rect = { x: number; y: number; width: number; height: number };
 
 type CoachmarkContextValue = {
   homeStep: HomeStep;
   scanStep: ScanStep;
   showScanFinale: boolean;
+  homeScanButtonRect: Rect | null;
   startHomeTour: () => void;
   nextHomeStep: () => void;
   dismissHomeTour: () => void;
+  setHomeScanButtonRect: (rect: Rect | null) => void;
   startScanTour: () => void;
   advanceScanStep: () => void;
   dismissScanTour: () => void;
@@ -30,6 +33,9 @@ export function CoachmarkProvider({ children }: PropsWithChildren) {
   const [homeCompleted, setHomeCompleted] = useState(false);
   const [scanCompleted, setScanCompleted] = useState(false);
   const [showScanFinale, setShowScanFinale] = useState(false);
+  const [homeScanButtonRect, setHomeScanButtonRect] = useState<Rect | null>(
+    null,
+  );
 
   const startHomeTour = () => {
     if (!homeCompleted && homeStep === 0) {
@@ -87,15 +93,17 @@ export function CoachmarkProvider({ children }: PropsWithChildren) {
       homeStep,
       scanStep,
       showScanFinale,
+      homeScanButtonRect,
       startHomeTour,
       nextHomeStep,
       dismissHomeTour,
+      setHomeScanButtonRect,
       startScanTour,
       advanceScanStep,
       dismissScanTour,
       hideScanFinale,
     }),
-    [homeStep, scanStep, showScanFinale],
+    [homeStep, scanStep, showScanFinale, homeScanButtonRect],
   );
 
   return (
