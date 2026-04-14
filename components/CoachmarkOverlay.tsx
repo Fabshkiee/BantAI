@@ -1,5 +1,13 @@
 import React from "react";
-import { Pressable, StyleSheet, Text, View, ViewStyle } from "react-native";
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+  ViewStyle,
+} from "react-native";
+import Svg, { Path } from "react-native-svg";
 
 type PointerSide = "top" | "bottom" | "left" | "right";
 
@@ -97,12 +105,42 @@ export default function CoachmarkOverlay({
   spotlightRadius = 18,
   onSpotlightPress,
 }: CoachmarkOverlayProps) {
+  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const canSpotlightTap = Boolean(spotlightRect && onSpotlightPress);
+
+  const holePath = spotlightRect
+    ? (() => {
+        const x = spotlightRect.x;
+        const y = spotlightRect.y;
+        const w = spotlightRect.width;
+        const h = spotlightRect.height;
+        const r = Math.max(0, Math.min(spotlightRadius, w / 2, h / 2));
+
+        return [
+          `M0 0H${screenWidth}V${screenHeight}H0Z`,
+          `M${x + r} ${y}`,
+          `H${x + w - r}`,
+          `Q${x + w} ${y} ${x + w} ${y + r}`,
+          `V${y + h - r}`,
+          `Q${x + w} ${y + h} ${x + w - r} ${y + h}`,
+          `H${x + r}`,
+          `Q${x} ${y + h} ${x} ${y + h - r}`,
+          `V${y + r}`,
+          `Q${x} ${y} ${x + r} ${y}`,
+          "Z",
+        ].join(" ");
+      })()
+    : "";
 
   return (
     <View style={styles.overlay} pointerEvents="box-none">
       {spotlightRect ? (
         <>
+          {/* Visual dim layer with a rounded transparent hole for the spotlight target */}
+          <Svg style={StyleSheet.absoluteFill} pointerEvents="none">
+            <Path d={holePath} fill={DIM_BG} fillRule="evenodd" />
+          </Svg>
+
           <Pressable
             style={{
               position: "absolute",
@@ -110,7 +148,6 @@ export default function CoachmarkOverlay({
               left: 0,
               right: 0,
               height: Math.max(0, spotlightRect.y),
-              backgroundColor: DIM_BG,
             }}
             onPress={onSkip ?? (() => null)}
           />
@@ -121,7 +158,6 @@ export default function CoachmarkOverlay({
               left: 0,
               width: Math.max(0, spotlightRect.x),
               height: spotlightRect.height,
-              backgroundColor: DIM_BG,
             }}
             onPress={onSkip ?? (() => null)}
           />
@@ -132,7 +168,6 @@ export default function CoachmarkOverlay({
               left: spotlightRect.x + spotlightRect.width,
               right: 0,
               height: spotlightRect.height,
-              backgroundColor: DIM_BG,
             }}
             onPress={onSkip ?? (() => null)}
           />
@@ -143,7 +178,6 @@ export default function CoachmarkOverlay({
               left: 0,
               right: 0,
               bottom: 0,
-              backgroundColor: DIM_BG,
             }}
             onPress={onSkip ?? (() => null)}
           />
