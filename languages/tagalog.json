@@ -7,6 +7,8 @@
     "proceed": "Magpatuloy",
     "back_to_home": "Bumalik sa Home",
     "permission_needed": "Kailangan ng Pahintulot",
+    "english": "Ingles",
+    "tagalog": "Tagalog",
     "import_failed": "Hindi Na-import",
     "mascot_status": "Katayuan: {{risk}} ang Panganib",
     "could_not_process_image": "Hindi namin maproseso ang larawang iyon. Subukan muli."
