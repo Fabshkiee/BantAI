@@ -330,16 +330,19 @@ export default function SafetyReport() {
         className="flex-1 mt-9 pb-56 mb-8 bg-surface-default"
         showsVerticalScrollIndicator={false}
         contentContainerClassName="pb-14"
+        style={{ opacity: fadeAnim }}
       >
         <Animated.View style={{ flex: 1 }}>
           <View className="flex flex-row items-center ml-6">
             <Button
-              label="Return"
               variant="return"
               icon={<ArrowLeftIcon color="black" size={18} />}
               iconPosition="left"
-              onPress={() => router.push("/history")}
+              onPress={() => router.push("/scans")}
             />
+            <Text className="text-h3 font-bold text-center -ml-2">
+              Safety Report
+            </Text>
           </View>
 
           <View className="mx-7 mt-7 gap-7">
