@@ -6,6 +6,7 @@ module.exports = {
     extend: {
       // Semantic Colors (Hardcoded with Hex for React Native Mobile compatibility)
       colors: {
+        default: "#f5faff",
         text: {
           default: "#000000",
           subtle: "#84888c",
