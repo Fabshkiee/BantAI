@@ -19,6 +19,8 @@ type CoachmarkOverlayProps = {
   ctaLabel: string;
   onNext: () => void;
   onSkip?: () => void;
+  ctaIcon?: React.ReactNode;
+  ctaIconPosition?: "left" | "right";
   positionStyle: ViewStyle;
   pointerSide?: PointerSide;
   pointerOffset?: number;
@@ -99,6 +101,8 @@ export default function CoachmarkOverlay({
   ctaLabel,
   onNext,
   onSkip,
+  ctaIcon = <ArrowRightIcon color="white" size={16} />,
+  ctaIconPosition = "right",
   positionStyle,
   pointerSide = "top",
   pointerOffset = 120,
@@ -178,9 +182,11 @@ export default function CoachmarkOverlay({
         <Text style={styles.description}>{description}</Text>
 
         <Pressable style={styles.cta} onPress={onNext}>
-          <Text style={styles.ctaText}>
-            {ctaLabel} <ArrowRightIcon color="white" size={16} />
-          </Text>
+          <View style={styles.ctaContent}>
+            {ctaIconPosition === "left" && ctaIcon}
+            <Text style={styles.ctaText}>{ctaLabel}</Text>
+            {ctaIconPosition === "right" && ctaIcon}
+          </View>
         </Pressable>
 
         <View style={getPointerStyle(pointerSide, pointerOffset)} />
@@ -238,6 +244,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     height: 48,
     maxWidth: 150,
+  },
+  ctaContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
   },
   ctaText: {
     color: "#f4f9ff",
