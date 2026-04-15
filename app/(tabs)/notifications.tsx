@@ -1,5 +1,7 @@
+import ArrowLeftIcon from "@/assets/icons/ArrowLeftIcon";
 import SafetyIcon from "@/assets/icons/SafetyIcon";
 import WarningIcon from "@/assets/icons/WarningIcon";
+import Button from "@/components/Button";
 import NotificationCard from "@/components/NotificationCard";
 import { useRouter } from "expo-router";
 import React from "react";
@@ -78,10 +80,22 @@ export default function NotificationsScreen() {
 
   return (
     <ScrollView
-      className="flex-1 bg-surface-default px-7 pt-4 mb-24"
+      className="flex-1 bg-surface-default px-7 mt-9 mb-16"
       showsVerticalScrollIndicator={false}
     >
       <View className="pb-20">
+        <View className="items-start -ml-4 mb-3">
+          <Button
+            variant="returnLg"
+            label="Notifications"
+            iconPosition="left"
+            icon={<ArrowLeftIcon />}
+            onPress={() => {
+              router.back;
+            }}
+          />
+        </View>
+
         {/* Outer Loop: Iterate through the groups (Today, Yesterday, etc.) */}
         {GROUPED_NOTIFICATIONS.map((group) => (
           <View key={group.title} className="mb-6">
