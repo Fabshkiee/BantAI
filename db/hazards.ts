@@ -14,6 +14,10 @@ export const HAZARD_LABELS = {
   EXPOSED_CEILING_LIGHTS: "exposed_ceiling_lights",
   HEAVY_WOODEN_FURNITURE: "heavy_wooden_furniture",
   OPEN_FLAME_HAZARD: "open_flame_hazard",
+  WINDOW_SECURITY_BAR: "window_security_bar",
+  CURTAIN: "curtain",
+  WATER_DAMAGE: "water_damage",
+  GAS_TANK: "gas_tank",
 } as const;
 
 export type HazardLabel = (typeof HAZARD_LABELS)[keyof typeof HAZARD_LABELS];
@@ -55,6 +59,10 @@ export const HAZARD_DISPLAY_NAMES: Record<HazardLabel, string> = {
   [HAZARD_LABELS.EXPOSED_CEILING_LIGHTS]: "Exposed Ceiling Lights",
   [HAZARD_LABELS.HEAVY_WOODEN_FURNITURE]: "Heavy Wooden Furniture",
   [HAZARD_LABELS.OPEN_FLAME_HAZARD]: "Open Flame Hazard",
+  [HAZARD_LABELS.WINDOW_SECURITY_BAR]: "Window Bars",
+  [HAZARD_LABELS.CURTAIN]: "Curtain",
+  [HAZARD_LABELS.WATER_DAMAGE]: "Water Damage",
+  [HAZARD_LABELS.GAS_TANK]: "Gas Tank",
 };
 
 export const HAZARD_TYPES: HazardTypeSeed[] = [
@@ -179,5 +187,45 @@ export const HAZARD_TYPES: HazardTypeSeed[] = [
     recommendation:
       "Extinguish the flame and keep combustible materials away from heat sources.",
     disasterTypes: ["fire"],
+  },
+  {
+    name: HAZARD_LABELS.WINDOW_SECURITY_BAR,
+    category: "fire",
+    default_severity: "high",
+    description:
+      "Window security bars or grills may block escape routes in case of an emergency.",
+    recommendation:
+      "Ensure at least one window with security bars has a quick-release mechanism for emergency exits.",
+    disasterTypes: ["fire", "earthquake"],
+  },
+  {
+    name: HAZARD_LABELS.CURTAIN,
+    category: "fire",
+    default_severity: "medium",
+    description:
+      "Curtains placed too close to heat sources or open flames can easily catch fire.",
+    recommendation:
+      "Keep curtains tied back and maintain a safe distance from stoves, heaters, or open flames.",
+    disasterTypes: ["fire"],
+  },
+  {
+    name: HAZARD_LABELS.WATER_DAMAGE,
+    category: "structural",
+    default_severity: "high",
+    description:
+      "Signs of water damage are visible, which may weaken the structure or cause electrical hazards.",
+    recommendation:
+      "Identify and fix the source of the leak, and have the affected area assessed for structural integrity.",
+    disasterTypes: ["typhoon"],
+  },
+  {
+    name: HAZARD_LABELS.GAS_TANK,
+    category: "fire",
+    default_severity: "critical",
+    description:
+      "A gas tank is improperly stored or unsecured, posing a significant fire or explosion risk.",
+    recommendation:
+      "Store gas tanks upright in a well-ventilated area, away from ignition sources, and ensure they are securely fastened.",
+    disasterTypes: ["fire", "earthquake"],
   },
 ];

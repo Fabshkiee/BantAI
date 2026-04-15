@@ -5,6 +5,7 @@ import {
 } from "@/lib/detectionCalibration";
 import {
   Detection,
+  getBoxDistance,
   getContainmentRatio,
   getIoU,
   performNMS,
@@ -40,6 +41,10 @@ const CLASS_NAMES = [
   "exposed_ceiling_lights",
   "heavy_wooden_furniture",
   "open_flame_hazard",
+  "window_security_bar",
+  "curtain",
+  "water_damage",
+  "gas_tank",
 ];
 
 const INPUT_SIZE = 640;
@@ -68,12 +73,14 @@ const CRITICAL_CLASSES = new Set<string>([
   "collapsed_structure",
   "open_flame_hazard",
   "exposed_breaker",
+  "gas_tank",
 ]);
 
 const STRUCTURAL_CLASSES = new Set<string>([
   "major_crack",
   "minor_crack",
   "collapsed_structure",
+  "water_damage",
 ]);
 
 const MUTUALLY_EXCLUSIVE_CLASS_GROUPS: Array<Set<string>> = [
@@ -455,6 +462,34 @@ function applyConsensusFilter(
   return limited.sort((a, b) => b.confidence - a.confidence);
 }
 
+const FIRE_SOURCES = new Set([
+  "open_flame_hazard",
+  "overloaded_socket",
+  "damaged_wire",
+  "electronic_hazard",
+  "exposed_breaker",
+  "exposed_ceiling_lights",
+]);
+
+function filterContextualHazards(detections: Detection[]): Detection[] {
+  const PROXIMITY_THRESHOLD = 0.2;
+  return detections.filter((det) => {
+    if (det.class === "curtain" || det.class === "gas_tank") {
+      // Must be near a fire source to be shown
+      return detections.some((other) => {
+        if (det === other) return false;
+        if (FIRE_SOURCES.has(other.class)) {
+          const dist = getBoxDistance(det.bbox, other.bbox);
+          return dist < PROXIMITY_THRESHOLD;
+        }
+        return false;
+      });
+    }
+    return true;
+  });
+}
+
+
 export function useTFLite() {
   const [modelLoaded, setModelLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -469,7 +504,7 @@ export function useTFLite() {
     try {
       console.log("Loading TFLite model...");
       const loadedModel = await loadTensorflowModel(
-        require("@/model/bantai_model.tflite"),
+        require("@/model/bantai-model-v2.tflite"),
       );
       setModel(loadedModel);
       setModelLoaded(true);
@@ -594,7 +629,7 @@ export function useTFLite() {
         );
 
         if (mergedResults.length > 0) {
-          return mergedResults;
+          return filterContextualHazards(mergedResults);
         }
 
         const relaxedFromStrictCandidates = applyConsensusFilter(
@@ -607,7 +642,7 @@ export function useTFLite() {
           `Relaxed consensus on strict candidates: ${relaxedFromStrictCandidates.length} hazards`,
         );
         if (relaxedFromStrictCandidates.length > 0) {
-          return relaxedFromStrictCandidates;
+          return filterContextualHazards(relaxedFromStrictCandidates);
         }
 
         // Lightweight fallback: run one relaxed global pass only.
@@ -637,7 +672,7 @@ export function useTFLite() {
           `Relaxed global fallback: ${relaxedCandidates.length} raw -> ${relaxedResults.length} vetted hazards`,
         );
 
-        return relaxedResults;
+        return filterContextualHazards(relaxedResults);
       } catch (err) {
         console.error("SAHI Inference Failed:", err);
 
@@ -669,7 +704,7 @@ export function useTFLite() {
             `Emergency global fallback: ${emergencyDetections.length} raw -> ${emergencyResults.length} vetted hazards`,
           );
 
-          return emergencyResults;
+          return filterContextualHazards(emergencyResults);
         } catch (fallbackErr) {
           console.error("Emergency fallback failed:", fallbackErr);
           throw err;
