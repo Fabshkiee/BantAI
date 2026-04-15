@@ -42,6 +42,7 @@ const HIDDEN_SCREENS = [
   "articles/earthquakeArticle",
   "articles/typhoonArticle",
   "articles/fireArticle",
+  "notifications",
 ];
 
 // Modal component
