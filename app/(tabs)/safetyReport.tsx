@@ -13,12 +13,12 @@ import * as ImagePicker from "expo-image-picker";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Animated,
-  Image,
-  Text,
-  View,
+    ActivityIndicator,
+    Alert,
+    Animated,
+    Image,
+    Text,
+    View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -324,6 +324,21 @@ export default function SafetyReport() {
     );
   }, [router]);
 
+  const handleViewReport = useCallback(() => {
+    if (!hasSession || sessionId === null) {
+      Alert.alert(
+        "Report unavailable",
+        "This scan does not have a saved session report yet.",
+      );
+      return;
+    }
+
+    router.push({
+      pathname: "/scanReport",
+      params: { sessionId: String(sessionId) },
+    });
+  }, [hasSession, router, sessionId]);
+
   return (
     <View style={{ flex: 1 }}>
       <Animated.ScrollView
@@ -405,7 +420,7 @@ export default function SafetyReport() {
               </Text>
               <Text className="text-lg">
                 After assessing each hazard, apply the recommended solution, and
-                press the 'Mark as Resolved' button once finished.
+                press the Mark as Resolved button once finished.
               </Text>
             </View>
 
@@ -459,6 +474,13 @@ export default function SafetyReport() {
             </View>
 
             <View className="w-full gap-3">
+              {hasSession ? (
+                <Button
+                  label="View Scan Report"
+                  variant="secondary"
+                  onPress={handleViewReport}
+                />
+              ) : null}
               <Button
                 label="Scan Another Room"
                 onPress={handleConfirmScanAnotherRoom}
