@@ -284,11 +284,6 @@ export default function TabLayout() {
           spotlightRect={{ x: 16, y: 420, width: 380, height: 80 }}
           // COACHMARK TUNE: match button roundness.
           spotlightRadius={20}
-          // COACHMARK FLOW: tap highlighted button -> proceed to next step + navigate.
-          onSpotlightPress={() => {
-            nextHomeStep();
-            router.push("/photoInstructions");
-          }}
         />
       )}
 

@@ -1,12 +1,12 @@
 import ArrowRightIcon from "@/assets/icons/ArrowRightIcon";
 import React from "react";
 import {
-    Pressable,
-    StyleSheet,
-    Text,
-    useWindowDimensions,
-    View,
-    ViewStyle,
+  Pressable,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+  ViewStyle,
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
 
@@ -107,7 +107,8 @@ export default function CoachmarkOverlay({
   onSpotlightPress,
 }: CoachmarkOverlayProps) {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
-  const canSpotlightTap = Boolean(spotlightRect && onSpotlightPress);
+  const blockOverlayTap = () => null;
+  void onSpotlightPress;
 
   const holePath = spotlightRect
     ? (() => {
@@ -134,7 +135,7 @@ export default function CoachmarkOverlay({
     : "";
 
   return (
-    <View style={styles.overlay} pointerEvents="box-none">
+    <View style={styles.overlay} pointerEvents="auto">
       {spotlightRect ? (
         <>
           {/* Visual dim layer with a rounded transparent hole for the spotlight target */}
@@ -143,58 +144,8 @@ export default function CoachmarkOverlay({
           </Svg>
 
           <Pressable
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              height: Math.max(0, spotlightRect.y),
-            }}
-            onPress={onSkip ?? (() => null)}
-          />
-          <Pressable
-            style={{
-              position: "absolute",
-              top: spotlightRect.y,
-              left: 0,
-              width: Math.max(0, spotlightRect.x),
-              height: spotlightRect.height,
-            }}
-            onPress={onSkip ?? (() => null)}
-          />
-          <Pressable
-            style={{
-              position: "absolute",
-              top: spotlightRect.y,
-              left: spotlightRect.x + spotlightRect.width,
-              right: 0,
-              height: spotlightRect.height,
-            }}
-            onPress={onSkip ?? (() => null)}
-          />
-          <Pressable
-            style={{
-              position: "absolute",
-              top: spotlightRect.y + spotlightRect.height,
-              left: 0,
-              right: 0,
-              bottom: 0,
-            }}
-            onPress={onSkip ?? (() => null)}
-          />
-
-          <Pressable
-            disabled={!canSpotlightTap}
-            style={{
-              position: "absolute",
-              left: spotlightRect.x,
-              top: spotlightRect.y,
-              width: spotlightRect.width,
-              height: spotlightRect.height,
-              borderRadius: spotlightRadius,
-              backgroundColor: "transparent",
-            }}
-            onPress={onSpotlightPress}
+            style={StyleSheet.absoluteFill}
+            onPress={blockOverlayTap}
           />
 
           <View
@@ -206,15 +157,15 @@ export default function CoachmarkOverlay({
               width: spotlightRect.width,
               height: spotlightRect.height,
               borderRadius: spotlightRadius,
-            //   borderWidth: 2,
-            //   borderColor: "rgba(255,255,255,0.95)",
+              //   borderWidth: 2,
+              //   borderColor: "rgba(255,255,255,0.95)",
             }}
           />
         </>
       ) : (
         <Pressable
           style={[StyleSheet.absoluteFill, { backgroundColor: DIM_BG }]}
-          onPress={onSkip ?? (() => null)}
+          onPress={blockOverlayTap}
         />
       )}
 
@@ -277,7 +228,7 @@ const styles = StyleSheet.create({
     lineHeight: 29,
     color: "#121417",
     //paddingRight: 20,
-   // maxWidth: 250,
+    // maxWidth: 250,
   },
   cta: {
     marginTop: 18,
