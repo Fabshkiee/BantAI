@@ -80,7 +80,7 @@ export default function NotificationsScreen() {
 
   return (
     <ScrollView
-      className="flex-1 bg-surface-default px-7 mt-9 mb-16"
+      className="flex-1 bg-surface-default px-7 mt-9"
       showsVerticalScrollIndicator={false}
     >
       <View className="pb-20">
