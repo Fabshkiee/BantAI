@@ -9,36 +9,14 @@ import { Image, View } from "react-native";
 /** Maps SAHI slice progress to user-facing status messages */
 function getStatusText(progress: number): string {
   if (progress < 0.05) return "Initializing AI engine...";
-  if (progress < 0.15) return "Running global scan...";
-  if (progress < 0.5) return "Scanning room quadrants...";
-  if (progress < 0.8) return "Analyzing hazard details...";
+  if (progress < 0.12) return "Running global scan...";
+  if (progress < 0.55) return "Scanning room quadrants...";
+  if (progress < 0.85) return "Analyzing hazard details...";
   if (progress < 0.95) return "Generating safety report...";
   return "Analysis Complete!";
 }
 
-async function getImageSize(
-  uri: string,
-): Promise<{ width: number; height: number }> {
-  return new Promise((resolve, reject) => {
-    Image.getSize(uri, (width, height) => resolve({ width, height }), reject);
-  });
-}
 
-async function normalizeCaptureForInference(uri: string): Promise<string> {
-  const { width, height } = await getImageSize(uri);
-  if (width >= height) {
-    return uri;
-  }
-
-  const rotated = await manipulateAsync(uri, [{ rotate: 90 }], {
-    format: SaveFormat.JPEG,
-    compress: 1,
-  });
-  console.log(
-    `Normalized portrait capture to landscape for inference (${width}x${height}).`,
-  );
-  return rotated.uri;
-}
 
 export default function LoadingScreen() {
   const router = useRouter();
@@ -66,15 +44,7 @@ export default function LoadingScreen() {
       try {
         if (cancelRequestedRef.current) return;
 
-        let inferenceUri = primaryUri;
-        try {
-          inferenceUri = await normalizeCaptureForInference(primaryUri);
-        } catch (normalizationError) {
-          console.warn(
-            "Image normalization failed, using original photo:",
-            normalizationError,
-          );
-        }
+        const inferenceUri = primaryUri;
 
         if (cancelRequestedRef.current) return;
 
