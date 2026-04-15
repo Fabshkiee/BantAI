@@ -40,6 +40,10 @@ const CLASS_NAMES = [
   "exposed_ceiling_lights",
   "heavy_wooden_furniture",
   "open_flame_hazard",
+  "window_security_bar",
+  "curtain",
+  "water_damage",
+  "gas_tank",
 ];
 
 const INPUT_SIZE = 640;
@@ -68,12 +72,14 @@ const CRITICAL_CLASSES = new Set<string>([
   "collapsed_structure",
   "open_flame_hazard",
   "exposed_breaker",
+  "gas_tank",
 ]);
 
 const STRUCTURAL_CLASSES = new Set<string>([
   "major_crack",
   "minor_crack",
   "collapsed_structure",
+  "water_damage",
 ]);
 
 const MUTUALLY_EXCLUSIVE_CLASS_GROUPS: Array<Set<string>> = [
@@ -469,7 +475,7 @@ export function useTFLite() {
     try {
       console.log("Loading TFLite model...");
       const loadedModel = await loadTensorflowModel(
-        require("@/model/bantai_model.tflite"),
+        require("@/model/bantai-model-v2.tflite"),
       );
       setModel(loadedModel);
       setModelLoaded(true);
