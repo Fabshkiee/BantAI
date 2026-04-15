@@ -293,6 +293,7 @@ export default function TabLayout() {
           stepText="2 of 2"
           description="Read these quick guides anytime to learn how to mitigate risks and handle emergencies."
           ctaLabel="Got It!"
+          ctaIcon={null}
           onNext={nextHomeStep}
           onSkip={dismissHomeTour}
           pointerSide="bottom"
