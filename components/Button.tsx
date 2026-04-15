@@ -5,7 +5,7 @@ type ButtonProps = {
   label: string;
   onPress: () => void;
   icon?: React.ReactNode;
-  variant?: "primary" | "secondary" | "cancel" | "return";
+  variant?: "primary" | "secondary" | "cancel" | "return" | "returnLg";
   className?: string;
   iconPosition?: "left" | "right";
   loading?: boolean;
@@ -27,6 +27,7 @@ export default function Button({
     secondary: "border-border-primary border-2",
     cancel: "border-border-critical border-2",
     return: "bg-surface-default/75 backdrop-blur-3xl",
+    returnLg: "bg-surface-default",
   };
 
   const textColors = {
@@ -34,6 +35,15 @@ export default function Button({
     secondary: "text-text-primary",
     cancel: "text-text-critical",
     return: "text-text-default",
+    returnLg: "text-text-default  ",
+  };
+
+  const fontSize = {
+    primary: "text-lg",
+    secondary: "text-lg",
+    cancel: "text-lg",
+    return: "text-lg",
+    returnLg: "text-h3",
   };
 
   return (
@@ -58,7 +68,7 @@ export default function Button({
               )}
 
               <Text
-                className={`font-text font-bold text-lg ${textColors[variant]} ${pressed ? "" : ""}`}
+                className={`font-text font-bold ${fontSize[variant]} ${textColors[variant]} ${pressed ? "" : ""}`}
               >
                 {label}
               </Text>
