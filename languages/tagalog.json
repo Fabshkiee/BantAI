@@ -90,7 +90,7 @@
       ],
       "earthquake_reason": "Ang mga maluwag na kawad sa bukas na panel ay maaaring mag-spark at magsimula ng sunog habang yumayanig.",
       "earthquake_fixes": [
-        "Patayin ang main switch para putulin ang kuryente sa buong bahay.",
+        "Patayin ang main switch upang maputol ang kuryente sa buong bahay.",
         "Huwag ikabit ang breaker sa plywood — dapat nasa hollow block ito.",
         "Takpan ng electrical tape ang mga bitak sa breaker box."
       ],
@@ -370,7 +370,7 @@
   },
   "tabs": {
     "home": "Home",
-    "history": "Kasaysayan"
+    "scans": "na-scan"
   },
   "camera_modal": {
     "title": "Handa ka na ba para sa Safety Check?",
@@ -402,7 +402,7 @@
   "history_screen": {
     "title": "Mga Nakaraang Scan",
     "loading": "Naglo-load ng mga na-save na scan...",
-    "error_title": "Hindi Ma-load ang Kasaysayan",
+    "error_title": "Hindi Ma-load ang mga na-scan.",
     "error_message": "Hindi namin ma-load ang iyong mga nakaraang scan.",
     "empty_title": "Wala pang na-save na scan",
     "empty_message": "Ang iyong mga nakumpletong pagsusuri ng silid ay lalabas dito pagkatapos itong ma-save."
@@ -413,14 +413,14 @@
     "hazards_resolved": "{{assessed}}/{{total}} Panganib ang Naayos"
   },
   "landscape_screen": {
-    "instruction": "Para sa mas tumpak na resulta, hawakan ang iyong device nang pahiga (landscape).",
+    "instruction": "Para sa mas maayos na resulta, hawakan ang iyong device nang pahiga (landscape).",
     "ready_message": "Maaari ka nang kumuha ng larawan ng iyong silid.",
-    "not_landscape": "Hindi pa pahiga ang device.",
+    "not_landscape": "Hindi pa nakapahiga ang iyong device.",
     "take_photo": "Kumuha ng Larawan"
   },
   "photo_instructions_screen": {
     "title": "Paano Kumuha ng Larawan",
-    "description": "Iposisyon ang iyong telepono sa lugar kung saan nakikita ang karamihan ng silid para matiyak na nasasaglaw ang lahat ng bahagi.",
+    "description": "Iposisyon ang iyong cellphone sa lugar kung saan nakikita ang karamihan ng silid para matiyak na nasasaglaw ang lahat ng bahagi.",
     "proceed": "Ituloy"
   },
   "loading_screen": {
@@ -439,7 +439,7 @@
     "title": "Ulat ng Kaligtasan ng Silid",
     "disclaimer": "Ang mga scan ng BantAI ay nagbibigay ng gabay at impormasyon lamang. Ang mga resulta ay payo lamang at dapat pa ring suriin ng bawat isa sa pamamagitan ng sariling pisikal na inspeksyon.",
     "spatial_warnings_title": "⚠️ Mga Babala sa Espasyo",
-    "identified_hazards": "Mga Natukoy na Panganib ({{count}})",
+    "identified_hazards": "Mga Nakitang Panganib ({{count}})",
     "hazards_instruction": "Suriin ang bawat panganib, gawin ang inirerekomendang solusyon, at pindutin ang 'Markahan bilang Naayos' kapag tapos na.",
     "loading_scan": "Naglo-load ng mga detalye ng na-save na scan...",
     "saved_scan_unavailable": "Hindi available ang na-save na scan",
@@ -447,7 +447,7 @@
     "upload_another_image": "Mag-upload ng Ibang Larawan",
     "back_to_home": "Bumalik sa Home",
     "confirm_scan_title": "I-scan ang ibang silid?",
-    "confirm_scan_message": "Mananatili ang kasalukuyang ulat sa kasaysayan. Ituloy sa camera?",
+    "confirm_scan_message": "Mananatili ang kasalukuyang ulat sa na-scan. Ituloy sa camera?",
     "confirm_scan_cancel": "Kanselahin",
     "confirm_scan_continue": "Ituloy",
     "upload_permission_message": "Kailangan namin ng pahintulot sa gallery para makapili ng larawan.",
