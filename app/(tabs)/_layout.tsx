@@ -302,7 +302,7 @@ export default function TabLayout() {
           onSkip={dismissHomeTour}
           pointerSide="bottom"
           pointerOffset={44}
-          positionStyle={{ right: 130, top: 245}}
+          positionStyle={{ right: 130, top: 245 }}
           spotlightRect={{ x: 10, y: 520, width: 390, height: 265 }}
           // COACHMARK TUNE: match button roundness.
           spotlightRadius={20}
