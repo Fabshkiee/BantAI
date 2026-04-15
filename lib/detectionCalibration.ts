@@ -7,6 +7,7 @@ export const CLASS_CONFIDENCE_PROFILE: Record<string, number> = {
   electronic_hazard: 0.6,
   floor_appliance: 0.54,
   damaged_wire: 0.54,
+  overloaded_socket: 0.35,
 };
 
 export const CLASS_MIN_AREA_PROFILE: Record<string, number> = {
@@ -15,6 +16,7 @@ export const CLASS_MIN_AREA_PROFILE: Record<string, number> = {
   minor_crack: 0.0008,
   open_flame_hazard: 0.002,
   exposed_breaker: 0.002,
+  overloaded_socket: 0.001,
 };
 
 export const CLASS_STRONG_CONFIDENCE_PROFILE: Record<string, number> = {

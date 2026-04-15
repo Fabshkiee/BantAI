@@ -48,17 +48,17 @@ const CLASS_NAMES = [
 ];
 
 const INPUT_SIZE = 640;
-const GLOBAL_CONF = 0.5;
-const SLICE_CONF = 0.4; // zoomed crops have less context, permissive filter
-const RELAXED_GLOBAL_CONF = 0.42;
-const RELAXED_SLICE_CONF = 0.32;
-const RELAXED_CLASS_FLOOR_DELTA = 0.08;
+const GLOBAL_CONF = 0.35;
+const SLICE_CONF = 0.3; // zoomed crops have less context, permissive filter
+const RELAXED_GLOBAL_CONF = 0.28;
+const RELAXED_SLICE_CONF = 0.25;
+const RELAXED_CLASS_FLOOR_DELTA = 0.1;
 const NMS_THRESHOLD = 0.45;
-const MIN_BBOX_AREA = 0.001; // Minimum 0.1% of image area — filters noise-level hallucinations
-const MIN_BBOX_SIDE = 0.02; // Minimum 2% width/height
-const MAX_ASPECT_RATIO = 12; // Reject ultra-thin hallucination boxes
-const MIN_STRUCTURAL_BBOX_SIDE = 0.008; // Allow thin crack boxes
-const STRUCTURAL_MAX_ASPECT_RATIO = 30; // Cracks can be long and thin
+const MIN_BBOX_AREA = 0.0005; // Lowered from 0.001 to catch smaller/thinner hazards
+const MIN_BBOX_SIDE = 0.015; // Lowered from 0.02
+const MAX_ASPECT_RATIO = 15; // Slightly more permissive
+const MIN_STRUCTURAL_BBOX_SIDE = 0.005; // Lowered from 0.008 for thin cracks
+const STRUCTURAL_MAX_ASPECT_RATIO = 40; // Higher aspect ratio for long cracks
 const SUPPORT_IOU = 0.35;
 const CRITICAL_SUPPORT_MIN = 3;
 const RELAXED_SUPPORT_IOU = 0.22;
@@ -83,6 +83,14 @@ const STRUCTURAL_CLASSES = new Set<string>([
   "water_damage",
 ]);
 
+/** Classes with fewer training samples — relax consensus so they aren't over-suppressed */
+const LOW_SAMPLE_CLASSES = new Set<string>([
+  "window_security_bar",
+  "curtain",
+  "water_damage",
+  "gas_tank",
+]);
+
 const MUTUALLY_EXCLUSIVE_CLASS_GROUPS: Array<Set<string>> = [
   new Set(["major_crack", "minor_crack"]),
 ];
@@ -96,7 +104,7 @@ const MIN_CLASS_CONFIDENCE = CLASS_CONFIDENCE_PROFILE;
 const MIN_CLASS_AREA = CLASS_MIN_AREA_PROFILE;
 const STRONG_CONFIDENCE = CLASS_STRONG_CONFIDENCE_PROFILE;
 
-const MAX_DETECTIONS_PER_CLASS = 3;
+const MAX_DETECTIONS_PER_CLASS = 8;
 
 type PassSource = "global" | `slice-${number}`;
 
@@ -152,11 +160,22 @@ async function getOriginalSize(
   });
 }
 
-/** Prepares a normalized tensor from an image URI (expects image to be 640x640 already) */
+interface LetterboxInfo {
+  scale: number; // ratio used to scale the image into the square
+  padX: number; // horizontal padding in pixels (in INPUT_SIZE space)
+  padY: number; // vertical padding in pixels (in INPUT_SIZE space)
+}
+
+/**
+ * Prepares a letterboxed, normalized tensor from an image URI.
+ * Instead of stretching the image to 640×640 (which distorts aspect ratios),
+ * we scale it proportionally and pad the remaining area with gray (114/255).
+ * This matches YOLO's training-time preprocessing.
+ */
 async function prepareTensor(
   imageUri: string,
   modelDataType: string,
-): Promise<Float32Array | Uint8Array> {
+): Promise<{ tensor: Float32Array | Uint8Array; letterbox: LetterboxInfo }> {
   const response = await fetch(imageUri);
   const arrayBuffer = await response.arrayBuffer();
 
@@ -164,26 +183,55 @@ async function prepareTensor(
     useTArray: true,
   });
 
+  const imgW = decoded.width;
+  const imgH = decoded.height;
+
+  // Compute letterbox scaling — fit the image inside INPUT_SIZE×INPUT_SIZE
+  const scale = Math.min(INPUT_SIZE / imgW, INPUT_SIZE / imgH);
+  const newW = Math.round(imgW * scale);
+  const newH = Math.round(imgH * scale);
+  const padX = Math.round((INPUT_SIZE - newW) / 2);
+  const padY = Math.round((INPUT_SIZE - newH) / 2);
+
   const isQuantized = modelDataType === "uint8" || modelDataType === "int8";
+  const GRAY = isQuantized ? 114 : 114 / 255.0;
 
   if (isQuantized) {
     const tensor = new Uint8Array(INPUT_SIZE * INPUT_SIZE * 3);
-    let tensorIndex = 0;
-    for (let i = 0; i < decoded.data.length; i += 4) {
-      tensor[tensorIndex++] = decoded.data[i];
-      tensor[tensorIndex++] = decoded.data[i + 1];
-      tensor[tensorIndex++] = decoded.data[i + 2];
+    tensor.fill(114); // gray padding
+
+    // Nearest-neighbor resize + place into padded position
+    for (let dy = 0; dy < newH; dy++) {
+      const srcY = Math.min(Math.floor(dy / scale), imgH - 1);
+      const dstRow = (dy + padY) * INPUT_SIZE;
+      for (let dx = 0; dx < newW; dx++) {
+        const srcX = Math.min(Math.floor(dx / scale), imgW - 1);
+        const srcIdx = (srcY * imgW + srcX) * 4;
+        const dstIdx = (dstRow + dx + padX) * 3;
+        tensor[dstIdx] = decoded.data[srcIdx];
+        tensor[dstIdx + 1] = decoded.data[srcIdx + 1];
+        tensor[dstIdx + 2] = decoded.data[srcIdx + 2];
+      }
     }
-    return tensor;
+    return { tensor, letterbox: { scale, padX, padY } };
   } else {
     const tensor = new Float32Array(INPUT_SIZE * INPUT_SIZE * 3);
-    let tensorIndex = 0;
-    for (let i = 0; i < decoded.data.length; i += 4) {
-      tensor[tensorIndex++] = decoded.data[i] / 255.0;
-      tensor[tensorIndex++] = decoded.data[i + 1] / 255.0;
-      tensor[tensorIndex++] = decoded.data[i + 2] / 255.0;
+    // Fill with gray padding
+    for (let i = 0; i < tensor.length; i++) tensor[i] = GRAY;
+
+    for (let dy = 0; dy < newH; dy++) {
+      const srcY = Math.min(Math.floor(dy / scale), imgH - 1);
+      const dstRow = (dy + padY) * INPUT_SIZE;
+      for (let dx = 0; dx < newW; dx++) {
+        const srcX = Math.min(Math.floor(dx / scale), imgW - 1);
+        const srcIdx = (srcY * imgW + srcX) * 4;
+        const dstIdx = (dstRow + dx + padX) * 3;
+        tensor[dstIdx] = decoded.data[srcIdx] / 255.0;
+        tensor[dstIdx + 1] = decoded.data[srcIdx + 1] / 255.0;
+        tensor[dstIdx + 2] = decoded.data[srcIdx + 2] / 255.0;
+      }
     }
-    return tensor;
+    return { tensor, letterbox: { scale, padX, padY } };
   }
 }
 
@@ -197,11 +245,22 @@ function parseDetections(
   },
   confThreshold = GLOBAL_CONF,
   classFloorDelta = 0,
+  letterbox?: LetterboxInfo,
 ): Detection[] {
   const readValue = (index: number) => Number(output[index]);
   const detections: Detection[] = [];
   const stride = 6;
   const numDetections = Math.floor(output.length / stride);
+
+  // Letterbox un-padding factors (convert from padded 640×640 back to original proportions)
+  const lbPadX = letterbox ? letterbox.padX / INPUT_SIZE : 0;
+  const lbPadY = letterbox ? letterbox.padY / INPUT_SIZE : 0;
+  const lbScaleX = letterbox
+    ? INPUT_SIZE / (INPUT_SIZE - 2 * letterbox.padX)
+    : 1;
+  const lbScaleY = letterbox
+    ? INPUT_SIZE / (INPUT_SIZE - 2 * letterbox.padY)
+    : 1;
 
   for (let i = 0; i < numDetections; i++) {
     const offset = i * stride;
@@ -225,17 +284,22 @@ function parseDetections(
       if (confidence < classConfFloor) continue;
 
       // Guard against swapped coordinates and malformed outputs.
-      // Some exported models may emit x2/y2 slightly lower than x1/y1.
       const rawLeft = Math.min(x1_raw, x2_raw);
       const rawTop = Math.min(y1_raw, y2_raw);
       const rawRight = Math.max(x1_raw, x2_raw);
       const rawBottom = Math.max(y1_raw, y2_raw);
 
-      // Model outputs normalized 0-1 coordinates — map directly to global space
-      const x1 = offsetParams.x + rawLeft * offsetParams.scaleX;
-      const y1 = offsetParams.y + rawTop * offsetParams.scaleY;
-      const x2 = offsetParams.x + rawRight * offsetParams.scaleX;
-      const y2 = offsetParams.y + rawBottom * offsetParams.scaleY;
+      // Un-letterbox: remove padding offset, then scale to 0-1 in actual image space
+      const unpadLeft = (rawLeft - lbPadX) * lbScaleX;
+      const unpadTop = (rawTop - lbPadY) * lbScaleY;
+      const unpadRight = (rawRight - lbPadX) * lbScaleX;
+      const unpadBottom = (rawBottom - lbPadY) * lbScaleY;
+
+      // Map to global space via slice offset
+      const x1 = offsetParams.x + unpadLeft * offsetParams.scaleX;
+      const y1 = offsetParams.y + unpadTop * offsetParams.scaleY;
+      const x2 = offsetParams.x + unpadRight * offsetParams.scaleX;
+      const y2 = offsetParams.y + unpadBottom * offsetParams.scaleY;
 
       const clampedX1 = Math.max(0, Math.min(1, x1));
       const clampedY1 = Math.max(0, Math.min(1, y1));
@@ -418,7 +482,13 @@ function applyConsensusFilter(
     const structuralSinglePassAccepted =
       isStructural &&
       supportCount >= 1 &&
-      (peakConfidence >= classFloor + 0.08 || globalSupport > 0);
+      (peakConfidence >= classFloor + 0.05 || globalSupport > 0);
+
+    // Low-sample classes (new v2 classes) have less training data,
+    // so accept them with weaker multi-pass corroboration
+    const isLowSample = LOW_SAMPLE_CLASSES.has(det.class);
+    const lowSampleAccepted =
+      isLowSample && supportCount >= 1 && peakConfidence >= classFloor;
 
     const criticalAccepted =
       !isCritical ||
@@ -429,6 +499,7 @@ function applyConsensusFilter(
       supportedEnough ||
       (relaxed && relaxedSupportedEnough) ||
       structuralSinglePassAccepted ||
+      lowSampleAccepted ||
       (globalSupport > 0 && strongConf) ||
       superStrongConf;
 
@@ -444,7 +515,7 @@ function applyConsensusFilter(
 
   const deduped = suppressSemanticDuplicates(filtered);
 
-  // Keep only top-k per class to prevent one class from dominating due to noise.
+  // Keep more for structural/critical, less for noise-prone classes
   const buckets = new Map<string, Detection[]>();
   for (const det of deduped) {
     if (!buckets.has(det.class)) buckets.set(det.class, []);
@@ -452,10 +523,16 @@ function applyConsensusFilter(
   }
 
   const limited: Detection[] = [];
-  buckets.forEach((items) => {
+  buckets.forEach((items, className) => {
+    const isHighPriority =
+      STRUCTURAL_CLASSES.has(className) || CRITICAL_CLASSES.has(className);
+    const limit = isHighPriority
+      ? MAX_DETECTIONS_PER_CLASS
+      : Math.min(3, MAX_DETECTIONS_PER_CLASS);
+
     items
       .sort((a, b) => b.confidence - a.confidence)
-      .slice(0, MAX_DETECTIONS_PER_CLASS)
+      .slice(0, limit)
       .forEach((item) => limited.push(item));
   });
 
@@ -488,7 +565,6 @@ function filterContextualHazards(detections: Detection[]): Detection[] {
     return true;
   });
 }
-
 
 export function useTFLite() {
   const [modelLoaded, setModelLoaded] = useState(false);
@@ -528,7 +604,10 @@ export function useTFLite() {
     classFloorDelta = 0,
   ): Promise<Detection[]> => {
     if (!model) return [];
-    const tensor = await prepareTensor(uri, model.inputs[0].dataType);
+    const { tensor, letterbox } = await prepareTensor(
+      uri,
+      model.inputs[0].dataType,
+    );
     const outputs = await model.run([tensor]);
     if (outputs.length === 0) {
       return [];
@@ -544,6 +623,9 @@ export function useTFLite() {
       console.log(
         `TFLite output lengths: [${outputs.map((o) => o.length).join(", ")}], selected=${detectionOutput.length}`,
       );
+      console.log(
+        `Letterbox: scale=${letterbox.scale.toFixed(3)}, padX=${letterbox.padX}, padY=${letterbox.padY}`,
+      );
       runtimeDebugLoggedRef.current = true;
     }
 
@@ -552,6 +634,7 @@ export function useTFLite() {
       offset,
       confThreshold,
       classFloorDelta,
+      letterbox,
     );
   };
 
@@ -561,19 +644,23 @@ export function useTFLite() {
       onProgress?: (step: number, total: number) => void,
     ): Promise<Detection[]> => {
       if (!modelLoaded || !model) throw new Error("Model not ready");
-      const totalSteps = 1 + SAHI_SLICES.length;
+      const allSlices = SAHI_SLICES;
+      const totalSteps = 1 + allSlices.length;
 
       try {
         const { width, height } = await getOriginalSize(imageUri);
         const allCandidates: DetectionCandidate[] = [];
 
-        console.log("--- Starting 10-Pass SAHI Scan (3x3) ---");
+        console.log(
+          `--- Starting ${totalSteps}-Pass SAHI Scan (3x3) ---`,
+        );
 
         // Pass 1: Global Scan (full context, strict threshold)
+        // Use compress: 1 to avoid lossy recompression that blurs fine details
         const globalResized = await manipulateAsync(
           imageUri,
           [{ resize: { width: INPUT_SIZE, height: INPUT_SIZE } }],
-          { format: SaveFormat.JPEG },
+          { format: SaveFormat.JPEG, compress: 1 },
         );
         const globalDetections = await runSinglePass(
           globalResized.uri,
@@ -588,21 +675,36 @@ export function useTFLite() {
         );
         onProgress?.(1, totalSteps);
 
-        // Pass 2-10: Detailed Slices (3x3 Grid)
-        for (let idx = 0; idx < SAHI_SLICES.length; idx++) {
-          const s = SAHI_SLICES[idx];
+        // Pre-crop all slices in parallel to speed up SAHI overhead
+        console.log("Pre-cropping all slices in parallel...");
+        const cropPromises = allSlices.map(async (s) => {
           try {
             const cropRect = getSafeSliceCrop(s, width, height);
-            const crop = await manipulateAsync(
+            return await manipulateAsync(
               imageUri,
               [
-                {
-                  crop: cropRect,
-                },
+                { crop: cropRect },
                 { resize: { width: INPUT_SIZE, height: INPUT_SIZE } },
               ],
-              { format: SaveFormat.JPEG },
+              { format: SaveFormat.JPEG, compress: 1 },
             );
+          } catch (e) {
+            console.warn("Crop manipulation failed for a slice:", e);
+            return null;
+          }
+        });
+        
+        const crops = await Promise.all(cropPromises);
+
+        // Pass 2+: Detailed Slices (3x3 grid)
+        for (let idx = 0; idx < allSlices.length; idx++) {
+          const s = allSlices[idx];
+          try {
+            const crop = crops[idx];
+            if (!crop) {
+              console.warn(`Slice ${idx + 1} crop failed, skipping inference.`);
+              continue;
+            }
 
             const sliceDetections = await runSinglePass(
               crop.uri,
@@ -648,11 +750,16 @@ export function useTFLite() {
         // Lightweight fallback: run one relaxed global pass only.
         // Avoids doubling SAHI slice workload on lower-memory real devices.
         console.log(
-          "No hazards from strict SAHI. Trying relaxed global fallback...",
+          "No hazards from strict/relaxed SAHI. Trying relaxed global fallback...",
         );
 
+        const relaxedGlobalResized = await manipulateAsync(
+          imageUri,
+          [{ resize: { width: INPUT_SIZE, height: INPUT_SIZE } }],
+          { format: SaveFormat.JPEG, compress: 1 },
+        );
         const relaxedGlobalDetections = await runSinglePass(
-          globalResized.uri,
+          relaxedGlobalResized.uri,
           undefined,
           RELAXED_GLOBAL_CONF,
           RELAXED_CLASS_FLOOR_DELTA,
@@ -682,7 +789,7 @@ export function useTFLite() {
           const globalResized = await manipulateAsync(
             imageUri,
             [{ resize: { width: INPUT_SIZE, height: INPUT_SIZE } }],
-            { format: SaveFormat.JPEG },
+            { format: SaveFormat.JPEG, compress: 1 },
           );
 
           const emergencyDetections = await runSinglePass(
