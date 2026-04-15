@@ -238,7 +238,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="scans"
           options={{
-            title: t("tabs.history"),
+            title: t("tabs.scans"),
             tabBarIconStyle: { paddingBottom: 8 },
             tabBarIcon: ({ color }) => <ScanIcon color={color} size={32} />,
             animation: "fade",
