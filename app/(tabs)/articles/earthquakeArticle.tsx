@@ -1,8 +1,11 @@
 import ArrowIcon from "@/assets/icons/ArrowIcon";
 import ArrowLeftIcon from "@/assets/icons/ArrowLeftIcon";
 import Button from "@/components/Button";
+import LanguageSelector from "@/components/LanguageSelector";
+import i18n from "@/languages/i18n";
 import { router, useFocusEffect } from "expo-router";
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Animated, Image, Pressable, Text, View } from "react-native";
 
 const HEADER_HEIGHT = 80;
@@ -11,6 +14,20 @@ export default function earthquakeArticle() {
   const scrollY = useRef(new Animated.Value(0)).current;
   const scrollYClamped = Animated.diffClamp(scrollY, 0, HEADER_HEIGHT);
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const { t } = useTranslation();
+  const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
+
+  useEffect(() => {
+    const handleLanguageChanged = () => {
+      setCurrentLanguage(i18n.language);
+    };
+
+    i18n.on("languageChanged", handleLanguageChanged);
+
+    return () => {
+      i18n.off("languageChanged", handleLanguageChanged);
+    };
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -34,11 +51,11 @@ export default function earthquakeArticle() {
       {/* Animated Floating Pill Header */}
       <Animated.View
         style={{ transform: [{ translateY }] }}
-        className="absolute -top-3 left-0 right-0 z-10 pt-8 px-6"
+        className="absolute -top-3 left-0 right-0 z-10 pt-8 px-6 flex-row justify-between"
       >
         <View className="rounded-full self-start overflow-hidden shadow-sm">
           <Button
-            label="Back"
+            label={t("common.return")}
             variant="return"
             icon={<ArrowLeftIcon size={18} />}
             iconPosition="left"
@@ -47,6 +64,8 @@ export default function earthquakeArticle() {
             }}
           />
         </View>
+
+        <LanguageSelector />
       </Animated.View>
 
       {/* Main Scrolling Content */}
@@ -75,99 +94,77 @@ export default function earthquakeArticle() {
             </View>
 
             <Text className="text-h3 font-bold leading-8">
-              Preparing Your Home and Property for an Earthquake: 6 Essential
-              Tips
+              {t("articles.earthquake.title")}
             </Text>
 
             <Text className="leading-7 text-text-subtle">
-              Article From: GeoVera
+              {t("articles.earthquake.source")}
             </Text>
           </View>
 
           {/* Main Article */}
           <View className="gap-10">
             <Text className="leading-7 text-xl">
-              Living in an earthquake-prone area requires proactive preparation.
-              Earthquakes strike without warning, but taking these
-              straightforward steps can significantly reduce risks to your home
-              and protect your family.
+              {t("articles.earthquake.intro")}
             </Text>
 
             {/* 1. Lock Your Cabinets */}
             <View className="gap-2">
               <Text className="text-2xl font-medium leading-7">
-                1. Lock Your Cabinets
+                {t("articles.earthquake.section1_title")}
               </Text>
               <Text className="leading-7 text-xl">
-                Unsecured cabinets can swing open during a quake, spilling their
-                contents. Install safety latches on your cabinet doors to keep
-                everything securely inside and prevent injuries or broken
-                valuables.
+                {t("articles.earthquake.section1_content")}
               </Text>
             </View>
 
             {/* 2. Keep Exits Clear */}
             <View className="gap-2">
               <Text className="text-2xl font-medium leading-7">
-                2. Keep Exits Clear
+                {t("articles.earthquake.section2_title")}
               </Text>
               <Text className="leading-7 text-xl">
-                A quick, unobstructed escape is crucial during an emergency.
-                Regularly check the paths to all your doors and windows and keep
-                them completely free of clutter and tripping hazards.
+                {t("articles.earthquake.section2_content")}
               </Text>
             </View>
 
             {/* 3. Know How to Protect Yourself */}
             <View className="gap-2">
               <Text className="text-2xl font-medium leading-7">
-                3. Know How to Protect Yourself
+                {t("articles.earthquake.section3_title")}
               </Text>
               <Text className="leading-7 text-xl">
-                Teach your family the “Drop, Cover, and Hold On” method and
-                practice drills periodically. Identify safe spots in every room,
-                such as under sturdy furniture or against an interior wall, far
-                away from windows and objects that could topple.
+                {t("articles.earthquake.section3_content")}
               </Text>
             </View>
 
             {/* 4. Anchor Heavy Furniture */}
             <View className="gap-2">
               <Text className="text-2xl font-medium leading-7">
-                4. Anchor Heavy Furniture
+                {t("articles.earthquake.section4_title")}
               </Text>
               <Text className="leading-7 text-xl">
-                Tall, heavy items like bookcases, dressers, and shelving units
-                should be securely anchored directly to the walls. Relocate
-                heavy objects to lower shelves, and make sure to secure items
-                like TVs and computer monitors.
+                {t("articles.earthquake.section4_content")}
               </Text>
             </View>
 
             {/* 5. Secure Utilities & Flammables */}
             <View className="gap-2">
               <Text className="text-2xl font-medium leading-7">
-                5. Secure Utilities & Flammables
+                {t("articles.earthquake.section5_title")}
               </Text>
               <Text className="leading-7 text-xl">
-                Water heaters, gas fixtures, and other utilities should be
-                anchored and fitted with flexible connectors to prevent
-                dangerous leaks. Store flammable or toxic substances (like
-                cleaning supplies or paint) in low, secure areas where they
-                cannot spill.
+                {t("articles.earthquake.section5_content")}
               </Text>
             </View>
 
             {/* 6. Secure Small Hazards */}
             <View className="gap-2">
               <Text className="text-2xl font-medium leading-7">
-                6. Secure Small Hazards
+                {t("articles.earthquake.section6_title")}
               </Text>
               <Text className="leading-7 text-xl">
-                Pay attention to smaller fixtures that can cause damage or
-                break. Secure picture frames, mirrors, and lamps. Organize loose
-                cables to prevent tripping, and consider applying safety film to
-                your windows to prevent glass from shattering.
+                {t("articles.earthquake.section6_content")}
               </Text>
             </View>
 
@@ -177,10 +174,10 @@ export default function earthquakeArticle() {
             {/* Source Information */}
             <View className="bg-surface-light p-4 rounded-xl border border-border-secondary/30 gap-1 mb-2">
               <Text className="text-lg font-bold text-text-subtle uppercase tracking-wider mb-1">
-                Source Information
+                {t("articles.common.source_information")}
               </Text>
               <Text className="leading-6 text-lg">
-                This content was originally published by GeoVera.
+                {t("articles.earthquake.source_info")}
               </Text>
 
               <Pressable
@@ -192,7 +189,7 @@ export default function earthquakeArticle() {
                 }}
               >
                 <Text className="leading-6 text-blue-600 font-semibold text-lg">
-                  Read original article ↗
+                  {t("articles.common.read_original_article")}
                 </Text>
               </Pressable>
             </View>
@@ -201,13 +198,13 @@ export default function earthquakeArticle() {
           {/* More Articles Navigation */}
           <View className="mt-4 gap-5">
             <Text className="text-xl font-bold text-text-main">
-              More Articles
+              {t("articles.common.more_articles")}
             </Text>
 
             <View className="justify-between flex-row items-center">
               <View className="w-[110px] h-auto">
                 <Button
-                  label="Previous"
+                  label={t("articles.common.previous")}
                   variant="return"
                   icon={<ArrowLeftIcon size={18} />}
                   iconPosition="left"
@@ -218,7 +215,7 @@ export default function earthquakeArticle() {
               </View>
               <View className="w-[110px] h-auto">
                 <Button
-                  label="Next"
+                  label={t("articles.common.next")}
                   variant="return"
                   icon={<ArrowIcon size={18} />}
                   iconPosition="right"

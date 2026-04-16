@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Text, View } from "react-native";
 
 // risk level map
@@ -20,21 +21,16 @@ const textStyle = {
   critical: "text-text-critical",
 };
 
-const labelText = {
-  low: "Low",
-  medium: "Medium",
-  high: "High",
-  critical: "Critical",
-};
-
 export default function RiskStatus({ variants }: RiskLevelProps) {
+  const { t } = useTranslation();
+
   return (
     <View
       className={`rounded-full py-1 px-4 items-center justify-center flex self-start ${bgStyle[variants]}`}
     >
       <Text className={`text-md font-semibold ${textStyle[variants]}`}>
         {" "}
-        {`${labelText[variants]}`}
+        {t(`risk_status.${variants}`)}
       </Text>
     </View>
   );

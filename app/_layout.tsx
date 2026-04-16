@@ -1,5 +1,6 @@
 import MascotLoader from "@/components/MascotLoader";
 import { initDatabase } from "@/db/db";
+import "@/languages/i18n";
 import {
   initializeNotifications,
   setupNotificationReceivedListener,
