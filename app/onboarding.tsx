@@ -32,7 +32,6 @@ const ONBOARDING_SLIDES = [
 
 const LANGUAGES: LanguageOption[] = ["English", "Tagalog", "Hiligaynon"];
 
-
 const LANGUAGE_SCREEN_STYLES = {
   container: "flex-1 items-center mt-6",
   image: "w-[280px] h-[280px] mt-14",
@@ -43,29 +42,26 @@ const LANGUAGE_SCREEN_STYLES = {
 
 const SLIDE_1_STYLES = {
   container: "flex-1 items-center mt-8",
-  image: "w-[280px] h-[280px] mt-14",
-  title:
-    "text-h2 leading-[52px] text-center font-bold text-text-default mt-5",
+  image: "w-[283.97px] h-[304.02px] mt-14",
+  title: "text-h2 leading-[52px] text-center font-bold text-text-default mt-5",
   description: "text-md text-center text-text-default mt-5 px-2",
-  dotsContainer: "flex-row items-center justify-center gap-3 mt-28",
+  dotsContainer: "flex-row items-center justify-center gap-3 mt-20",
 };
 
 const SLIDE_2_STYLES = {
   container: "flex-1 items-center mt-8",
   image: "w-[280px] h-[280px] mt-6",
-  title:
-    "text-h2 leading-[52px] text-center font-bold text-text-default mt-5",
+  title: "text-h2 leading-[52px] text-center font-bold text-text-default mt-5",
   description: "text-md text-center text-text-default mt-5 px-2",
-  dotsContainer: "flex-row items-center justify-center gap-3 mt-14",
+  dotsContainer: "flex-row items-center justify-center gap-3 mt-28",
 };
 
 const SLIDE_3_STYLES = {
   container: "flex-1 items-center mt-8",
   image: "w-[280px] h-[280px] mt-6",
-  title:
-    "text-h2 leading-[52px] text-center font-bold text-text-default mt-5",
+  title: "text-h2 leading-[52px] text-center font-bold text-text-default mt-5",
   description: "text-md text-center text-text-default mt-5 px-2",
-  dotsContainer: "flex-row items-center justify-center gap-3 mt-14",
+  dotsContainer: "flex-row items-center justify-center gap-3 mt-24",
 };
 
 const getSlideStyles = (index: number) => {
@@ -78,6 +74,61 @@ const getSlideStyles = (index: number) => {
       return SLIDE_3_STYLES;
     default:
       return SLIDE_1_STYLES;
+  }
+};
+
+const LANGUAGE_SCREEN_BUTTON_STYLES = {
+  ctaContainer: "w-full gap-5",
+  ctaButton: "w-full bg-surface-primary rounded-full items-center py-5",
+  ctaContent: "flex-row items-center justify-center gap-3",
+  ctaText: "text-text-inverse text-2xl font-bold",
+  skipButton: "items-center py-2",
+  skipText: "text-text-subtle text-2xl font-semibold",
+  spacer: "h-[40px]",
+};
+
+const SLIDE_1_BUTTON_STYLES = {
+  ctaContainer: "w-full gap-5",
+  ctaButton: "w-full bg-surface-primary rounded-full items-center py-5",
+  ctaContent: "flex-row items-center justify-center gap-3",
+  ctaText: "text-text-inverse text-2xl font-bold",
+  skipButton: "items-center py-2",
+  skipText: "text-text-subtle text-2xl font-semibold mb-24",
+  spacer: "h-[40px]",
+};
+
+const SLIDE_2_BUTTON_STYLES = {
+  ctaContainer: "w-full gap-5",
+  ctaButton: "w-full bg-surface-primary rounded-full items-center py-5",
+  ctaContent: "flex-row items-center justify-center gap-3",
+  ctaText: "text-text-inverse text-2xl font-bold",
+  skipButton: "items-center py-2",
+  skipText: "text-text-subtle text-2xl font-semibold mb-24",
+  spacer: "h-[40px]",
+};
+
+const SLIDE_3_BUTTON_STYLES = {
+  ctaContainer: "w-full gap-5",
+  ctaButton: "w-full bg-surface-primary rounded-full items-center py-5",
+  ctaContent: "flex-row items-center justify-center gap-3",
+  ctaText: "text-text-inverse text-2xl font-bold",
+  skipButton: "items-center py-2",
+  skipText: "text-text-subtle text-2xl font-semibold mb-24",
+  spacer: "h-[40px]",
+};
+
+const getButtonStyles = (index: number) => {
+  switch (index) {
+    case 0:
+      return LANGUAGE_SCREEN_BUTTON_STYLES;
+    case 1:
+      return SLIDE_1_BUTTON_STYLES;
+    case 2:
+      return SLIDE_2_BUTTON_STYLES;
+    case 3:
+      return SLIDE_3_BUTTON_STYLES;
+    default:
+      return LANGUAGE_SCREEN_BUTTON_STYLES;
   }
 };
 
@@ -145,9 +196,7 @@ export default function OnboardingScreen() {
   return (
     <View className="flex-1 bg-[#eef1f5] px-7 pt-10 pb-8">
       {stepIndex === 0 ? (
-        // ═══════════════════════════════════════════════════════════
-        // LANGUAGE SELECTION SCREEN
-        // ═══════════════════════════════════════════════════════════
+
         <View className={LANGUAGE_SCREEN_STYLES.container}>
           <Image
             source={require("@/assets/mascot/MascotWave.png")}
@@ -208,9 +257,7 @@ export default function OnboardingScreen() {
           </View>
         </View>
       ) : (
-        // ═══════════════════════════════════════════════════════════
-        // ONBOARDING SLIDES (1, 2, 3)
-        // ═══════════════════════════════════════════════════════════
+
         <View className={getSlideStyles(stepIndex).container}>
           <Image
             source={activeSlide?.image}
@@ -241,19 +288,19 @@ export default function OnboardingScreen() {
         </View>
       )}
 
-      <View className="w-full gap-5">
+      <View className={getButtonStyles(stepIndex).ctaContainer}>
         <Pressable
           onPress={() => {
             void nextStep();
           }}
-          className="w-full bg-surface-primary rounded-full items-center py-5"
+          className={getButtonStyles(stepIndex).ctaButton}
           disabled={isSaving}
         >
           {isSaving ? (
             <ActivityIndicator size="small" color="#f5faff" />
           ) : (
-            <View className="flex-row items-center justify-center gap-3">
-              <Text className="text-text-inverse text-2xl font-bold">
+            <View className={getButtonStyles(stepIndex).ctaContent}>
+              <Text className={getButtonStyles(stepIndex).ctaText}>
                 {ctaLabel}
               </Text>
               <ArrowIcon color="#f5faff" size={22} />
@@ -266,15 +313,13 @@ export default function OnboardingScreen() {
             onPress={() => {
               void completeOnboarding();
             }}
-            className="items-center py-2"
+            className={getButtonStyles(stepIndex).skipButton}
             disabled={isSaving}
           >
-            <Text className="text-text-subtle text-2xl font-semibold">
-              Skip
-            </Text>
+            <Text className={getButtonStyles(stepIndex).skipText}>Skip</Text>
           </Pressable>
         ) : (
-          <View className="h-[40px]" />
+          <View className={getButtonStyles(stepIndex).spacer} />
         )}
       </View>
     </View>
