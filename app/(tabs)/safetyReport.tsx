@@ -362,7 +362,7 @@ export default function SafetyReport() {
               variant="return"
               icon={<ArrowLeftIcon color="black" size={18} />}
               iconPosition="left"
-              onPress={() => router.push("/scans")}
+              onPress={() => router.push("/scans" as any)}
             />
           </View>
 
@@ -437,13 +437,17 @@ export default function SafetyReport() {
                 Captured Image
               </Text>
               <View
-                className="w-full rounded-lg"
-                style={{ overflow: "hidden", aspectRatio: 4 / 3 }}
+                className="w-full rounded-lg bg-black"
+                style={{ overflow: "hidden", height: 280 }}
               >
                 <Image
-                  source={require("@/assets/images/room.png")}
+                  source={
+                    finalImageUri
+                      ? { uri: finalImageUri as string }
+                      : require("@/assets/images/room.png")
+                  }
                   style={{ width: "100%", height: "100%" }}
-                  resizeMode="cover"
+                  resizeMode="contain"
                 />
               </View>
             </View>
