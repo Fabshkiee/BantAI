@@ -48,16 +48,7 @@ export default function LandscapeOrientationScreen() {
     >
       <View
         className={`absolute ${isLandscape ? "top-4" : "top-8"} right-4 z-10`}
-      >
-        <Button
-          label={currentLanguage === "en" ? "TL" : "EN"}
-          variant="secondary"
-          className="w-16"
-          onPress={() => {
-            i18n.changeLanguage(currentLanguage === "en" ? "tl" : "en");
-          }}
-        />
-      </View>
+      ></View>
       <View className="items-center">
         {/* Robot */}
         <View

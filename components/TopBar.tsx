@@ -1,6 +1,7 @@
 import DropDownIcon from "@/assets/icons/DropDownIcon";
 import PHFlagIcon from "@/assets/icons/PHFlagIcon";
 import USFlagIcon from "@/assets/icons/USFlagIcon";
+import NotificationButton from "@/components/NotificationButton";
 import i18n from "@/languages/i18n";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -35,12 +36,15 @@ export default function TopNavBar() {
         />
       </View>
 
-      {/* Language Toggle Dropdown */}
-      <View className="relative z-50">
-        <Pressable
-          onPress={() => setIsLangMenuOpen(!isLangMenuOpen)}
-          className="flex-row items-center gap-2 px-3 py-2 rounded-lg shadow-sm active:opacity-80 justify-center bg-surface-default border border-border-secondary w-20 h-12"
-        >
+      {/* Actions Section: Notification + Language Toggle */}
+      <View className="flex-row items-center gap-4 relative z-50">
+        <NotificationButton size={45} />
+
+        <View className="relative">
+          <Pressable
+            onPress={() => setIsLangMenuOpen(!isLangMenuOpen)}
+            className="flex-row items-center gap-2 px-3 py-2 rounded-lg shadow-sm active:opacity-80 justify-center bg-surface-default border border-border-secondary w-20 h-10"
+          >
           {currentLanguage === "en" ? (
             <USFlagIcon size={24} />
           ) : (
@@ -115,5 +119,6 @@ export default function TopNavBar() {
         )}
       </View>
     </View>
-  );
+  </View>
+);
 }

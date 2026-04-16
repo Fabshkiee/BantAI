@@ -8,6 +8,7 @@ interface NotificationCardProps {
   time: string;
   isOpened?: boolean;
   onPress: () => void;
+  onLongPress?: () => void;
 }
 
 export default function NotificationCard({
@@ -17,10 +18,12 @@ export default function NotificationCard({
   time,
   isOpened = false,
   onPress,
+  onLongPress,
 }: NotificationCardProps) {
   return (
     <Pressable
-      onPress={onPress} // add another on press that if clicked it will set the is opened to true
+      onPress={onPress}
+      onLongPress={onLongPress}
       className="flex-row items-center pb-5 w-full mb-3 bg-surface-default border-b border-border-secondary active:scale-95 active:opacity-75 transition-all"
     >
       {/* Unread Indicator Container */}

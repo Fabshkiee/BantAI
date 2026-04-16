@@ -2,9 +2,9 @@ import { calculateRoomRisk, type Detection } from "@/lib/riskEngine";
 import * as SQLite from "expo-sqlite";
 import { hazardDictionary } from "../hazardDictionary";
 import {
-    type DisasterType,
-    HAZARD_DISPLAY_NAMES,
-    HAZARD_TYPES,
+  type DisasterType,
+  HAZARD_DISPLAY_NAMES,
+  HAZARD_TYPES,
 } from "./hazards";
 
 const dbPromise = SQLite.openDatabaseAsync("app.db");
@@ -379,6 +379,19 @@ export async function initDatabase(): Promise<void> {
       CREATE INDEX IF NOT EXISTS idx_hazards_assessed    ON detected_hazards (is_assessed);
       CREATE INDEX IF NOT EXISTS idx_sessions_scanned_at ON scan_sessions (scanned_at DESC);
       CREATE INDEX IF NOT EXISTS idx_sessions_status     ON scan_sessions (status);
+
+      CREATE TABLE IF NOT EXISTS notifications (
+          id          INTEGER PRIMARY KEY AUTOINCREMENT,
+          type        TEXT NOT NULL CHECK (type IN ('monthly', 'seasonal', 'ndrrmc', 'hazard')),
+          title       TEXT NOT NULL,
+          body        TEXT NOT NULL,
+          sms_body    TEXT,
+          is_read     INTEGER NOT NULL DEFAULT 0 CHECK (is_read IN (0, 1)),
+          created_at  INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_notifications_created ON notifications (created_at DESC);
+      CREATE INDEX IF NOT EXISTS idx_notifications_read    ON notifications (is_read);
 
         CREATE TABLE IF NOT EXISTS scan_reports (
           id                INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -785,6 +798,120 @@ export async function markHazardAsUnassessed(
   await createOrRefreshScanReport(sessionId);
 
   return getScanSessionDetails(sessionId);
+}
+
+// ──────────────────────────────────────────────────
+// Notification helpers
+// ──────────────────────────────────────────────────
+
+export type NotificationType = "monthly" | "seasonal" | "ndrrmc" | "hazard";
+
+export type NotificationRow = {
+  id: number;
+  type: NotificationType;
+  title: string;
+  body: string;
+  sms_body: string | null;
+  is_read: 0 | 1;
+  created_at: number;
+};
+
+export type GroupedNotifications = {
+  title: string;
+  data: NotificationRow[];
+};
+
+export async function insertNotification(
+  type: NotificationType,
+  title: string,
+  body: string,
+  smsBody?: string,
+): Promise<number> {
+  await initDatabase();
+  const db = await dbPromise;
+  const result = await db.runAsync(
+    `INSERT INTO notifications (type, title, body, sms_body) VALUES (?, ?, ?, ?)`,
+    type,
+    title,
+    body,
+    smsBody ?? null,
+  );
+  return Number(result.lastInsertRowId);
+}
+
+export async function getNotifications(
+  limit = 50,
+): Promise<GroupedNotifications[]> {
+  await initDatabase();
+  const db = await dbPromise;
+  const rows = await db.getAllAsync<NotificationRow>(
+    `SELECT * FROM notifications ORDER BY created_at DESC LIMIT ?`,
+    limit,
+  );
+
+  const now = Math.floor(Date.now() / 1000);
+  const todayStart = now - (now % 86400);
+  const yesterdayStart = todayStart - 86400;
+  const weekStart = todayStart - 6 * 86400;
+
+  const groups: Record<string, NotificationRow[]> = {
+    Today: [],
+    Yesterday: [],
+    "This Week": [],
+    Earlier: [],
+  };
+
+  for (const row of rows) {
+    if (row.created_at >= todayStart) {
+      groups["Today"].push(row);
+    } else if (row.created_at >= yesterdayStart) {
+      groups["Yesterday"].push(row);
+    } else if (row.created_at >= weekStart) {
+      groups["This Week"].push(row);
+    } else {
+      groups["Earlier"].push(row);
+    }
+  }
+
+  return Object.entries(groups)
+    .filter(([, data]) => data.length > 0)
+    .map(([title, data]) => ({ title, data }));
+}
+
+export async function markNotificationRead(id: number): Promise<void> {
+  await initDatabase();
+  const db = await dbPromise;
+  await db.runAsync(`UPDATE notifications SET is_read = 1 WHERE id = ?`, id);
+}
+
+export async function getUnreadNotificationCount(): Promise<number> {
+  await initDatabase();
+  const db = await dbPromise;
+  const row = await db.getFirstAsync<{ count: number }>(
+    `SELECT COUNT(*) as count FROM notifications WHERE is_read = 0`,
+  );
+  return row?.count ?? 0;
+}
+
+export async function deleteNotification(id: number): Promise<void> {
+  await initDatabase();
+  const db = await dbPromise;
+  await db.runAsync(`DELETE FROM notifications WHERE id = ?`, id);
+}
+
+export async function deleteAllNotifications(): Promise<void> {
+  await initDatabase();
+  const db = await dbPromise;
+  await db.runAsync(`DELETE FROM notifications`);
+}
+
+export async function getLastScanTimestamp(): Promise<number | null> {
+  await initDatabase();
+  const db = await dbPromise;
+  const row = await db.getFirstAsync<{ latest: number | null }>(
+    `SELECT MAX(scanned_at) as latest FROM scan_sessions WHERE status = 'completed'`,
+  );
+  return row?.latest ?? null;
 }
 
 export async function getScanReportBySession(
