@@ -197,7 +197,9 @@ export default function CameraScreen() {
       {device.hasFlash && (
         <View className="absolute top-4 left-4 z-50">
           <TouchableOpacity
-            onPress={() => setFlashMode((prev) => (prev === "off" ? "on" : "off"))}
+            onPress={() =>
+              setFlashMode((prev) => (prev === "off" ? "on" : "off"))
+            }
             className="w-12 h-12 bg-black/40 rounded-full items-center justify-center border border-white/20 active:scale-95 transition-transform"
           >
             {flashMode === "on" ? (
@@ -208,18 +210,6 @@ export default function CameraScreen() {
           </TouchableOpacity>
         </View>
       )}
-
-      {/* Language Toggle Button */}
-      <View className="absolute top-4 right-4 z-50">
-        <Button
-          label={currentLanguage === "en" ? "TL" : "EN"}
-          variant="secondary"
-          className="w-16"
-          onPress={() => {
-            i18n.changeLanguage(currentLanguage === "en" ? "tl" : "en");
-          }}
-        />
-      </View>
 
       {/* Feedback Notification Popup */}
       {showNotification && (
