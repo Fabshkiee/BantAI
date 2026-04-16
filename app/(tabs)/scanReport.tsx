@@ -1,22 +1,22 @@
 import ArrowLeftIcon from "@/assets/icons/ArrowLeftIcon";
 import Button from "@/components/Button";
 import {
-    getScanReportBySession,
-    type ScanReportDetails,
-    type ScanReportItem,
+  getScanReportBySession,
+  type ScanReportDetails,
+  type ScanReportItem,
 } from "@/db/db";
 import * as FileSystem from "expo-file-system/legacy";
 import * as Print from "expo-print";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Platform,
-    ScrollView,
-    Text,
-    ToastAndroid,
-    View,
+  ActivityIndicator,
+  Alert,
+  Platform,
+  ScrollView,
+  Text,
+  ToastAndroid,
+  View,
 } from "react-native";
 
 function formatDate(timestampSeconds: number): string {
@@ -215,6 +215,18 @@ export default function ScanReportScreen() {
     }
   }, [report, sessionId]);
 
+  const handleBackToSafetyReport = useCallback(() => {
+    if (Number.isFinite(sessionId ?? Number.NaN) && (sessionId ?? 0) > 0) {
+      router.replace({
+        pathname: "/safetyReport",
+        params: { sessionId: String(sessionId) },
+      });
+      return;
+    }
+
+    router.replace("/safetyReport");
+  }, [router, sessionId]);
+
   return (
     <ScrollView
       className="flex-1 px-7 mt-9 bg-surface-default"
@@ -227,7 +239,7 @@ export default function ScanReportScreen() {
           variant="return"
           icon={<ArrowLeftIcon color="black" size={18} />}
           iconPosition="left"
-          onPress={() => router.back()}
+          onPress={handleBackToSafetyReport}
         />
         <Text className="text-h3 font-bold text-center -ml-2">Scan Report</Text>
       </View>
