@@ -1,5 +1,6 @@
 import MascotLoader from "@/components/MascotLoader";
 import { initDatabase } from "@/db/db";
+import "@/languages/i18n";
 import { DefaultTheme, ThemeProvider } from "@react-navigation/native";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";

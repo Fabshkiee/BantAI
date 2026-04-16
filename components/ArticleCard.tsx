@@ -1,4 +1,6 @@
+import { Href, router } from "expo-router";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import {
   Image,
   ImageSourcePropType,
@@ -7,38 +9,37 @@ import {
   Text,
 } from "react-native";
 
-import { Href, router } from "expo-router";
-
 type articleProp = {
   imageSource: ImageSourcePropType;
-  title: string;
-  desc: string;
+  titleKey: string;
+  descKey: string;
   route: Href;
 };
 
 const articleProps: articleProp[] = [
   {
     imageSource: require("@/assets/images/earthquake.jpg"),
-    title:
-      "Preparing Your Home and Property for an Earthquake: 6 Essential Tips",
-    desc: "Living in an area prone to earthquakes demands more than just casual awareness; it requires proactive steps to ensure the safety of your home and family.",
+    titleKey: "articles.earthquake_title",
+    descKey: "articles.earthquake_desc",
     route: "/articles/earthquakeArticle",
   },
   {
     imageSource: require("@/assets/images/typhoon.jpg"),
-    title: "Ready Your Home: How to Prepare for a Typhoon",
-    desc: "Still cannot believe that we are halfway through the year already? As we enter the months full of tropical cyclones and isolated rains, we bid farewell to our favorite summer activities and destinations and the daily humidity and relatively high temperature that it brings.",
+    titleKey: "articles.typhoon_title",
+    descKey: "articles.typhoon_desc",
     route: "/articles/typhoonArticle",
   },
   {
     imageSource: require("@/assets/images/fire.jpg"),
-    title: "Learning About Home Fires",
-    desc: "A fire can become life-threatening in just two minutes. A residence can be engulfed in flames in five minutes.",
+    titleKey: "articles.fire_title",
+    descKey: "articles.fire_desc",
     route: "/articles/fireArticle",
   },
 ];
 
 export default function ArticleCard() {
+  const { t } = useTranslation();
+
   return (
     <ScrollView
       horizontal
@@ -60,14 +61,14 @@ export default function ArticleCard() {
           />
 
           <Text className="text-xl font-semibold mb-2" numberOfLines={3}>
-            {article.title}
+            {t(article.titleKey)}
           </Text>
 
           <Text
             className="text-md text-text-subtle leading-5"
             numberOfLines={3}
           >
-            {article.desc}
+            {t(article.descKey)}
           </Text>
         </Pressable>
       ))}

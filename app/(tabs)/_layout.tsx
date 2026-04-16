@@ -1,12 +1,13 @@
 import CameraIcon from "@/assets/icons/CameraIcon";
 import HomeIcon from "@/assets/icons/HomeIcon";
 import ScanIcon from "@/assets/icons/ScanIcon";
+import "@/languages/i18n";
 import * as ImagePicker from "expo-image-picker";
 import { router, Tabs } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Alert, Animated, Modal, Pressable, Text, View } from "react-native";
 
-// Static configurations
 const TAB_BAR_OPTIONS = {
   headerShown: false,
   tabBarActiveTintColor: "#006ec2",
@@ -46,7 +47,6 @@ const HIDDEN_SCREENS = [
   "notifications",
 ];
 
-// Modal component
 const CameraActionModal = ({
   isVisible,
   onClose,
@@ -55,6 +55,7 @@ const CameraActionModal = ({
   onClose: () => void;
 }) => {
   const slideAnim = useRef(new Animated.Value(400)).current;
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (isVisible) {
@@ -86,8 +87,8 @@ const CameraActionModal = ({
         await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== "granted") {
         Alert.alert(
-          "Permission Needed",
-          "We need gallery permissions to select a photo.",
+          t("common.permission_needed"),
+          t("camera_modal.gallery_permission_message"),
         );
         return;
       }
@@ -114,8 +115,8 @@ const CameraActionModal = ({
     } catch (error) {
       console.error("Failed to import image:", error);
       Alert.alert(
-        "Import failed",
-        "We could not process that image. Please try again.",
+        t("common.import_failed"),
+        t("common.could_not_process_image"),
       );
     }
   };
@@ -123,12 +124,12 @@ const CameraActionModal = ({
   const handleOpenGallery = () => {
     handleClose(() => {
       Alert.alert(
-        "Landscape Photo Recommended",
-        "It is recommended to use landscape photos for better hazard detection.",
+        t("camera_modal.landscape_recommended_title"),
+        t("camera_modal.landscape_recommended_message"),
         [
-          { text: "Cancel", style: "cancel" },
+          { text: t("camera_modal.landscape_cancel"), style: "cancel" },
           {
-            text: "Continue",
+            text: t("camera_modal.landscape_continue"),
             onPress: () => {
               void importFromGallery();
             },
@@ -155,7 +156,7 @@ const CameraActionModal = ({
             onPress={(e) => e.stopPropagation()}
           >
             <Text className="text-2xl font-bold text-center mb-4">
-              Ready for a Safety Check?
+              {t("camera_modal.title")}
             </Text>
 
             <Pressable
@@ -163,7 +164,7 @@ const CameraActionModal = ({
               onPress={handleCamera}
             >
               <Text className="text-white font-semibold text-lg">
-                Snap a Photo
+                {t("camera_modal.snap_photo")}
               </Text>
             </Pressable>
 
@@ -172,7 +173,7 @@ const CameraActionModal = ({
               onPress={handleOpenGallery}
             >
               <Text className="text-surface-primary font-semibold text-lg">
-                Choose from Gallery
+                {t("camera_modal.choose_gallery")}
               </Text>
             </Pressable>
 
@@ -181,7 +182,7 @@ const CameraActionModal = ({
               onPress={() => handleClose()}
             >
               <Text className="text-text-subtle font-semibold text-lg">
-                Cancel
+                {t("camera_modal.cancel")}
               </Text>
             </Pressable>
           </Pressable>
@@ -191,25 +192,23 @@ const CameraActionModal = ({
   );
 };
 
-// Main tab layout
 export default function TabLayout() {
+  const { t } = useTranslation();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <>
       <Tabs screenOptions={TAB_BAR_OPTIONS}>
-        {/* Home Tab */}
         <Tabs.Screen
           name="index"
           options={{
-            title: "Home",
+            title: t("tabs.home"),
             tabBarIconStyle: { paddingBottom: 8 },
             tabBarIcon: ({ color }) => <HomeIcon color={color} size={40} />,
             animation: "fade",
           }}
         />
 
-        {/* Action Button (Center Tab) */}
         <Tabs.Screen
           name="photoInstructions"
           options={{
@@ -238,18 +237,16 @@ export default function TabLayout() {
           }}
         />
 
-        {/* Scans Tab */}
         <Tabs.Screen
           name="scans"
           options={{
-            title: "Scans",
+            title: t("tabs.scans"),
             tabBarIconStyle: { paddingBottom: 8 },
             tabBarIcon: ({ color }) => <ScanIcon color={color} size={32} />,
             animation: "fade",
           }}
         />
 
-        {/* Dynamically Render All Hidden Screens */}
         {HIDDEN_SCREENS.map((screenName) => (
           <Tabs.Screen
             key={screenName}
@@ -259,7 +256,6 @@ export default function TabLayout() {
         ))}
       </Tabs>
 
-      {/* Extracted Modal Component */}
       <CameraActionModal
         isVisible={isModalOpen}
         onClose={() => setIsModalOpen(false)}

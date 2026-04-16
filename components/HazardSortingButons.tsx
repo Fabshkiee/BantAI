@@ -1,29 +1,30 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Pressable, ScrollView, Text, View } from "react-native";
 
 // Defines UI labels for sorting
 const HAZARD_OPTIONS = [
   {
     id: "all",
-    label: "All",
+    labelKey: "sorting_buttons.all",
     activeColor: "bg-surface-primary",
     sqlFilter: "all",
   },
   {
     id: "earthquake",
-    label: "Earthquake",
+    labelKey: "sorting_buttons.earthquake",
     activeColor: "bg-orange-800",
     sqlFilter: "earthquake",
   },
   {
     id: "typhoon",
-    label: "Typhoon",
+    labelKey: "sorting_buttons.typhoon",
     activeColor: "bg-cyan-700",
     sqlFilter: "typhoon",
   },
   {
     id: "fire",
-    label: "Fire",
+    labelKey: "sorting_buttons.fire",
     activeColor: "bg-red-700",
     sqlFilter: "fire",
   },
@@ -39,6 +40,7 @@ export default function HazardSortingButtons({
   tableName = "articles", // TODO: Define default Table
   onSortQueryChange,
 }: HazardSortingProps) {
+  const { t } = useTranslation();
   const [activeId, setActiveId] = useState<string>("all");
 
   const handlePress = (option: (typeof HAZARD_OPTIONS)[0]) => {
@@ -80,7 +82,7 @@ export default function HazardSortingButtons({
                   isActive ? "text-text-inverse" : "text-text-subtle"
                 }`}
               >
-                {option.label}
+                {t(option.labelKey)}
               </Text>
             </Pressable>
           );

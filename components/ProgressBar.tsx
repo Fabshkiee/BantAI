@@ -1,5 +1,6 @@
 import Button from "@/components/Button";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Text, View } from "react-native";
 import * as Progress from "react-native-progress";
 
@@ -19,13 +20,16 @@ export default function ProgressBar({
   statusText = "Initializing...",
   onCancel,
 }: ProgressBarProps) {
+  const { t } = useTranslation();
   const percentage = Math.round(progress * 100);
 
   return (
     <View className="flex items-center justify-center">
       {/* Loading header text */}
       <View className="flex items-center">
-        <Text className="text-h3 font-semibold mb-1">Analyzing Your Room</Text>
+        <Text className="text-h3 font-semibold mb-1">
+          {t("progress_bar.title")}
+        </Text>
         <Text className="mb-6"> {statusText} </Text>
       </View>
 
@@ -46,7 +50,7 @@ export default function ProgressBar({
 
       {/* Cancel Button */}
       <Button
-        label="Cancel"
+        label={t("progress_bar.cancel")}
         className="w-full"
         onPress={onCancel ?? (() => null)}
         disabled={!onCancel}

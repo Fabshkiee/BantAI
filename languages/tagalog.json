@@ -1,0 +1,608 @@
+{
+  "common": {
+    "appName": "BantAI",
+    "loading": "Naglo-load ang BantAI...",
+    "cancel": "Kanselahin",
+    "return": "Bumalik",
+    "proceed": "Magpatuloy",
+    "back_to_home": "Bumalik sa Home",
+    "permission_needed": "Kailangan ng Pahintulot",
+    "english": "Ingles",
+    "tagalog": "Tagalog",
+    "import_failed": "Hindi Na-import",
+    "mascot_status": "Katayuan: {{risk}} ang Panganib",
+    "could_not_process_image": "Hindi namin maproseso ang larawang iyon. Subukan muli."
+  },
+  "hazard_titles": {
+    "overloaded_socket": "Overloaded na Saksakan",
+    "damaged_wire": "Sirang Linya ng Kuryente",
+    "floor_appliance": "Appliance sa Sahig",
+    "major_crack": "Malaking Bitak",
+    "minor_crack": "Maliit na Bitak",
+    "collapsed_structure": "Istrukturang Gumuho",
+    "broken_glass": "Basag na Kristal",
+    "electronic_hazard": "Panganib sa Elektroniko",
+    "elevated_breakables": "Babasagin sa Mataas na Lugar",
+    "exposed_breaker": "Nakalitaw na Breaker",
+    "exposed_ceiling_lights": "Nakalitaw na Ilaw sa Kisame",
+    "heavy_wooden_furniture": "Mabigat na Kagamitang Kahoy",
+    "open_flame_hazard": "Bukas na Apoy"
+  },
+  "hazard_content": {
+    "electronic_hazard": {
+      "general_reason": "May mga karaniwang gamit na elektroniko na may sirang takip o nakalagay sa hindi matibay na mesa. Ang mga ito ay may mataas na boltahe at kailangan ng matatag na lugar.",
+      "general_fixes": [
+        "Ilipat ang mabibigat na appliance mula sa mahihinang monobloc na mesa.",
+        "Gumamit ng matibay na bracket para i-anchor ang malalaking elektroniko sa pader.",
+        "Patayin ang main breaker pagkatapos huminto ang pagyanig ng lindol."
+      ],
+      "earthquake_reason": "Ang mga elektronikong hindi nakakabit ay maaaring mahulog at masira, na mag-iiwan ng mga live na kawad na maaaring maging sanhi ng sunog o electrocution.",
+      "earthquake_fixes": [
+        "Ilipat ang TV at PC sa mas mababang lugar para hindi matumba.",
+        "I-anchor ang malalaking elektroniko sa pader gamit ang bracket.",
+        "Patayin ang main breaker para maiwasan ang nakatagong sunog sa kuryente."
+      ],
+      "typhoon_reason": "Ang tubig-ulan na pumapasok sa mga elektroniko ay maaaring magdulot ng short circuit o electrocution.",
+      "typhoon_fixes": [
+        "I-unplug ang electric fan at rice cooker at itaas ng isang metro mula sa sahig.",
+        "Ilayo ang mga gamit sa jalousie na bintana para maiwasan ang tagas ng ulan.",
+        "Gumamit ng surge protector sa halip na murang extension cord."
+      ],
+      "fire_reason": "Ang mga elektronikong nag-o-overheat o sobra ang karga ay mabilis na nakakuha ng apoy at naglalabas ng mapanganib na usok.",
+      "fire_fixes": [
+        "Huwag idikit nang husto ang PC tower sa pader para may espasyo itong mahingang huminga.",
+        "I-plug ang rice cooker direkta sa wall outlet, hindi sa extension cord.",
+        "Suriin ang mga cord ng fan — huwag basta takpan ng electrical tape ang sirang parte."
+      ]
+    },
+    "elevated_breakables": {
+      "general_reason": "Mga marupok na bagay tulad ng glass vase o seramika na nakalagay sa mataas na istante nang walang harang na pumipigil sa kanila.",
+      "general_fixes": [
+        "Mag-apply ng earthquake putty sa ilalim ng mabibigat na glass decor.",
+        "Ilipat ang mabigat na glassware sa pinakamababang istante ng platera.",
+        "Mag-install ng shelf lip o guard rail sa bukas na istante."
+      ],
+      "earthquake_reason": "Maaari itong mahulog at pumutok sa matutulis na piraso ng bubog na makakasakit sa mga tao sa paligid.",
+      "earthquake_fixes": [
+        "Gumamit ng mounting tape sa mga rebulto sa altar para hindi matumba.",
+        "Ilipat ang glassware mula sa itaas pababa sa pinakamababang istante.",
+        "Mag-install ng shelf lip para hindi madausdos ang mga plato sa gilid."
+      ],
+      "typhoon_reason": "Ang malakas na hangin ay maaaring itumba ang mga baso at seramika at magkalat ng matutulis na piraso.",
+      "typhoon_fixes": [
+        "Ilayo ang mga glass vase mula sa jalousie na bintana.",
+        "Lagyan ng anti-slip rubber mat ang mga istante ng pantry.",
+        "Siguraduhing may matibay na latch ang mga pinto ng kitchen cabinet."
+      ],
+      "fire_reason": "Ang matinding init ay maaaring magpaputok ng salamin at magkalat ng mapanganib na piraso sa daraanan ng pagtakas.",
+      "fire_fixes": [
+        "Alisin ang mga glass vase sa mga pasilyo para ligtas ang dadaanan kahit sa dilim.",
+        "Palitan ng plastik ang mga glass picture frame sa hagdan.",
+        "Ilayo ang mga bote ng mantika sa mataas na istante na nasa itaas ng kalan."
+      ]
+    },
+    "exposed_breaker": {
+      "general_reason": "Mga electrical panel na walang takip. Nailalagay nito ang mga live wire na bukas sa aksidenteng paghawak o talsik ng tubig.",
+      "general_fixes": [
+        "Patayin ang main breaker kaagad pagkatapos ng pagyanig.",
+        "Siguraduhing ang panel box ay nakakabit sa concrete hollow block.",
+        "Alisin ang lahat ng kalat tulad ng karton malapit sa panel."
+      ],
+      "earthquake_reason": "Ang mga maluwag na kawad sa bukas na panel ay maaaring mag-spark at magsimula ng sunog habang yumayanig.",
+      "earthquake_fixes": [
+        "Patayin ang main switch upang maputol ang kuryente sa buong bahay.",
+        "Huwag ikabit ang breaker sa plywood — dapat nasa hollow block ito.",
+        "Takpan ng electrical tape ang mga bitak sa breaker box."
+      ],
+      "typhoon_reason": "Ang tubig-ulan na pumasok sa bubong ay maaaring tumama sa breaker at magdulot ng short circuit.",
+      "typhoon_fixes": [
+        "Gumawa ng waterproof na shield mula sa plastik kung may tagas ang bubong.",
+        "Bantayan ang pagbaha at patayin ang main switch nang maaga.",
+        "Gumawa ng rain deflector sa itaas ng panel box gamit ang yero o goma."
+      ],
+      "fire_reason": "Kung walang metal na takip, ang electrical spark ay maaaring tumalon sa kisame at magpasimula ng sunog.",
+      "fire_fixes": [
+        "Linisin ang mga kalat malapit sa panel dahil nagsisilbi itong panggatong.",
+        "I-tape ang makapal na plastik o acrylic board sa ibabaw ng bukas na panel.",
+        "Magtabi ng timba ng tuyong buhangin malapit sa breaker box."
+      ]
+    },
+    "exposed_ceiling_lights": {
+      "general_reason": "Mga ilaw sa kisame na may sirang bombilya o octopus wiring na hindi protektado sa tubig at pagyanig.",
+      "general_fixes": [
+        "Palitan ang mabibigat na chandelier ng flat na LED na nakakabit sa kisame.",
+        "Siguraduhing ang mga ilaw ay nakakabit sa mga biga ng bubong.",
+        "Takpan ang lahat ng bukas na kawad ng electrical tape."
+      ],
+      "earthquake_reason": "Maaaring mahulog at mabasag ang mga fixture sa mga tao sa ibaba kung niyananig ang kisame.",
+      "earthquake_fixes": [
+        "Gumamit ng magagaang na LED bulbs para hindi ito malaglag.",
+        "Higpitan ang mga skruwe ng light fixture sa ceiling beams.",
+        "Takpan ang bombilya ng plastik na cage para hindi kumalat ang bubog."
+      ],
+      "typhoon_reason": "Ang tubig mula sa bubong ay maaaring maabot ang mga kawad at magdulot ng shock o short circuit.",
+      "typhoon_fixes": [
+        "Ayusin ang mga butas sa bubong para hindi mabasa ang mga ilaw.",
+        "Gumamit ng waterproof na ilaw sa mga balkonahe at sa kusina.",
+        "Itali ang mga nakabiting kawad para hindi ito mahila ng hangin."
+      ],
+      "fire_reason": "Ang magulo at maraming kawad na malapit sa kahoy na kisame ay madaling mag-spark at magsimula ng sunog.",
+      "fire_fixes": [
+        "Huwag gumamit ng octopus wiring — huwag pagbahagiin ang maraming ilaw sa isang kawad.",
+        "Gumamit ng LED bulbs dahil hindi ito nag-iinit at hindi madaling mag-apoy.",
+        "Itago ang mga kawad sa loob ng plastik na junction box."
+      ]
+    },
+    "heavy_wooden_furniture": {
+      "general_reason": "Malalaking kagamitan tulad ng aparador na hindi nakakabit sa pader at madaling matumba.",
+      "general_fixes": [
+        "I-anchor ang tuktok ng mga cabinet direkta sa kongkretong pader.",
+        "Ilipat ang pinakamabibigat na gamit sa pinakamababang istante.",
+        "Pinturahan ang kahoy ng fire-proof na varnish."
+      ],
+      "earthquake_reason": "Ang mataas na aparador ay maaaring matumba at makadurog ng tao o humarang sa pinto.",
+      "earthquake_fixes": [
+        "Gumamit ng metal bracket para ikabit ang cabinet sa pader.",
+        "Panatilihing mababa ang center of gravity sa pamamagitan ng paglagay ng mas mabibigat na gamit sa ibaba.",
+        "Lagyan ng rubber wedge sa ilalim ng mga harapang paa para sumandal sa pader."
+      ],
+      "typhoon_reason": "Ang tubig-baha ay sumasipsip sa kahoy kaya nagiging mas mabigat at mas mahirap ilipat.",
+      "typhoon_fixes": [
+        "Ilayo ang mga mesa mula sa mga bintanang salamin bago dumating ang bagyo.",
+        "Alisan ng laman ang mga ibabang drawer kung inaasahan ang baha.",
+        "Lagyan ng rubber cup sa ilalim ng mga paa ng kagamitan na may gulong."
+      ],
+      "fire_reason": "Ang kahoy ay madaling masunog at nagsisilbing panggatong na nagpapalaki ng apoy.",
+      "fire_fixes": [
+        "Ilayo ang mga closet mula sa mga bintana o pinto na daraanan ng pagtakas.",
+        "Panatilihin ang isang metrong distansya mula sa kalan o electric fan.",
+        "Gumamit ng fire-proof na varnish para bumagal ang paglaganap ng apoy."
+      ]
+    },
+    "open_flame_hazard": {
+      "general_reason": "Ang paggamit ng kandila o katol malapit sa kurtina ay mapanganib — madali itong matumba at magmula ng sunog.",
+      "general_fixes": [
+        "Ilagay ang kandila sa loob ng garapon o lata ng sardinas.",
+        "Lagyan ng bato o buhangin ang base ng gasera para maging mas matatag.",
+        "Huwag iwanang nagniningas ang katol habang natutulog."
+      ],
+      "earthquake_reason": "Maaaring matumba ang kandila habang yumayanig at sunugin ang sahig o kurtina.",
+      "earthquake_fixes": [
+        "Gamitin ang garapon bilang holder para hindi matumba ang kandila.",
+        "Pabigatin ang base ng gasera gamit ang buhangin.",
+        "Patayin agad ang apoy sa unang palatandaan ng pagyanig."
+      ],
+      "typhoon_reason": "Maaaring itaboy ng hangin ang kurtina papunta sa apoy at magsimula ng sunog.",
+      "typhoon_fixes": [
+        "Ilagay ang katol sa loob ng lata ng biskwit na may mga butas sa gilid.",
+        "Ilayo ang kandila ng hindi bababa sa isang metro mula sa bintana at kulambo.",
+        "Gumamit ng mataas na garapon bilang proteksyon laban sa hangin."
+      ],
+      "fire_reason": "Ang apoy na walang nagbabantay ay mabilis na kumakalat sa buong bahay.",
+      "fire_fixes": [
+        "Siguraduhing patay na ang lahat ng apoy bago matulog.",
+        "Itago ang posporo at lighter sa mataas na lugar na hindi maaabot ng bata.",
+        "Magtabi ng tuyong buhangin o basang sako malapit sa lugar ng pagluluto."
+      ]
+    },
+    "overloaded_socket": {
+      "general_reason": "Ang 'octopus wiring' ay nagpapainit ng mga kawad at maaaring magdulot ng sunog sa loob ng pader.",
+      "general_fixes": [
+        "I-unplug ang mabibigat na appliance tulad ng ref pagkatapos ng lindol.",
+        "Itaas ang mga power strip mula sa sahig para hindi mabasa ng baha.",
+        "Isang appliance lang ang gamitin sa bawat outlet habang may bagyo."
+      ],
+      "earthquake_reason": "Ang pagyanig ay nagpapaluwag sa mga plug na maaaring magdulot ng spark.",
+      "earthquake_fixes": [
+        "I-unplug ang ref o washing machine agad pagkatapos ng lindol.",
+        "I-tape ang mga plug para manatiling matatag sa outlet.",
+        "Ilagay ang power strip sa sahig para hindi mahila ang outlet mula sa pader."
+      ],
+      "typhoon_reason": "Ang halumigmig o tubig-ulan na tumama sa mainit na kawad ay maaaring magdulot ng short circuit.",
+      "typhoon_fixes": [
+        "Itaas ang mga extension cord sa ibabaw ng mesa para hindi mabasa.",
+        "Suriin ang mga plug para sa itim na marka o tanda ng pagkasunog.",
+        "Bawasan ang karga ng outlet kapag hindi matatag ang kuryente."
+      ],
+      "fire_reason": "Nag-iinit at natutunaw ang plastik na takip ng kawad, na maaaring magsunog ng kahoy na pader.",
+      "fire_fixes": [
+        "Damdamin ang pader — kung mainit, i-unplug agad ang lahat.",
+        "I-plug ang rice cooker direkta sa wall outlet, hindi sa murang extension cord.",
+        "Huwag itago ang extension cord sa ilalim ng alpombra o unan."
+      ]
+    },
+    "damaged_wire": {
+      "general_reason": "Ang mga kawad na nalalagtas o may kitang tanso ay wala nang proteksyon laban sa spark.",
+      "general_fixes": [
+        "Takpan ng electrical tape ang mga bitak na cord.",
+        "Itaas ang mga cord mula sa sahig gamit ang mga plastik na hook.",
+        "Hilahin ang plug mismo — hindi ang kawad — kapag nag-a-unplug."
+      ],
+      "earthquake_reason": "Ang pagyanig ay maaaring magpatid sa mga lumang kawad at magkuryente sa pader.",
+      "earthquake_fixes": [
+        "Suriin ang mga cord ng fan at takpan ng tape ang mga bitak.",
+        "I-unplug ang mga gamit na may maluwag na plug.",
+        "Ilayo ang mga cord mula sa ilalim ng kama para hindi maipit tuwing may pagyanig."
+      ],
+      "typhoon_reason": "Ang tubig na tumama sa hubad na tanso ay agad na magdudulot ng kuryente o electric shock.",
+      "typhoon_fixes": [
+        "Huwag humawak ng sirang kawad kung basa ang kamay — patayin muna ang breaker.",
+        "I-hang ang mga cord sa mga hook para manatiling tuyo.",
+        "Itapon ang mga cord na malagkit na ang plastik dahil nabulok na ito."
+      ],
+      "fire_reason": "Ang init mula sa sirang kawad ay mabilis na maaaring magpasiklab ng kurtina o kalat.",
+      "fire_fixes": [
+        "Linisin ang mga agiw at alikabok sa likod ng TV.",
+        "I-unplug ang appliance kung naramdaman mong mainit na ang cord nito.",
+        "Huwag hilahin nang malakas ang wire — baka maputol ang copper strands sa loob."
+      ]
+    },
+    "floor_appliance": {
+      "general_reason": "Mabibigat na appliance na nakalagay direkta sa sahig — madaling maabot ng baha at matumba sa malakas na pagyanig.",
+      "general_fixes": [
+        "Lagyan ng rubber mat ang ilalim ng washing machine.",
+        "I-tie ang refrigerator sa pader para hindi matumba.",
+        "Huwag i-plug ang basa pang appliance pagkatapos ng baha."
+      ],
+      "earthquake_reason": "Ang mabibigat na appliance ay maaaring 'lumakad' o matumba habang yumayanig at makasakit ng tao.",
+      "earthquake_fixes": [
+        "Gumamit ng rubber mat sa ilalim ng ref para hindi ito dumulas.",
+        "Itali ang mataas na appliance sa kongkretong pader.",
+        "I-unplug pagkatapos ng lindol para maiwasan ang sunog."
+      ],
+      "typhoon_reason": "Madaling maaabot ng baha ang motor sa ilalim ng appliance, na maaaring magdulot ng pagkasira at electrocution.",
+      "typhoon_fixes": [
+        "Itaas ang ref at washing machine sa ibabaw ng concrete block o papag.",
+        "Patayin ang breaker kung umabot na ang baha sa sahig.",
+        "Ipasuri sa technician ang motor na nababad sa baha bago gamitin ulit."
+      ],
+      "fire_reason": "Ang mga lumang motor ay nag-o-overheat at madaling mag-short circuit.",
+      "fire_fixes": [
+        "Patayin ang fan kung parang mainit na ang motor nito.",
+        "Walisin ang agiw at alikabok sa ilalim ng mga mabibigat na gamit.",
+        "Huwag magsampay ng damit sa ibabaw ng electric fan."
+      ]
+    },
+    "major_crack": {
+      "general_reason": "Malalim na bitak sa pader na mas maluwang pa sa barya — tanda ito na humihina na ang pundasyon ng bahay.",
+      "general_fixes": [
+        "Ipasuri sa engineer kung ligtas pa ang pader.",
+        "I-seal ang labas ng bitak bago mag-tag-ulan.",
+        "Punan ng fire-proof na semento ang malalim na puwang."
+      ],
+      "earthquake_reason": "Ang mga bitak ay mahinang bahagi ng pader na mas madaling gumuho tuwing may pagyanig.",
+      "earthquake_fixes": [
+        "Sukatin ang bitak — kung lumagpas na ng 5mm, mapanganib na ito.",
+        "Bantayan ang diagonal na bitak malapit sa bintana dahil senyales ito ng pagkasira ng istruktura.",
+        "Huwag isandal ang mabibigat na kagamitan sa pader na may malaking bitak."
+      ],
+      "typhoon_reason": "Kinakalawang ng tubig-ulan ang bakal sa loob ng semento na lalong nagpapahina sa pader.",
+      "typhoon_fixes": [
+        "Gumamit ng waterproof sealant sa mga bitak sa labas ng pader.",
+        "Bantayan kung lumalaki ang bitak pagkatapos ng bagyo.",
+        "Alisin ang mga halamang tumutubo sa loob ng bitak."
+      ],
+      "fire_reason": "Maaaring maging daanan ito ng usok at init na makapag-trap sa mga tao sa loob.",
+      "fire_fixes": [
+        "Punan agad ng semento ang bitak para hindi kumalat ang usok.",
+        "Suriin kung nagsimulang sumabit ang pinto dahil sa paggalaw ng pader.",
+        "Ilayo ang gas tank mula sa mga pader na may mahabang bitak."
+      ]
+    },
+    "minor_crack": {
+      "general_reason": "Manipis na hairline cracks — kadalasan sa pintura lang ito, pero dapat pa ring bantayan.",
+      "general_fixes": [
+        "Pinturahan ng elastomeric paint para hindi pumasok ang ulan.",
+        "Markahan ang dulo ng bitak para malaman kung lumalaki ito.",
+        "Siguraduhing hindi nakadikit ang kulambo sa pader na may bitak."
+      ],
+      "earthquake_reason": "Maaari itong unti-unting lumaki pagkatapos ng bawat lindol.",
+      "earthquake_fixes": [
+        "Kunan ng larawan ang bitak at suriin ulit pagkalipas ng isang buwan.",
+        "Gumamit ng lapis para markahan ang dulo ng bitak.",
+        "Suriin ang paligid ng bintana para sa maliliit na diagonal na linya."
+      ],
+      "typhoon_reason": "Maliit man, maaari pa rin itong pagdaanan ng tubig na magdudulot ng amag at pagkabubulok.",
+      "typhoon_fixes": [
+        "Gumamit ng waterproof na pintura sa mga hairline cracks.",
+        "Bantayan ang mga basang bahagi ng pader tuwing umuulan.",
+        "Mag-spray ng water repellent sa labas ng pader."
+      ],
+      "fire_reason": "Kahit maliit, maaari itong maging daluyan ng nakakalasong usok.",
+      "fire_fixes": [
+        "I-seal ang mga puwang sa paligid ng mga outlet.",
+        "Ilayo ang mga kurtina sa pader na may bitak.",
+        "Alisin ang mga nagbabalat na pintura sa paligid ng bitak."
+      ]
+    },
+    "broken_glass": {
+      "general_reason": "Mga bintanang jalousie o salamin na madaling mabasag at gumagawa ng matutulis na piraso.",
+      "general_fixes": [
+        "Magtabi ng tsinelas sa tabi ng kama.",
+        "Maglagay ng safety film sa mga glass door.",
+        "Gumamit ng plywood para takpan ang bintana bago dumating ang bagyo."
+      ],
+      "earthquake_reason": "Ang pag-uga ay nagpapaputok sa salamin na kumakalat sa sahig at kama.",
+      "earthquake_fixes": [
+        "Ilayo ang kama mula sa mga bintana at salamin.",
+        "Gumamit ng makapal na tsinelas para hindi masugatan kapag bumababa sa kama.",
+        "Mag-apply ng safety film para hindi sumabog ang bubog."
+      ],
+      "typhoon_reason": "Maaaring basagin ng malakas na hangin at flying debris ang mga bintana.",
+      "typhoon_fixes": [
+        "Gumamit ng plywood sa labas ng bintana kung matindi ang bagyo.",
+        "Isara ang makakapal na kurtina bilang pananggalang sa bubog.",
+        "Manatili sa loob ng bahay at lumayo sa mga jalousie."
+      ],
+      "fire_reason": "Ang matinding init ay nagpapaputok ng salamin na maaaring humarang sa iyong pagtakas.",
+      "fire_fixes": [
+        "Huwag basagin ang salamin gamit ang kamay — gumamit ng upuan o mabigat na bagay.",
+        "Iwasang dumaan sa ilalim ng malalaking bintana habang may sunog.",
+        "Siguraduhing walang nakaharang na mga banga o gamit sa main door."
+      ]
+    },
+    "collapsed_structure": {
+      "general_reason": "Bahagyang gumuho ang gusali dahil sa mahinang pundasyon — ito ang pinaka-mapanganib na sitwasyon.",
+      "general_fixes": [
+        "Magsanay ng 'Drop, Cover, and Hold On'.",
+        "Alamin kung nasaan ang 'Triangle of Life' sa inyong bahay.",
+        "Huwag nang bumalik sa loob kapag nakalabas na."
+      ],
+      "earthquake_reason": "Maaaring gumuho ang kisame o pader sa loob ng ilang segundo.",
+      "earthquake_fixes": [
+        "Pumuwesto sa tabi ng matibay na mesa bilang 'Triangle of Life'.",
+        "Huwag tumakbo palabas habang yumayanig pa.",
+        "Protektahan ang ulo at leeg gamit ang mga kamay."
+      ],
+      "typhoon_reason": "Dahil sa baha, maaaring lumubog o tumagilid ang pundasyon ng bahay.",
+      "typhoon_fixes": [
+        "Suriin kung may soil erosion sa paligid ng bahay pagkatapos ng bagyo.",
+        "Makinig sa mga 'popping' na tunog mula sa pader — senyales ito ng stress sa istruktura.",
+        "Umiwas sa mga silid na may mabigat na kongkretong bubong kung may bitak na."
+      ],
+      "fire_reason": "Pinahihina ng apoy ang mga suporta hanggang bumigay ang sahig o bubong.",
+      "fire_fixes": [
+        "Lumabas agad sa unang palatandaan ng sunog.",
+        "Umiwas sa mga 'bouncy' na sahig pagkatapos ng sunog.",
+        "Mag-ingat sa mga yero na maaaring mahulog na parang talim."
+      ]
+    }
+  },
+  "tabs": {
+    "home": "Home",
+    "scans": "na-scan"
+  },
+  "camera_modal": {
+    "title": "Handa ka na ba para sa Safety Check?",
+    "snap_photo": "Kumuha ng Larawan",
+    "choose_gallery": "Pumili mula sa Gallery",
+    "cancel": "Kanselahin",
+    "landscape_recommended_title": "Irerekomenda ang Landscape na Larawan",
+    "landscape_recommended_message": "Para sa mas magandang resulta, gumamit ng landscape na larawan para mas maraming panganib ang matukoy.",
+    "landscape_cancel": "Kanselahin",
+    "landscape_continue": "Ituloy",
+    "gallery_permission_message": "Kailangan namin ng pahintulot sa gallery para makapili ng larawan."
+  },
+  "camera_screen": {
+    "permission_message": "Kailangan ng BantAI ng pahintulot para magamit ang camera.",
+    "allow_camera": "Payagan ang Camera",
+    "no_device": "Walang nakitang camera.",
+    "model_failed": "Hindi Na-load ang Model",
+    "back_to_home": "Bumalik sa Home",
+    "loading_model": "Naglo-load ng AI Model...",
+    "capture_ready": "Handa na — maaari ka nang kumuha ng larawan.",
+    "capture_failed_title": "Hindi Nakuha ang Larawan",
+    "capture_failed_message": "Hindi namin nakuha ang larawan. Subukan muli."
+  },
+  "home_screen": {
+    "ready_title": "Handa na ba para sa Safety Check?",
+    "scan_room": "I-scan ang Silid",
+    "articles_title": "Mga Gabay sa Kaligtasan at Paghahanda"
+  },
+  "history_screen": {
+    "title": "Mga Nakaraang Scan",
+    "loading": "Naglo-load ng mga na-save na scan...",
+    "error_title": "Hindi Ma-load ang mga na-scan.",
+    "error_message": "Hindi namin ma-load ang iyong mga nakaraang scan.",
+    "empty_title": "Wala pang na-save na scan",
+    "empty_message": "Ang iyong mga nakumpletong pagsusuri ng silid ay lalabas dito pagkatapos itong ma-save."
+  },
+  "history_card": {
+    "no_hazards": "Walang panganib",
+    "scan_title": "Safety Scan #{{id}}",
+    "hazards_resolved": "{{assessed}}/{{total}} Panganib ang Naayos"
+  },
+  "landscape_screen": {
+    "instruction": "Para sa mas maayos na resulta, hawakan ang iyong device nang pahiga (landscape).",
+    "ready_message": "Maaari ka nang kumuha ng larawan ng iyong silid.",
+    "not_landscape": "Hindi pa nakapahiga ang iyong device.",
+    "take_photo": "Kumuha ng Larawan"
+  },
+  "photo_instructions_screen": {
+    "title": "Paano Kumuha ng Larawan",
+    "description": "Iposisyon ang iyong cellphone sa lugar kung saan nakikita ang karamihan ng silid para matiyak na nasasaglaw ang lahat ng bahagi.",
+    "proceed": "Ituloy"
+  },
+  "loading_screen": {
+    "status_init": "Sinisimulan ang AI engine...",
+    "status_global": "Isinasagawa ang pangkalahatang scan...",
+    "status_quadrants": "Sine-scan ang mga bahagi ng silid...",
+    "status_details": "Sinusuri ang mga detalye ng panganib...",
+    "status_report": "Ginagawa ang ulat ng kaligtasan...",
+    "status_complete": "Tapos na ang Pagsusuri!"
+  },
+  "progress_bar": {
+    "title": "Sinusuri ang Iyong Silid",
+    "cancel": "Kanselahin"
+  },
+  "safety_report": {
+    "title": "Ulat ng Kaligtasan ng Silid",
+    "disclaimer": "Ang mga scan ng BantAI ay nagbibigay ng gabay at impormasyon lamang. Ang mga resulta ay payo lamang at dapat pa ring suriin ng bawat isa sa pamamagitan ng sariling pisikal na inspeksyon.",
+    "spatial_warnings_title": "⚠️ Mga Babala sa Espasyo",
+    "identified_hazards": "Mga Nakitang Panganib ({{count}})",
+    "hazards_instruction": "Suriin ang bawat panganib, gawin ang inirerekomendang solusyon, at pindutin ang 'Markahan bilang Naayos' kapag tapos na.",
+    "loading_scan": "Naglo-load ng mga detalye ng na-save na scan...",
+    "saved_scan_unavailable": "Hindi available ang na-save na scan",
+    "scan_another_room": "I-scan ang Ibang Silid",
+    "upload_another_image": "Mag-upload ng Ibang Larawan",
+    "back_to_home": "Bumalik sa Home",
+    "confirm_scan_title": "I-scan ang ibang silid?",
+    "confirm_scan_message": "Mananatili ang kasalukuyang ulat sa na-scan. Ituloy sa camera?",
+    "confirm_scan_cancel": "Kanselahin",
+    "confirm_scan_continue": "Ituloy",
+    "upload_permission_message": "Kailangan namin ng pahintulot sa gallery para makapili ng larawan.",
+    "upload_failed_title": "Hindi Na-import",
+    "upload_failed_message": "Hindi namin maproseso ang larawang iyon. Subukan muli.",
+    "reason_context_label": "Konteksto ng Dahilan/Solusyon: {{context}}",
+    "context_all": "Lahat ng Panganib",
+    "context_earthquake": "Lindol",
+    "context_typhoon": "Bagyo",
+    "context_fire": "Sunog",
+    "sorting_message_all": "Nakalahad ang lahat ng panganib. Ang mga dahilan at mungkahing solusyon ay batay sa pinaka-kritikal na pagsusuri para sa bawat isa.",
+    "sorting_message_earthquake": "TNakalahad ang mga panganib na may kaugnayan sa lindol. Ang bawat dahilan at mungkahing solusyon ay nagpapaliwanag ng kaligtasan sa konteksto ng lindol.",
+    "sorting_message_typhoon": "Nakalahad ang mga panganib na may kaugnayan sa bagyo. Ang bawat dahilan at mungkahing solusyon ay nagpapaliwanag ng kaligtasan sa konteksto ng bagyo.",
+    "sorting_message_fire": "Nakalahad ang mga panganib na may kaugnayan sa sunog. Ang bawat dahilan at mungkahing solusyon ay nagpapaliwanag ng kaligtasan sa konteksto ng sunog.",
+    "fallback_reason": "Natukoy ng AI ang panganib na ito nang may {{confidence}}% kumpiyansa.",
+    "fallback_fix": "Mangyaring suriin ang lugar at resolbahin ang panganib para matiyak ang kaligtasan."
+  },
+  "hazard_card": {
+    "reason_label": "Dahilan:",
+    "fixes_label": "Mga Mungkahing Solusyon:",
+    "mark_resolved": "Markahan bilang Naresolba",
+    "unmark_resolved": "Alisin ang Marka",
+    "loading": "Naglo-load ng mga panganib...",
+    "no_hazards_title": "Walang Natukoy na Panganib",
+    "no_hazards_message": "Mukhang ligtas ang lugar na ito batay sa kasalukuyang scan.",
+    "reason_unavailable": "Ang dahilan para sa {{disaster}} ay wala pa para sa panganib na ito.",
+    "fix_unavailable": "Ang solusyon para sa {{disaster}} ay wala pa. Siguraduhin muna ang lugar at humingi ng manu-manong pagsusuri."
+  },
+  "risk_status": {
+    "low": "Mababa",
+    "medium": "Katamtaman",
+    "high": "Mataas",
+    "critical": "Kritikal"
+  },
+  "sorting_buttons": {
+    "all": "Lahat",
+    "earthquake": "Lindol",
+    "typhoon": "Bagyo",
+    "fire": "Sunog"
+  },
+  "boost_messages": {
+    "messages": [
+      "Nabawasan ang Panganib!",
+      "Nai-secure ang Silid!",
+      "Naayos ang Panganib!",
+      "Mas Ligtas na!",
+      "Aprubado ng BantAI!",
+      "Magaling!"
+    ]
+  },
+  "articles": {
+    "earthquake_title": "Paghahanda ng Inyong Tahanan para sa Lindol: 6 na Mahalagang Tip",
+    "earthquake_desc": "Ang pamumuhay sa lugar na madaling matamaan ng lindol ay hindi lang kaalaman ang kailangan — kailangan din ng aktibong hakbang para maprotektahan ang inyong tahanan at pamilya.",
+    "typhoon_title": "Ihanda ang Inyong Tahanan: Paano Maghanda para sa Bagyo",
+    "typhoon_desc": "Nakapasok na tayo sa gitna ng taon — at kasabay nito ang panahon ng mga bagyo at malakas na ulan. Panahon na para mag-ihanda bago pa dumating.",
+    "fire_title": "Alamin ang Tungkol sa mga Sunog sa Bahay",
+    "fire_desc": "Sa loob lang ng dalawang minuto, maaaring maging banta sa buhay ang isang sunog. Sa limang minuto, maaaring ganap na masunog ang isang tahanan.",
+    "common": {
+      "source_information": "Pinagmulan",
+      "more_articles": "Iba Pang Mga Artikulo",
+      "previous": "Nakaraang",
+      "next": "Susunod",
+      "read_original_article": "Basahin ang orihinal na artikulo ↗",
+      "image_courtesy": "Larawan mula sa: {{source}}"
+    },
+    "earthquake": {
+      "title": "Paghahanda ng Inyong Tahanan at Ari-arian para sa Lindol: 6 na Mahalagang Tip",
+      "source": "Artikulo mula sa: GeoVera",
+      "source_info": "Ang nilalamang ito ay orihinal na inilathala ng GeoVera.",
+      "intro": "Ang pamumuhay sa lugar na madaling matamaan ng lindol ay nangangailangan ng aktibong paghahanda. Walang babala ang mga lindol bago dumating, kaya ang pagsunod sa mga simpleng hakbang na ito ay malaking makakatulong para mabawasan ang panganib at maprotektahan ang iyong pamilya.",
+      "section1_title": "1. I-lock ang mga Cabinet",
+      "section1_content": "Ang mga cabinet na walang lock ay maaaring mabuksan nang biglaan tuwing may lindol at mailabas ang nilalaman. Mag-install ng safety latch sa mga pinto ng cabinet para hindi mahulog ang mga gamit at maiwasan ang pinsala.",
+      "section2_title": "2. Panatilihing Malinis ang mga Daanan",
+      "section2_content": "Mahalaga ang mabilis na pagtakas tuwing may emergency. Laging tiyakin na malinis at walang hadlang ang mga daanan patungo sa lahat ng pinto at bintana.",
+      "section3_title": "3. Malaman Kung Paano Protektahan ang Sarili",
+      "section3_content": "Ituro sa buong pamilya ang 'Drop, Cover, and Hold On' at magsanay nito nang regular. Alamin kung saan ang ligtas na lugar sa bawat silid — tulad ng ilalim ng matibay na mesa o laban sa panloob na pader, malayo sa mga bintana at gamit na maaaring matumba.",
+      "section4_title": "4. I-anchor ang Mabibigat na Kagamitan",
+      "section4_content": "Ang mataas at mabibigat na gamit tulad ng bookcase, aparador, at shelves ay dapat matibay na nakakabit sa pader. Ilipat ang mabibigat na bagay sa mas mababang shelf, at siguraduhing naka-secure ang mga TV at computer monitor.",
+      "section5_title": "5. Siguraduhin ang mga Utilities at Flammables",
+      "section5_content": "Ang water heater, gas fixture, at iba pang utility ay dapat nakakabit at may flexible connector para maiwasan ang mapanganib na tagas. Itago ang mga flammable o toxic na bagay (tulad ng cleaning supplies o pintura) sa mababang lugar kung saan hindi madaling matumba.",
+      "section6_title": "6. Ayusin ang mga Maliliit na Panganib",
+      "section6_content": "Bigyang-pansin ang mga maliliit na bagay na maaaring magdulot ng pinsala o mabasag. Siguraduhing nakakabit ang mga picture frame, salamin, at ilaw. Ayusin ang mga magulo na cable para hindi matisod ang sinuman, at isaalang-alang ang paglagay ng safety film sa mga bintana para hindi kumalat ang bubog kapag nabasag."
+    },
+    "fire": {
+      "title": "Mga Sunog sa Bahay: Gabay sa Kaligtasan at Pag-iwas",
+      "source": "Artikulo mula sa: Ready",
+      "source_info": "Ang nilalamang ito ay orihinal na inilathala ng Ready.",
+      "intro": "Sa loob lang ng dalawang minuto, maaaring maging banta sa buhay ang isang sunog — at sa limang minuto, maaaring ganap na masunog ang isang tahanan. Ang pag-unawa sa gawi ng apoy at ang simpleng paghahanda ay maaaring makapagligtas ng iyong pamilya.",
+      "understanding_fire_title": "Pag-unawa sa Apoy",
+      "fire_fast_title": "Ang Apoy ay MABILIS:",
+      "fire_fast_content": "Ang maliit na apoy ay maaaring maging malaking sunog sa wala pang 30 segundo.",
+      "fire_hot_title": "Ang Apoy ay MAINIT:",
+      "fire_hot_content": "Ang init ang mas mapanganib kaysa sa aktwal na apoy. Maaaring umabot ang temperatura ng silid sa 600 degrees sa antas ng mata — sapat na para mapaso agad ang baga.",
+      "fire_dark_title": "Ang Apoy ay MADILIM at NAKAKAMATAY:",
+      "fire_dark_content": "Mabilis na gumagawa ng makapal na itim na usok at nakakalason na gas ang apoy. Ang mga gas na ito ang madalas na nakakakuha ng mas maraming buhay kaysa sa apoy mismo dahil nagdudulot ng pagkalito at antok.",
+      "preparation_title": "Paghahanda",
+      "map_exits_title": "Alamin ang Dalawang Paraan ng Pagtakas:",
+      "map_exits_content": "Humanap ng dalawang daan palabas mula sa bawat silid kung sakaling naharang ang pangunahing exit. Siguraduhing mabilis mabuksan ang mga bintana at security bar.",
+      "practice_escape_title": "Magsanay ng Pagtakas:",
+      "practice_escape_content": "Magsanay ng fire escape plan nang dalawang beses bawat taon — kasama ang paglabas nang walang ilaw at nakasarang mata.",
+      "sleep_safely_title": "Ligtas na Pagtulog:",
+      "sleep_safely_content": "Palaging matulog nang nakasara ang pinto ng kwarto para mapabagal ang paglaganap ng usok at init, at magtabi ng fire extinguisher sa kusina.",
+      "prevention_title": "Araw-araw na Pag-iwas sa Sunog",
+      "safe_cooking_title": "Ligtas na Pagluluto:",
+      "safe_cooking_content": "Huwag kailanman iwan ang nagpiprito o nagluluto nang walang bantay. Panatilihin ang outdoor barbecue grill ng hindi bababa sa 10 talampakan mula sa pader at railing ng bahay.",
+      "electrical_safety_title": "Kaligtasan sa Kuryente:",
+      "electrical_safety_content": "Palitan agad ang mga basag o sirang cord ng appliance. Huwag kailanman itago ang cord sa ilalim ng alpombra, at huwag mag-overload ng extension cord.",
+      "protect_children_title": "Protektahan ang mga Bata:",
+      "protect_children_content": "Itago ang mga posporo at lighter sa nakalock na cabinet na hindi maaabot ng bata. Ituro nang maaga sa mga bata na ang apoy ay kasangkapan — hindi laruan.",
+      "during_fire_title": "Sa Panahon ng Sunog: Paano Manatiling Buhay",
+      "crawl_low_title": "Gumapang nang Mababa:",
+      "crawl_low_content": "Ang makapal na usok at nakakalason na gas ay nagsisimulang mag-ipon sa kisame. Bumaba sa sahig at gumapang sa ilalim ng usok papunta sa exit.",
+      "feel_doors_title": "Damdamin ang mga Pinto:",
+      "feel_doors_content": "Bago buksan ang anumang pinto, damhin ang doorknob at ang pinto mismo. Kung mainit ang isa o pareho, huwag buksan — gumamit ng pangalawang daan palabas.",
+      "if_trapped_title": "Kung Nakulong:",
+      "if_trapped_content": "Isara ang pinto at takpan ang mga bentilasyon at puwang sa ilalim ng pinto ng tela o tape para hindi pumasok ang usok. Tumawag sa emergency at magsenyas ng tulong mula sa bintana gamit ang flashlight o maliwanag na tela.",
+      "stop_drop_roll_title": "Tumigil, Bumaba, at Gumulong:",
+      "stop_drop_roll_content": "Kung sumunog ang damit, tumigil agad, bumaba sa sahig, takpan ang mukha ng mga kamay, at gumulong para patayin ang apoy.",
+      "closing_text": "Tandaan: ang pinakamabisang depensa mo laban sa sunog ay isang gumaganang smoke alarm at isang pinag-aralang plano ng pagtakas.",
+      "closing_text_italic": "Manatiling ligtas at palaging unahin ang kaligtasan ng iyong pamilya."
+    },
+    "typhoon": {
+      "title": "Ihanda ang Inyong Tahanan: Paano Maghanda para sa Bagyo",
+      "source": "Artikulo mula sa: Camella",
+      "source_info": "Ang nilalamang ito ay orihinal na inilathala ng Camella.",
+      "intro": "Habang pumasok tayo sa wet season, ang matitinding bagyo at malakas na ulan ay nagiging regular na banta. Protektahan ang iyong ari-arian at panatilihing ligtas ang iyong pamilya gamit ang checklist na ito.",
+      "exterior_title": "Pagsusuri sa Labas ng Bahay",
+      "inspect_roof_title": "Suriin ang Bubong:",
+      "inspect_roof_content": "Hanapin ang mga butas, bitak, o maluwag na panel. Ayusin ang mga maliit na problema gamit ang sealant at siguraduhing matibay ang mga skruwe para maiwasan ang pinsala ng hangin at tagas.",
+      "clear_gutters_title": "Linisin ang Gutter at mga Drain:",
+      "clear_gutters_content": "Alisin ang mga dahon at dumi sa iyong gutter. Siguraduhing walang basura ang mga drainage sa komunidad para maiwasan ang biglang pagbaha.",
+      "trim_trees_title": "Putulin ang mga Puno at Halaman:",
+      "trim_trees_content": "Putulin ang mga mahinang sanga at labis na halaman para mabawasan ang mapanganib na flying debris tuwing may malakas na hangin.",
+      "interior_title": "Kaligtasan sa Loob ng Bahay",
+      "secure_windows_title": "Siguraduhin ang mga Bintana at Pinto:",
+      "secure_windows_content": "Tiyaking matibay ang mga frame at kayang tiisin ang malakas na hangin. Dalhin ang lahat ng panlabas na kagamitan sa loob.",
+      "check_wiring_title": "Suriin ang Wiring at Plumbing:",
+      "check_wiring_content": "Ayusin ang anumang sirang wiring o grounded switch para maiwasan ang electric shock sa panahon ng brownout. Ipasuri sa plumber ang mga nagtatagasang tubo nang maaga pa.",
+      "supplies_title": "Mga Emergency na Suplay",
+      "stock_pantry_title": "Mag-ipon sa Pantry:",
+      "stock_pantry_content": "Mag-imbak ng hindi bababa sa dalawang linggong suplay ng canned goods at inuming tubig. Isama ang manual can opener at mga high-calorie na meryenda para sa buong pamilya.",
+      "emergency_kit_title": "Gumawa ng Emergency Kit:",
+      "emergency_kit_content": "Maghanda ng bag na may first-aid kit, flashlight, baterya, hand-crank radio, at gamot para sa mga may chronic na kondisyon. Itago ito sa lugar na madaling maabot.",
+      "store_water_title": "Mag-ipon ng Malinis na Tubig:",
+      "store_water_content": "Magtago ng hindi bababa sa 1 litro ng tubig bawat tao bawat araw para sa ilang araw. Mag-ipon ng dagdag na tubig sa malinis na lalagyan na malayo sa mga bata at alagang hayop.",
+      "protect_documents_title": "Protektahan ang mga Dokumento:",
+      "protect_documents_content": "I-scan ang mahahalagang dokumento (birth certificate, insurance, titulo ng lupa) at itago ang digital copy sa cloud storage o sa mapagkakatiwalaang kamag-anak.",
+      "family_title": "Plano ng Pamilya",
+      "emergency_numbers_title": "I-save ang mga Emergency Number:",
+      "emergency_numbers_content": "Isulat ang numero ng lokal na pulis, bumbero, at disaster hotline. Magsanay ng pagtawag sa mga numerong ito kasama ang mga bata.",
+      "plan_evacuation_title": "Planuhin ang Evacuation:",
+      "plan_evacuation_content": "Alamin ang ruta ng evacuation at kung saan magkikita ang pamilya. Siguraduhing alam ng lahat kung paano makipag-ugnayan kung mahiwalay. Magtago ng printed na mapa at listahan sa emergency kit.",
+      "check_loved_ones_title": "Kumustahin ang mga Mahal sa Buhay:",
+      "check_loved_ones_content": "Magtalaga ng mapagkakatiwalaang kamag-anak o kaibigan sa ibang lugar na maaaring tawagan. Tawagan ang taong ito kung nahiwalay ang pamilya para malaman ng lahat na ligtas kayo.",
+      "closing_text": "Manatiling ligtas, manatiling tuyo, at laging subaybayan ang mga lokal na balita sa panahon."
+    }
+  }
+}
