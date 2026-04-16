@@ -397,13 +397,13 @@ export default function SafetyReport() {
 
           <Pressable 
             onPress={() => setIsNamingModalVisible(true)}
-            className="flex-1 active:opacity-70 flex-row items-baseline ml-1"
+            className="flex-1 active:opacity-70 flex-row items-center ml-2"
           >
             <Text className="text-h3 font-bold text-text-default" numberOfLines={1}>
               {session?.roomName || t("safety_report.title", "Safety Report")}
             </Text>
-            <View className="ml-2 mb-1 opacity-30">
-              <EditIcon color="black" size={16} />
+            <View className="ml-2 opacity-30">
+              <EditIcon color="black" size={14} />
             </View>
           </Pressable>
 
