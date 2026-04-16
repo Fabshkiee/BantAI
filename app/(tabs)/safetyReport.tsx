@@ -13,12 +13,12 @@ import * as ImagePicker from "expo-image-picker";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Animated,
-    Image,
-    Text,
-    View,
+  ActivityIndicator,
+  Alert,
+  Animated,
+  Image,
+  Text,
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -347,18 +347,30 @@ export default function SafetyReport() {
         contentContainerClassName="pb-14"
         style={{ opacity: fadeAnim }}
       >
-        <Animated.View style={{ flex: 1 }}>
-          <View className="flex flex-row items-center ml-6">
-            <Button
-              label=""
-              variant="return"
-              icon={<ArrowLeftIcon color="black" size={18} />}
-              iconPosition="left"
-              onPress={() => router.push("/scans")}
-            />
-            <Text className="text-h3 font-bold text-center -ml-2">
-              Safety Report
-            </Text>
+        <Animated.View style={{ flex: 2 }}>
+          <View className="flex flex-row items-center mx-6">
+            <View className="flex-row items-center">
+              <Button
+                label=""
+                variant="return"
+                icon={<ArrowLeftIcon color="black" size={18} />}
+                iconPosition="left"
+                onPress={() => router.push("/scans")}
+              />
+              <Text className="text-h3 font-bold text-center -ml-2">
+                Safety Report
+              </Text>
+            </View>
+            {hasSession ? (
+              <View className="ml-auto">
+                <Button
+                  label="Save"
+                  variant="return"
+                  iconPosition="right"
+                  onPress={handleViewReport}
+                />
+              </View>
+            ) : null}
           </View>
 
           <View className="mx-7 mt-7 gap-7">
@@ -474,13 +486,6 @@ export default function SafetyReport() {
             </View>
 
             <View className="w-full gap-3">
-              {hasSession ? (
-                <Button
-                  label="View Scan Report"
-                  variant="secondary"
-                  onPress={handleViewReport}
-                />
-              ) : null}
               <Button
                 label="Scan Another Room"
                 onPress={handleConfirmScanAnotherRoom}
