@@ -1,0 +1,609 @@
+{
+  "common": {
+    "appName": "BantAI",
+    "loading": "Naga load ang BantAI...",
+    "cancel": "Kansela",
+    "return": "Balik",
+    "proceed": "Padayon",
+    "back_to_home": "Balik sa Home",
+    "permission_needed": "Kinahanglan sang Permission",
+    "english": "Ingles",
+    "tagalog": "Tagalog",
+    "hiligaynon": "Hiligaynon",
+    "import_failed": "Wala Na import",
+    "mascot_status": "Status: {{risk}} ang Risgo",
+    "could_not_process_image": "Indi namon ma process ina nga picture. Tistingi liwat."
+  },
+  "hazard_titles": {
+    "overloaded_socket": "Sobra nga Karga sang Saksakan",
+    "damaged_wire": "Guba nga Wire",
+    "floor_appliance": "Appliance sa Salog",
+    "major_crack": "Daku nga Liki",
+    "minor_crack": "Gamay nga Liki",
+    "collapsed_structure": "Nagtumpag nga Structure",
+    "broken_glass": "Buka nga Bildo",
+    "electronic_hazard": "Risgo sa Electronics",
+    "elevated_breakables": "Mabuka nga mga Butang sa Mataas",
+    "exposed_breaker": "Bukas nga Breaker",
+    "exposed_ceiling_lights": "Naka-bukas nga Suga sa Kisame",
+    "heavy_wooden_furniture": "Mabug at nga Furniture nga Kahoy",
+    "open_flame_hazard": "Bukas nga Kalayo"
+  },
+  "hazard_content": {
+    "electronic_hazard": {
+      "general_reason": "May mga common nga gamit nga electronics nga guba ang takop ukon nakabutang sa indi malig on nga lamesa. Mataas ang boltahe sini kag kinahanglan sang malig on nga pwesto.",
+      "general_fixes": [
+        "Isaylo ang mabug at nga appliance halin sa mahuyang nga monobloc nga lamesa.",
+        "Maggamit sang malig on nga bracket para i angkla ang dalagku nga electronics sa pader.",
+        "Patya ang main breaker pagkatapos untat sang uyog sang linog."
+      ],
+      "earthquake_reason": "Ang mga electronics nga wala naka-kabit pwede mahulog kag maguba, nga magbilin sang guba wire nga pwede tunaan sang sunog ukon makuryente.",
+      "earthquake_fixes": [
+        "Isaylo ang TV kag PC sa mas manubo nga lugar para indi matumba.",
+        "I angkla ang dalagku nga electronics sa pader gamit ang bracket.",
+        "Patya ang main breaker para malikawan ang natago nga sunog sa kuryente."
+      ],
+      "typhoon_reason": "Ang tubig ulan nga nagasulod sa mga electronics pwede mag cause sang short circuit ukon makuryente.",
+      "typhoon_fixes": [
+        "I unplug ang electric fan kag rice cooker kag isaka sang isa ka metro halin sa salog.",
+        "Ipalayo ang mga gamit sa jalousie nga bintana para malikawan ang tulo sang ulan.",
+        "Maggamit sang surge protector sa baylo sang barato nga extension cord."
+      ],
+      "fire_reason": "Ang mga electronics nga naga overheat ukon sobra ang karga madasig nga magkalayo kag magpaguwa sang delikado nga aso.",
+      "fire_fixes": [
+        "Indi pag ipikit sing todo ang PC tower sa pader para may lugar ini nga makasingaw ang init.",
+        "I plug ang rice cooker direkta sa wall outlet, indi sa extension cord.",
+        "I check ang mga wire sang fan, indi lang pagputson sang electrical tape ang guba nga parte."
+      ]
+    },
+    "elevated_breakables": {
+      "general_reason": "Mga mahuyang nga butang pareho sang glass vase ukon seramika nga nakabutang sa mataas nga shelf nga wala sang nagapugong sa ila.",
+      "general_fixes": [
+        "Magbutang sang earthquake putty sa idalom sang mabug at nga glass decor.",
+        "Isaylo ang mabug at nga glassware sa pinakamanubo nga shelf sang platera.",
+        "Mag install sang shelf lip ukon guard rail sa bukas nga shelf."
+      ],
+      "earthquake_reason": "Pwede ini mahulog kag mabuka sa matalom nga bilog sang bildo nga makasakit sa mga tawo sa palibot.",
+      "earthquake_fixes": [
+        "Maggamit sang mounting tape sa mga rebulto sa altar para indi matumba.",
+        "Isaylo ang glassware halin sa ibabaw paidalom sa pinakamanubo nga shelf.",
+        "Mag install sang shelf lip para indi madalin as ang mga pinggan sa kilid."
+      ],
+      "typhoon_reason": "Ang mabaskog nga hangin pwede magtumba sang mga baso kag seramika kag maglapta sang matalom nga bilog.",
+      "typhoon_fixes": [
+        "Ipalayo ang mga glass vase halin sa jalousie nga bintana.",
+        "Butangan sang anti slip rubber mat ang mga shelf sang pantry.",
+        "Siguraduha nga may malig on nga trangka ang mga pirtahan sang kitchen cabinet."
+      ],
+      "fire_reason": "Ang tuman nga init pwede magpabuka sang bildo kag maglapta sang delikado nga bilog sa agyan kung mag evacaute.",
+      "fire_fixes": [
+        "Kuhaa ang mga glass vase sa mga pasilyo para safe ang agyan bisan sa dulom.",
+        "Ilisan sang plastik ang mga glass picture frame sa hagdanan.",
+        "Ipalayo ang mga botelya sang mantika sa mataas nga shelf nga ara sa ibabaw sang kalan."
+      ]
+    },
+    "exposed_breaker": {
+      "general_reason": "Mga electrical panel nga wala sang takop. Delikado ini sa mga live wire nga bukas sa aksidente nga pagkapot ukon tamsik sang tubig.",
+      "general_fixes": [
+        "Patya ang main breaker gilayon pagkatapos sang uyog.",
+        "Siguraduha nga ang panel box nakakabit sa concrete hollow block.",
+        "Kuhaa ang tanan nga sagbot pareho sang karton malapit sa panel."
+      ],
+      "earthquake_reason": "Ang mga halog nga wire sa bukas nga panel pwede mag spark kag mag umpisa sang sunog samtang nagauyog.",
+      "earthquake_fixes": [
+        "Patya ang main switch agud mautod ang kuryente sa bug os nga balay.",
+        "Indi ikabit ang breaker sa plywood, dapat ara ini sa hollow block.",
+        "Putson sang electrical tape ang mga liki sa breaker box."
+      ],
+      "typhoon_reason": "Ang tubig ulan nga nakasulod sa atop pwede tumupa sa breaker kag mag cause sang short circuit.",
+      "typhoon_fixes": [
+        "Maghimo sang waterproof nga cover halin sa plastik kung may tulo ang atop.",
+        "Bantayi ang pagbaha kag patya ang main switch sing temprano.",
+        "Maghimo sang rain deflector sa ibabaw sang panel box gamit ang yero ukon goma."
+      ],
+      "fire_reason": "Kung wala sang metal nga takop, ang electrical spark pwede maglumpat sa kisame kag mag umpisa sang sunog.",
+      "fire_fixes": [
+        "Tinlui ang mga sagbot malapit sa panel kay pwede ini mangin inuggatong.",
+        "I tape ang madamol nga plastik ukon acrylic board sa ibabaw sang bukas nga panel.",
+        "Magtago sang balde sang mamala nga balas malapit sa breaker box."
+      ]
+    },
+    "exposed_ceiling_lights": {
+      "general_reason": "Mga suga sa kisame nga may guba nga bombilya ukon octopus wiring nga wala proteksyon sa tubig kag pag uyog.",
+      "general_fixes": [
+        "Ilisan ang mabug at nga chandelier sang flat nga LED nga nakakabit sa kisame.",
+        "Siguraduha nga ang mga suga nakakabit sa mga suleras sang atop.",
+        "Putson ang tanan nga bukas nga wire sang electrical tape."
+      ],
+      "earthquake_reason": "Pwede mahulog kag mabuka ang mga fixture sa mga tawo sa idalom kung mag uyog ang kisame.",
+      "earthquake_fixes": [
+        "Maggamit sang mamag an nga LED bulbs para indi ini mahulog.",
+        "Hugti ang mga screw sang light fixture sa ceiling beams.",
+        "Putson ang bombilya sang plastik nga halwa para indi maglapta ang bildo."
+      ],
+      "typhoon_reason": "Ang tubig halin sa atop pwede malab ot ang mga wire kag mag cause sang shock ukon short circuit.",
+      "typhoon_fixes": [
+        "Kay oha ang mga buho sa atop para indi mabasa ang mga suga.",
+        "Maggamit sang waterproof nga suga sa mga balkonahe kag sa kusina.",
+        "Ihigot ang mga nagabitay nga wire para indi ini mabutong sang hangin."
+      ],
+      "fire_reason": "Ang magamo kag madamo nga wire malapit sa kahoy nga kisame madasig mag spark kag mag umpisa sang sunog.",
+      "fire_fixes": [
+        "Indi maggamit sang octopus wiring, indi pag idugtong ang madamo nga suga sa isa ka wire.",
+        "Maggamit sang LED bulbs kay indi ini naga init kag indi madasig magkalayo.",
+        "Itago ang mga wire sa sulod sang plastik nga junction box."
+      ]
+    },
+    "heavy_wooden_furniture": {
+      "general_reason": "Dalagku nga gamit pareho sang aparador nga wala nakakabit sa pader kag madasig matumba.",
+      "general_fixes": [
+        "I angkla ang ibabaw sang mga cabinet direkta sa semento nga pader.",
+        "Isaylo ang pinakamabug at nga gamit sa pinakamanubo nga shelf.",
+        "Pintahan ang kahoy sang fire proof nga varnish."
+      ],
+      "earthquake_reason": "Ang mataas nga aparador pwede matumba kag makadugmok sang tawo ukon magsablag sa pirtahan.",
+      "earthquake_fixes": [
+        "Maggamit sang metal bracket para ikabit ang cabinet sa pader.",
+        "Hupti nga manubo ang center of gravity paagi sa pagbutang sang mas mabug at nga gamit sa idalom.",
+        "Butangan sang rubber wedge sa idalom sang mga atubang nga tiil para magsandig sa pader."
+      ],
+      "typhoon_reason": "Ang tubig baha ginasuyop sang kahoy gani nagapabug at kag mas mabudlay isaylo.",
+      "typhoon_fixes": [
+        "Ipalayo ang mga lamesa halin sa mga bintana nga bildo bag o mag abot ang bagyo.",
+        "Kuhaon ang unod sang mga idalom nga drawer kung ga ekspektar sang baha.",
+        "Butangan sang rubber cup sa idalom sang mga tiil sang gamit nga may ruweda."
+      ],
+      "fire_reason": "Ang kahoy madasig masunog kag pwede makapadaku sang kalayo.",
+      "fire_fixes": [
+        "Ipalayo ang mga closet halin sa mga bintana ukon pirtahan nga agyan pagwa.",
+        "I mentenar ang isa ka metro nga distansya halin sa kalan ukon electric fan.",
+        "Maggamit sang fire proof nga varnish para maghinay ang paglapta sang kalayo."
+      ]
+    },
+    "open_flame_hazard": {
+      "general_reason": "Ang paggamit sang kandila ukon katol malapit sa kurtina delikado, madasig ini matumba kag mag umpisa sang sunog.",
+      "general_fixes": [
+        "Ibutang ang kandila sa sulod sang garapon ukon lata sang sardinas.",
+        "Butangan sang bato ukon balas ang idalom sang gasera para maging mas malig on.",
+        "Indi pagbayaan nga nagadabadaba ang katol samtang nagatulog."
+      ],
+      "earthquake_reason": "Pwede matumba ang kandila samtang nagauyog kag sunugon ang salog ukon kurtina.",
+      "earthquake_fixes": [
+        "Gamiton ang garapon bilang bulutangan para indi matumba ang kandila.",
+        "Pabug atan ang idalom sang gasera gamit ang balas.",
+        "Patya gilayon ang kalayo sa una nga senyales sang pag uyog."
+      ],
+      "typhoon_reason": "Pwede ipalid sang hangin ang kurtina pakadto sa kalayo kag mag umpisa sang sunog.",
+      "typhoon_fixes": [
+        "Ibutang ang katol sa sulod sang lata sang biskwit nga may mga buho sa kilid.",
+        "Ipalayo ang kandila sang indi magnubo sa isa ka metro halin sa bintana kag moskitero.",
+        "Maggamit sang mataas nga garapon bilang proteksyon batok sa hangin."
+      ],
+      "fire_reason": "Ang kalayo nga wala sang nagabantay madasig nga maglapta sa bug os nga balay.",
+      "fire_fixes": [
+        "Siguraduha nga patay na ang tanan nga kalayo bag o matulog.",
+        "Itago ang posporo kag lighter sa mataas nga lugar nga indi malab ot sang bata.",
+        "Magtago sang mamala nga balas ukon basa nga sako malapit sa lugar sang pagluto."
+      ]
+    },
+    "overloaded_socket": {
+      "general_reason": "Ang octopus wiring nagapainit sang mga wire kag pwede mag cause sang sunog sa sulod sang pader.",
+      "general_fixes": [
+        "I unplug ang mabug at nga appliance pareho sang ref pagkatapos sang linog.",
+        "Isaka ang mga power strip halin sa salog para indi mabasa sang baha.",
+        "Isa lang ka appliance ang gamiton sa kada outlet samtang may bagyo."
+      ],
+      "earthquake_reason": "Ang pag uyog nagapahalog sa mga plug nga pwede mag cause sang spark.",
+      "earthquake_fixes": [
+        "I unplug ang ref ukon washing machine gilayon pagkatapos sang linog.",
+        "I tape ang mga plug para magpabilin nga malig on sa outlet.",
+        "Ibutang ang power strip sa salog para indi mabutong ang outlet halin sa pader."
+      ],
+      "typhoon_reason": "Ang alangaang ukon tubig ulan nga tumupa sa mainit nga wire pwede mag cause sang short circuit.",
+      "typhoon_fixes": [
+        "Isaka ang mga extension cord sa ibabaw sang lamesa para indi mabasa.",
+        "I check ang mga plug para sa itom nga marka ukon senyales sang pagkasunog.",
+        "Buhini ang karga sang outlet kapag indi malig on ang kuryente."
+      ],
+      "fire_reason": "Naga init kag nagakatunaw ang plastik nga takop sang wire, nga pwede magsunog sang kahoy nga pader.",
+      "fire_fixes": [
+        "Hikapa ang pader, kung mainit, i unplug gilayon ang tanan.",
+        "I plug ang rice cooker direkta sa wall outlet, indi sa barato nga extension cord.",
+        "Indi itago ang extension cord sa idalom sang alpombra ukon unlan."
+      ]
+    },
+    "damaged_wire": {
+      "general_reason": "Ang mga wire nga nagalagtas ukon may kita nga saway wala na sang proteksyon batok sa spark.",
+      "general_fixes": [
+        "Putson sang electrical tape ang mga guba nga cord.",
+        "Isaka ang mga cord halin sa salog gamit ang mga plastik nga hook.",
+        "Butunga ang plug mismo, indi ang wire, kapag naga unplug."
+      ],
+      "earthquake_reason": "Ang pag uyog pwede magpatid sa mga daan nga wire kag magkuryente sa pader.",
+      "earthquake_fixes": [
+        "I check ang mga cord sang fan kag putson sang tape ang mga guba.",
+        "I unplug ang mga gamit nga may halog nga plug.",
+        "Ipalayo ang mga cord halin sa idalom sang katre para indi maipit tuwing may pag uyog."
+      ],
+      "typhoon_reason": "Ang tubig nga tumupa sa hublas nga saway madasig nga mag cause sang kuryente ukon electric shock.",
+      "typhoon_fixes": [
+        "Indi magkapot sang guba nga wire kung basa ang kamot, patya anay ang breaker.",
+        "Ibitay ang mga cord sa mga hook para magpabilin nga mamala.",
+        "Haboy ang mga cord nga mapilit na ang plastik kay dunot na ini."
+      ],
+      "fire_reason": "Ang init halin sa guba nga wire madasig nga pwede magpadabdab sang kurtina ukon sagbot.",
+      "fire_fixes": [
+        "Tinlui ang mga agiw kag yab ok sa likod sang TV.",
+        "I unplug ang appliance kung nabatyagan mo nga mainit na ang cord sini.",
+        "Indi pagbutungon sing todo ang wire, basi mautod ang copper strands sa sulod."
+      ]
+    },
+    "floor_appliance": {
+      "general_reason": "Mabug at nga appliance nga nakabutang direkta sa salog, madasig malab ot sang baha kag matumba sa mabaskog nga pag uyog.",
+      "general_fixes": [
+        "Butangan sang rubber mat ang idalom sang washing machine.",
+        "Ihigot ang refrigerator sa pader para indi matumba.",
+        "Indi i plug ang basa pa nga appliance pagkatapos sang baha."
+      ],
+      "earthquake_reason": "Ang mabug at nga appliance pwede maglakat ukon matumba samtang nagauyog kag makasakit sang tawo.",
+      "earthquake_fixes": [
+        "Maggamit sang rubber mat sa idalom sang ref para indi ini magdanlog.",
+        "Ihigot ang mataas nga appliance sa semento nga pader.",
+        "I unplug pagkatapos sang linog para malikawan ang sunog."
+      ],
+      "typhoon_reason": "Madasig malab ot sang baha ang motor sa idalom sang appliance, nga pwede mag cause sang pagkaguba kag makuryente.",
+      "typhoon_fixes": [
+        "Isaka ang ref kag washing machine sa ibabaw sang concrete block ukon papag.",
+        "Patya ang breaker kung nakalab ot na ang baha sa salog.",
+        "Ipa check sa technician ang motor nga nababad sa baha bag o gamiton liwat."
+      ],
+      "fire_reason": "Ang mga daan nga motor naga overheat kag madasig mag short circuit.",
+      "fire_fixes": [
+        "Patya ang fan kung daw mainit na ang motor sini.",
+        "Silhiga ang agiw kag yab ok sa idalom sang mga mabug at nga gamit.",
+        "Indi maghalay sang bayo sa ibabaw sang electric fan."
+      ]
+    },
+    "major_crack": {
+      "general_reason": "Madalom nga liki sa pader nga mas daku pa sa sensilyo, senyales ini nga nagahuyang na ang pundasyon sang balay.",
+      "general_fixes": [
+        "Ipa check sa engineer kung safe pa ang pader.",
+        "I seal ang gwa sang liki bag o mag tig ulan.",
+        "Punuon sang fire proof nga semento ang madalom nga guwang."
+      ],
+      "earthquake_reason": "Ang mga liki amo ang mahuyang nga parte sang pader nga mas madasig matumpag tuwing may pag uyog.",
+      "earthquake_fixes": [
+        "Taksa ang liki, kung naglapaw na sa 5mm, delikado na ini.",
+        "Bantayi ang diagonal nga liki malapit sa bintana kay senyales ini sang pagkaguba sang structure.",
+        "Indi ipasandig ang mabug at nga gamit sa pader nga may daku nga liki."
+      ],
+      "typhoon_reason": "Ginatakla sang tubig ulan ang kabilya sa sulod sang semento nga mas nagapahuyang sa pader.",
+      "typhoon_fixes": [
+        "Maggamit sang waterproof sealant sa mga liki sa gwa sang pader.",
+        "Bantayi kung nagadaku ang liki pagkatapos sang bagyo.",
+        "Kuhaa ang mga tanom nga nagatubo sa sulod sang liki."
+      ],
+      "fire_reason": "Pwede ini mangin agyan sang aso kag init nga maka trap sa mga tawo sa sulod.",
+      "fire_fixes": [
+        "Punuon gilayon sang semento ang liki para indi maglapta ang aso.",
+        "I check kung naga umpisa magsangit ang pirtahan tungod sa paghulag sang pader.",
+        "Ipalayo ang gas tank halin sa mga pader nga may malaba nga liki."
+      ]
+    },
+    "minor_crack": {
+      "general_reason": "Manipis nga hairline cracks, kalabanan sa pintura lang ini, pero dapat gihapon bantayan.",
+      "general_fixes": [
+        "Pintahan sang elastomeric paint para indi makasulod ang ulan.",
+        "Markahan ang punta sang liki para mabal an kung nagadaku ini.",
+        "Siguraduha nga indi nakadikit ang moskitero sa pader nga may liki."
+      ],
+      "earthquake_reason": "Pwede ini amat amat nga magdaku pagkatapos sang kada linog.",
+      "earthquake_fixes": [
+        "Piktyuran ang liki kag i check liwat paglipas sang isa ka bulan.",
+        "Maggamit sang lapis para markahan ang punta sang liki.",
+        "I check ang palibot sang bintana para sa magagmay nga diagonal nga linya."
+      ],
+      "typhoon_reason": "Gamay man, pwede gihapon ini maagyan sang tubig nga maga cause sang agup op kag pagkadunot.",
+      "typhoon_fixes": [
+        "Maggamit sang waterproof nga pintura sa mga hairline cracks.",
+        "Bantayi ang mga basa nga parte sang pader tuwing nagaulan.",
+        "Mag spray sang water repellent sa gwa sang pader."
+      ],
+      "fire_reason": "Bisan gamay, pwede ini mangin agyan sang toxic nga aso.",
+      "fire_fixes": [
+        "I seal ang mga guwang sa palibot sang mga outlet.",
+        "Ipalayo ang mga kurtina sa pader nga may liki.",
+        "Kuhaa ang mga nagapanit nga pintura sa palibot sang liki."
+      ]
+    },
+    "broken_glass": {
+      "general_reason": "Mga bintana nga jalousie ukon bildo nga madasig mabuka kag nagahimo sang matalom nga bilog.",
+      "general_fixes": [
+        "Magtago sang tsinelas sa tupad sang katre.",
+        "Magbutang sang safety film sa mga glass door.",
+        "Maggamit sang plywood para takpan ang bintana bag o mag abot ang bagyo."
+      ],
+      "earthquake_reason": "Ang pag uyog nagapabuka sa bildo nga nagalapta sa salog kag katre.",
+      "earthquake_fixes": [
+        "Ipalayo ang katre halin sa mga bintana kag bildo.",
+        "Maggamit sang madamol nga tsinelas para indi masamaran kapag nagapanaug sa katre.",
+        "Mag apply sang safety film para indi maglupok ang bildo."
+      ],
+      "typhoon_reason": "Pwede buhaon sang mabaskog nga hangin kag flying debris ang mga bintana.",
+      "typhoon_fixes": [
+        "Maggamit sang plywood sa gwa sang bintana kung grabe ang bagyo.",
+        "Isira ang madamol nga kurtina bilang sagang sa bildo.",
+        "Magpabilin sa sulod sang balay kag magpalayo sa mga jalousie."
+      ],
+      "fire_reason": "Ang tuman nga init nagapabuka sang bildo nga pwede magsablag sa imo pag evacaute.",
+      "fire_fixes": [
+        "Indi pagbuk a ang bildo gamit ang kamot, maggamit sang pulungkuan ukon mabug at nga butang.",
+        "Likawi ang mag agi sa idalom sang dalagku nga bintana samtang may sunog.",
+        "Siguraduha nga wala sang nagasablag nga mga banga ukon gamit sa main door."
+      ]
+    },
+    "collapsed_structure": {
+      "general_reason": "Bahagya nga nagtumpag ang building tungod sa mahuyang nga pundasyon, ini ang pinakadelikado nga sitwasyon.",
+      "general_fixes": [
+        "Magpraktis sang Drop, Cover, and Hold On.",
+        "Hibalua kung diin ang Triangle of Life sa inyo balay.",
+        "Indi na magbalik sa sulod kapag nakaguwa na."
+      ],
+      "earthquake_reason": "Pwede magtumpag ang kisame ukon pader sa sulod sang pila ka segundo.",
+      "earthquake_fixes": [
+        "Magpwesto sa tupad sang malig on nga lamesa bilang Triangle of Life.",
+        "Indi magdalagan pagwa samtang nagauyog pa.",
+        "Protektahan ang ulo kag liog gamit ang mga kamot."
+      ],
+      "typhoon_reason": "Tungod sa baha, pwede maglubog ukon magtakilid ang pundasyon sang balay.",
+      "typhoon_fixes": [
+        "I check kung may soil erosion sa palibot sang balay pagkatapos sang bagyo.",
+        "Pamati sa mga nagalupok nga tunog halin sa pader, senyales ini sang stress sa structure.",
+        "Magpalayo sa mga kwarto nga may mabug at nga semento nga atop kung may liki na."
+      ],
+      "fire_reason": "Ginapahuyang sang kalayo ang mga suporta tubtob bumigay ang salog ukon atop.",
+      "fire_fixes": [
+        "Guwa gilayon sa una nga senyales sang sunog.",
+        "Magpalayo sa mga mahalog nga salog pagkatapos sang sunog.",
+        "Mag halong sa mga yero nga pwede mahulog nga daw kotsilyo."
+      ]
+    }
+  },
+  "tabs": {
+    "home": "Home",
+    "scans": "Na scan"
+  },
+  "camera_modal": {
+    "title": "Handa ka na bala para sa Safety Check?",
+    "snap_photo": "Magkuha sang Picture",
+    "choose_gallery": "Magpili halin sa Gallery",
+    "cancel": "Kansela",
+    "landscape_recommended_title": "Ginarekomendar ang Landscape nga Picture",
+    "landscape_recommended_message": "Para sa mas manami nga resulta, maggamit sang landscape nga picture para mas madamo nga risgo ang makit an.",
+    "landscape_cancel": "Kansela",
+    "landscape_continue": "Padayon",
+    "gallery_permission_message": "Kinahanglan namon sang permission sa gallery para makapili sang picture."
+  },
+  "camera_screen": {
+    "permission_message": "Kinahanglan sang BantAI sang permission para magamit ang camera.",
+    "allow_camera": "Tugutan ang Camera",
+    "no_device": "Wala sang nakita nga camera.",
+    "model_failed": "Wala Nag load ang Model",
+    "back_to_home": "Balik sa Home",
+    "loading_model": "Naga load sang AI Model...",
+    "capture_ready": "Handa na, pwede ka na magkuha sang picture.",
+    "capture_failed_title": "Wala Nakuha ang Picture",
+    "capture_failed_message": "Indi namon makuha ang picture. Tistingi liwat."
+  },
+  "home_screen": {
+    "ready_title": "Handa na bala para sa Safety Check?",
+    "scan_room": "I scan ang Kwarto",
+    "articles_title": "Mga Guide sa Safety kag Pagpanghanda"
+  },
+  "history_screen": {
+    "title": "Mga Nagligad nga Scan",
+    "loading": "Naga load sang mga na save nga scan...",
+    "error_title": "Indi Mag load ang mga na scan.",
+    "error_message": "Indi namon mag load ang imo mga nagligad nga scan.",
+    "empty_title": "Wala pa sang na save nga scan",
+    "empty_message": "Ang imo mga natapos nga pag check sang kwarto magaguwa diri pagkatapos ini ma save."
+  },
+  "history_card": {
+    "no_hazards": "Wala sang risgo",
+    "scan_title": "Safety Scan #{{id}}",
+    "hazards_resolved": "{{assessed}}/{{total}} Peligro ang Naresolba"
+  },
+  "landscape_screen": {
+    "instruction": "Para sa mas maayo nga resulta, uyati ang imo device nga pabalabag (landscape).",
+    "ready_message": "Pwede ka na magkuha sang picture sang imo kwarto.",
+    "not_landscape": "Wala pa nagapabalabag ang imo device.",
+    "take_photo": "Magkuha sang Picture"
+  },
+  "photo_instructions_screen": {
+    "title": "Paano Magkuha sang Picture",
+    "description": "Iposisyon ang imo cellphone sa lugar kung diin makita ang kalabanan sang kwarto para masiguro nga malakip ang tanan nga parte.",
+    "proceed": "Padayon"
+  },
+  "loading_screen": {
+    "status_init": "Ginaumpisahan ang AI engine...",
+    "status_global": "Ginahimo ang kabilugan nga scan...",
+    "status_quadrants": "Gina scan ang mga parte sang kwarto...",
+    "status_details": "Gina check ang mga detalye sang peligro...",
+    "status_report": "Ginahimo ang report sang safety...",
+    "status_complete": "Tapos na ang Pag check!"
+  },
+  "progress_bar": {
+    "title": "Gina check ang Imo Kwarto",
+    "cancel": "Kansela"
+  },
+  "safety_report": {
+    "title": "Report sang Safety sang Kwarto",
+    "disclaimer": "Ang mga scan sang BantAI nagahatag sang guide kag impormasyon lamang. Ang mga resulta mga suggestion lamang kag dapat gihapon i check sang kada isa paagi sa aktwal nga pag inspect.",
+    "spatial_warnings_title": "Mga Paandam sa Espasyo",
+    "identified_hazards": "Mga Nakit an nga Peligro ({{count}})",
+    "hazards_instruction": "I check ang kada peligro, himua ang gin suggest nga solusyon, kag pinduta ang Markahan bilang Naresolba kapag tapos na.",
+    "loading_scan": "Naga load sang mga detalye sang na save nga scan...",
+    "saved_scan_unavailable": "Indi available ang na save nga scan",
+    "scan_another_room": "I scan ang Iban nga Kwarto",
+    "upload_another_image": "Mag upload sang Iban nga Picture",
+    "back_to_home": "Balik sa Home",
+    "confirm_scan_title": "I scan ang iban nga kwarto?",
+    "confirm_scan_message": "Magapabilin ang current nga report sa na scan. Padayunon sa camera?",
+    "confirm_scan_cancel": "Kansela",
+    "confirm_scan_continue": "Padayon",
+    "upload_permission_message": "Kinahanglan namon sang permission sa gallery para makapili sang picture.",
+    "upload_failed_title": "Wala Na import",
+    "upload_failed_message": "Indi namon ma process ina nga picture. Tistingi liwat.",
+    "reason_context_label": "Konteksto sang Rason/Solusyon: {{context}}",
+    "context_all": "Tanan nga Peligro",
+    "context_earthquake": "Linog",
+    "context_typhoon": "Bagyo",
+    "context_fire": "Sunog",
+    "sorting_message_all": "Nakalista ang tanan nga peligro. Ang mga rason kag suggestion nga solusyon nakabase sa pinakakritikal nga pag check para sa kada isa.",
+    "sorting_message_earthquake": "Nakalista ang mga peligro nga may connection sa linog. Ang kada rason kag suggestion nga solusyon nagapaathag sang safety sa konteksto sang linog.",
+    "sorting_message_typhoon": "Nakalista ang mga peligro nga may connection sa bagyo. Ang kada rason kag suggestion nga solusyon nagapaathag sang safety sa konteksto sang bagyo.",
+    "sorting_message_fire": "Nakalista ang mga peligro nga may connection sa sunog. Ang kada rason kag suggestion nga solusyon nagapaathag sang safety sa konteksto sang sunog.",
+    "fallback_reason": "Nakita sang AI ang peligro nga ini nga may {{confidence}}% confidence.",
+    "fallback_fix": "Palihog i check ang lugar kag resolbahon ang peligro para masiguro ang safety."
+  },
+  "hazard_card": {
+    "reason_label": "Rason:",
+    "fixes_label": "Mga Suggestion nga Solusyon:",
+    "mark_resolved": "Markahan bilang Naresolba",
+    "unmark_resolved": "Kuhaon ang Marka",
+    "loading": "Naga load sang mga peligro...",
+    "no_hazards_title": "Wala sang Nakita nga Peligro",
+    "no_hazards_message": "Daw safe ang lugar nga ini base sa current nga scan.",
+    "reason_unavailable": "Ang rason para sa {{disaster}} wala pa para sa peligro nga ini.",
+    "fix_unavailable": "Ang solusyon para sa {{disaster}} wala pa. Siguraduha anay ang lugar kag mangayo sang manual nga pag check."
+  },
+  "risk_status": {
+    "low": "Manubo",
+    "medium": "Katamtaman",
+    "high": "Mataas",
+    "critical": "Kritikal"
+  },
+  "sorting_buttons": {
+    "all": "Tanan",
+    "earthquake": "Linog",
+    "typhoon": "Bagyo",
+    "fire": "Sunog"
+  },
+  "boost_messages": {
+    "messages": [
+      "Nabuhinan ang Risgo!",
+      "Na siguro ang Kwarto!",
+      "Naresolba ang Peligro!",
+      "Mas Safe na!",
+      "Aprobado sang BantAI!",
+      "Manami!"
+    ]
+  },
+  "articles": {
+    "earthquake_title": "Pagpanghanda sang Inyo Balay para sa Linog: 6 ka Importante nga Tip",
+    "earthquake_desc": "Ang pagpuyo sa lugar nga pirme ginaigo sang linog indi lang dapat may nabal an ka, kinahanglan man sang pagpanghanda para maprotektahan ang inyo balay kag pamilya.",
+    "typhoon_title": "Ihanda ang Inyo Balay: Paano Magpanghanda para sa Bagyo",
+    "typhoon_desc": "Kay nagasulod na ang tag ulan, dungan sini ang panahon sang mga bagyo kag mabaskog nga ulan. Panahon na para magpanghanda bag o pa mag abot.",
+    "fire_title": "Hibalua ang Parte sa mga Sunog sa Balay",
+    "fire_desc": "Sa sulod lang sang duha ka minuto, mahimo maging delikado sa kabuhi ang isa ka sunog. Sa lima ka minuto, mahimo masunog sing bug os ang isa ka balay.",
+    "common": {
+      "source_information": "Source",
+      "more_articles": "Iban Pa nga mga Article",
+      "previous": "Nagligad",
+      "next": "Masunod",
+      "read_original_article": "Basahon ang orihinal nga article",
+      "image_courtesy": "Picture halin sa: {{source}}"
+    },
+    "earthquake": {
+      "title": "Pagpanghanda sang Inyo Balay kag Gamit para sa Linog: 6 ka Importante nga Tip",
+      "source": "Article halin sa: GeoVera",
+      "source_info": "Ang article nga ini orihinal nga gin publish sang GeoVera.",
+      "intro": "Ang pagpuyo sa lugar nga pirme ginaigo sang linog nagakinahanglan sang aktibo nga pagpanghanda. Wala sang paandam ang mga linog bag o mag abot, gani ang pagsunod sa mga simple nga tip nga ini daku ang mabulig para mabuhinan ang peligro kag maprotektahan ang imo pamilya.",
+      "section1_title": "1. I lock ang mga Cabinet",
+      "section1_content": "Ang mga cabinet nga wala sang lock pwede mabuksan sing hinali tuwing may linog kag maguwa ang unod. Mag install sang safety latch sa mga pirtahan sang cabinet para indi mahulog ang mga gamit kag malikawan ang disgrasya.",
+      "section2_title": "2. Siguraduha nga Matinlo ang mga Agyan",
+      "section2_content": "Importante ang madasig nga pag evacaute tuwing may emergency. Pirme siguraduha nga matinlo kag wala sang nagasablag sa mga agyan pakadto sa tanan nga pirtahan kag bintana.",
+      "section3_title": "3. Hibalua Kung Paano Protektahan ang Kaugalingon",
+      "section3_content": "Itudlo sa bug os nga pamilya ang Drop, Cover, and Hold On kag magpraktis sini sing regular. Hibalua kung diin ang safe nga lugar sa kada kwarto, pareho sang idalom sang malig on nga lamesa ukon dampi sa panulod nga pader, malayo sa mga bintana kag gamit nga pwede matumba.",
+      "section4_title": "4. I angkla ang Mabug at nga Gamit",
+      "section4_content": "Ang mataas kag mabug at nga gamit pareho sang bookcase, aparador, kag shelves dapat malig on nga nakakabit sa pader. Isaylo ang mabug at nga butang sa mas manubo nga shelf, kag siguraduha nga naka secure ang mga TV kag computer monitor.",
+      "section5_title": "5. Siguraduha ang mga Utilities kag Flammables",
+      "section5_content": "Ang water heater, gas fixture, kag iban pa nga utility dapat nakakabit kag may flexible connector para malikawan ang delikado nga tulo. Itago ang mga flammable ukon toxic nga butang (pareho sang cleaning supplies ukon pintura) sa manubo nga lugar kung diin indi madasig matumba.",
+      "section6_title": "6. Kay oha ang mga Magagmay nga Peligro",
+      "section6_content": "Bantayi ang mga magagmay nga butang nga pwede mag cause sang disgrasya ukon mabuka. Siguraduha nga nakakabit ang mga picture frame, salamin, kag suga. Kay oha ang mga magamo nga cable para indi masandad ang bisan sin o, kag isipon ang pagbutang sang safety film sa mga bintana para indi maglapta ang bildo kapag nabuka."
+    },
+    "fire": {
+      "title": "Mga Sunog sa Balay: Guide sa Safety kag Paglikaw",
+      "source": "Article halin sa: Ready",
+      "source_info": "Ang article nga ini orihinal nga gin publish sang Ready.",
+      "intro": "Sa sulod lang sang duha ka minuto, mahimo maging delikado sa kabuhi ang isa ka sunog, kag sa lima ka minuto, mahimo masunog sing bug os ang isa ka balay. Ang pag intindi sa kalayo kag ang simple nga pagpanghanda daku ang mabulig para makaluwas sa imo pamilya.",
+      "understanding_fire_title": "Pag intindi sa Kalayo",
+      "fire_fast_title": "Ang Kalayo MADASIG:",
+      "fire_fast_content": "Ang gamay nga kalayo pwede maging daku nga sunog sa wala pa 30 segundo.",
+      "fire_hot_title": "Ang Kalayo MAINIT:",
+      "fire_hot_content": "Ang init ang mas delikado sangsa aktwal nga kalayo. Pwede makalab ot ang temperatura sang kwarto sa 600 degrees sa tupong sang mata, tuman na para mapaso gilayon ang baga.",
+      "fire_dark_title": "Ang Kalayo MADULOM kag TOXIC:",
+      "fire_dark_content": "Madasig nga nagahimo sang madamol nga itom nga aso kag toxic nga gas ang kalayo. Ang mga gas nga ini amo ang masami nga nagakuha sang mas madamo nga kabuhi sangsa kalayo mismo kay nagatuga ini sang pagkalipat kag katuyo.",
+      "preparation_title": "Pagpanghanda",
+      "map_exits_title": "Hibalua ang Duha ka Agyan Pagwa:",
+      "map_exits_content": "Mangita sang duha ka agyan pagwa halin sa kada kwarto kung sakali nabalaban ang main exit. Siguraduha nga madasig mabuksan ang mga bintana kag security bar.",
+      "practice_escape_title": "Magpraktis sang Pag Evacuate:",
+      "practice_escape_content": "Magpraktis sang fire escape plan sing duha ka beses kada tuig, lakip ang pagguwa nga wala sang suga kag nakapiyong ang mata.",
+      "sleep_safely_title": "Safe nga Pagkatulog:",
+      "sleep_safely_content": "Pirme magtulog nga nakasira ang pirtahan sang kwarto para maghinay ang paglapta sang aso kag init, kag magtago sang fire extinguisher sa kusina.",
+      "prevention_title": "Adlaw adlaw nga Paglikaw sa Sunog",
+      "safe_cooking_title": "Safe nga Pagluto:",
+      "safe_cooking_content": "Indi gid pagbayaan ang nagaprito ukon nagaluto nga wala sang bantay. I mentenar ang outdoor barbecue grill sang indi magnubo sa 10 tapak halin sa pader kag railing sang balay.",
+      "electrical_safety_title": "Safety sa Kuryente:",
+      "electrical_safety_content": "Ilisan gilayon ang mga buka ukon guba nga cord sang appliance. Indi gid pagtaguon ang cord sa idalom sang alpombra, kag indi mag overload sang extension cord.",
+      "protect_children_title": "Protektahan ang mga Bata:",
+      "protect_children_content": "Itago ang mga posporo kag lighter sa naka lock nga cabinet nga indi malab ot sang bata. Itudlo sing temprano sa mga bata nga ang kalayo isa ka gamit, indi hampanganan.",
+      "during_fire_title": "Sa Panahon sang Sunog: Paano Magpabilin nga Buhi",
+      "crawl_low_title": "Magkamang sing Manubo:",
+      "crawl_low_content": "Ang madamol nga aso kag toxic nga gas nagaumpisa magtipon sa kisame. Manaog sa salog kag magkamang sa idalom sang aso pakadto sa exit.",
+      "feel_doors_title": "Hikapa ang mga Pirtahan:",
+      "feel_doors_content": "Bag o buksan ang bisan ano nga pirtahan, hikapa ang doorknob kag ang pirtahan mismo. Kung mainit ang isa ukon pareho, indi pagbuksan, maggamit sang ikaduha nga agyan pagwa.",
+      "if_trapped_title": "Kung Na trap:",
+      "if_trapped_content": "Isira ang pirtahan kag takpan ang mga buho kag guwang sa idalom sang pirtahan sang panapton ukon tape para indi makasulod ang aso. Tumawag sa emergency kag magsenyas sang bulig halin sa bintana gamit ang flashlight ukon masanag nga panapton.",
+      "stop_drop_roll_title": "Mag untat, Manaog, kag Magligid:",
+      "stop_drop_roll_content": "Kung nasunog ang bayo, mag untat gilayon, manaog sa salog, takpan ang guya sang mga kamot, kag magligid para mapatay ang kalayo.",
+      "closing_text": "Tandaan: ang pinakaepektibo mo nga depensa batok sa sunog amo ang nagagana nga smoke alarm kag isa ka gin tun an nga plano sang pag evacuate.",
+      "closing_text_italic": "Magpabilin nga safe kag pirme unahon ang kaluwasan sang imo pamilya."
+    },
+    "typhoon": {
+      "title": "Ihanda ang Inyo Balay: Paano Magpanghanda para sa Bagyo",
+      "source": "Article halin sa: Camella",
+      "source_info": "Ang article nga ini orihinal nga gin publish sang Camella.",
+      "intro": "Kay nagasulod na ang tag ulan, ang matindi nga bagyo kag mabaskog nga ulan nangin regular na nga problema. Protektahi ang imo gamit kag siguruha nga safe ang imo pamilya gamit ang checklist nga ini.",
+      "exterior_title": "Pag check sa Gwa sang Balay",
+      "inspect_roof_title": "I check ang Atop:",
+      "inspect_roof_content": "Pangitaa ang mga buho, liki, ukon halog nga panel. Kay oha ang mga gamay nga problema gamit ang sealant kag siguraduha nga malig on ang mga screw para malikawan ang halit sang hangin kag tulo.",
+      "clear_gutters_title": "Tinlui ang Gutter kag mga Drain:",
+      "clear_gutters_content": "Kuhaa ang mga dahon kag higko sa imo gutter. Siguraduha nga wala sang basura ang mga drainage sa komunidad para malikawan ang gulpi nga pagbaha.",
+      "trim_trees_title": "Utda ang mga Kahoy kag Tanom:",
+      "trim_trees_content": "Utda ang mga mahuyang nga sanga kag sobra nga tanom para mabuhinan ang delikado nga flying debris tuwing may mabaskog nga hangin.",
+      "interior_title": "Safety sa Sulod sang Balay",
+      "secure_windows_title": "Siguraduha ang mga Bintana kag Pirtahan:",
+      "secure_windows_content": "Siguraduha nga malig on ang mga frame kag kaya antuson ang mabaskog nga hangin. Dal ha ang tanan nga pan gwa nga gamit sa sulod.",
+      "check_wiring_title": "I check ang Wiring kag Plumbing:",
+      "check_wiring_content": "Kay oha ang bisan ano nga guba nga wiring ukon grounded switch para malikawan ang electric shock sa panahon sang brownout. Ipa check sa plumber ang mga nagatulo nga tubo sing temprano pa.",
+      "supplies_title": "Mga Emergency nga Suplay",
+      "stock_pantry_title": "Magtipon sa Pantry:",
+      "stock_pantry_content": "Magtago sang indi magnubo sa duha ka semana nga suplay sang canned goods kag mainom nga tubig. Ilakip ang manual can opener kag mga high calorie nga meryenda para sa bug os nga pamilya.",
+      "emergency_kit_title": "Maghimo sang Emergency Kit:",
+      "emergency_kit_content": "Maghanda sang bag nga may first aid kit, flashlight, baterya, hand crank radio, kag bulong para sa mga may maintenance. Itago ini sa lugar nga madasig malab ot.",
+      "store_water_title": "Magtipon sang Matinlo nga Tubig:",
+      "store_water_content": "Magtago sang indi magnubo sa 1 litro nga tubig kada tawo kada adlaw para sa pila ka adlaw. Magtipon sang dugang nga tubig sa matinlo nga suludlan nga malayo sa mga bata kag sapat.",
+      "protect_documents_title": "Protektahan ang mga Dokumento:",
+      "protect_documents_content": "I scan ang importante nga dokumento (birth certificate, insurance, titulo sang duta) kag itago ang digital copy sa cloud storage ukon sa masaligan nga pamilya.",
+      "family_title": "Plano sang Pamilya",
+      "emergency_numbers_title": "I save ang mga Emergency Number:",
+      "emergency_numbers_content": "Isulat ang numero sang lokal nga pulis, bumbero, kag disaster hotline. Magpraktis sang pagtawag sa mga numero nga ini upod ang mga bata.",
+      "plan_evacuation_title": "Planuhon ang Evacuation:",
+      "plan_evacuation_content": "Hibalua ang ruta sang evacuation kag kung diin magakitaay ang pamilya. Siguraduha nga nabal an sang tanan kung paano mag contact kung magbulagay. Magtago sang na print nga mapa kag listahan sa emergency kit.",
+      "check_loved_ones_title": "Kamustaha ang Imo Pamilya:",
+      "check_loved_ones_content": "Mag assign sang masaligan nga pamilya ukon abyan sa iban nga lugar nga pwede tawagan. Tawagi ang tawo nga ini kung nagbulagay ang pamilya para mabal an sang tanan nga safe kamo.",
+      "closing_text": "Magpabilin nga safe, magpabilin nga mamala, kag pirme magbantay sa mga lokal nga balita sa panahon."
+    }
+  }
+}
