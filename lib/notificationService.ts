@@ -6,6 +6,10 @@ import {
 import * as Notifications from "expo-notifications";
 import { NativeModules, PermissionsAndroid, Platform } from "react-native";
 
+// ⚠️ IMPORTANT: Adjust this import path to point to your actual i18n config file
+// where your i18next instance is initialized and exported.
+import i18n from "i18next";
+
 const { SmsSyncModule } = NativeModules;
 
 // ──────────────────────────────────────────────────
@@ -21,35 +25,6 @@ Notifications.setNotificationHandler({
     shouldShowList: true,
   }),
 });
-
-// ──────────────────────────────────────────────────
-// Message templates
-// ──────────────────────────────────────────────────
-
-const MONTHLY_NOTIFICATION = {
-  title: "Time for a Safety Check! 🏠",
-  body: "It's a new month! Take a quick scan of your home to make sure everything is safe.",
-};
-
-const SEASONAL_SUMMER = {
-  title: "Summer Safety Reminder ☀️",
-  body: "Summer heat can increase fire risks. Check your electrical connections and keep flammable items away from heat sources.",
-};
-
-const SEASONAL_TYPHOON = {
-  title: "Typhoon Season Prep 🌊",
-  body: "Ber months are here — typhoon season! Scan your home for loose items, check for cracks, and secure your windows.",
-};
-
-const NDRRMC_NOTIFICATION = {
-  title: "Disaster Alert Received ⚠️",
-  body: "An NDRRMC alert was detected. Open BantAI for a quick home safety check.",
-};
-
-const SCAN_OVERDUE = {
-  title: "Your Home Needs a Check-up 🔍",
-  body: "It's been over 30 days since your last safety scan. Your space might have changed — run a quick check today.",
-};
 
 // ──────────────────────────────────────────────────
 // Initialization — called once from _layout.tsx
@@ -92,8 +67,8 @@ async function scheduleMonthlyReminder(): Promise<void> {
   try {
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: MONTHLY_NOTIFICATION.title,
-        body: MONTHLY_NOTIFICATION.body,
+        title: i18n.t("notifications.monthly.title"),
+        body: i18n.t("notifications.monthly.body"),
         data: { type: "monthly" },
       },
       trigger: {
@@ -121,8 +96,8 @@ async function scheduleSeasonalReminders(): Promise<void> {
       // Summer safety — schedule for the 15th at 10:00 AM
       await Notifications.scheduleNotificationAsync({
         content: {
-          title: SEASONAL_SUMMER.title,
-          body: SEASONAL_SUMMER.body,
+          title: i18n.t("notifications.seasonal_summer.title"),
+          body: i18n.t("notifications.seasonal_summer.body"),
           data: { type: "seasonal", season: "summer" },
         },
         trigger: {
@@ -139,8 +114,8 @@ async function scheduleSeasonalReminders(): Promise<void> {
       // Typhoon season — schedule for the 15th at 10:00 AM
       await Notifications.scheduleNotificationAsync({
         content: {
-          title: SEASONAL_TYPHOON.title,
-          body: SEASONAL_TYPHOON.body,
+          title: i18n.t("notifications.seasonal_typhoon.title"),
+          body: i18n.t("notifications.seasonal_typhoon.body"),
           data: { type: "seasonal", season: "typhoon" },
         },
         trigger: {
@@ -169,8 +144,8 @@ export async function triggerNDRRMCNotification(
     // The listener below will handle saving this to the DB
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: NDRRMC_NOTIFICATION.title,
-        body: NDRRMC_NOTIFICATION.body,
+        title: i18n.t("notifications.ndrrmc.title"),
+        body: i18n.t("notifications.ndrrmc.body"),
         data: { type: "ndrrmc", smsBody },
       },
       trigger: null, // immediate
@@ -219,11 +194,10 @@ async function requestSmsPermission(): Promise<void> {
       await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.RECEIVE_SMS,
         {
-          title: "SMS Alert Permission",
-          message:
-            "BantAI needs to listen for NDRRMC disaster alerts so it can remind you to check your home's safety. BantAI only reads messages starting with 'NDRRMC' and ignores all other messages.",
-          buttonPositive: "Allow",
-          buttonNegative: "Deny",
+          title: i18n.t("notifications.sms_permission.title"),
+          message: i18n.t("notifications.sms_permission.message"),
+          buttonPositive: i18n.t("notifications.sms_permission.allow"),
+          buttonNegative: i18n.t("notifications.sms_permission.deny"),
         },
       );
     }
@@ -250,8 +224,8 @@ async function checkScanReminder(): Promise<void> {
       // The listener will handle the DB insertion
       await Notifications.scheduleNotificationAsync({
         content: {
-          title: SCAN_OVERDUE.title,
-          body: SCAN_OVERDUE.body,
+          title: i18n.t("notifications.scan_overdue.title"),
+          body: i18n.t("notifications.scan_overdue.body"),
           data: { type: "monthly" },
         },
         trigger: null, // immediate
@@ -300,10 +274,11 @@ export async function syncPendingNdrrmcAlerts(): Promise<void> {
         const { title, body, smsBody } = alert;
 
         // Force 'ndrrmc' type to satisfy DB check constraint
+        // Fallback to translated text if native push lacks title/body
         await insertNotification(
           "ndrrmc",
-          title || "NDRRMC Alert",
-          body || "New disaster alert received.",
+          title || i18n.t("notifications.ndrrmc.title"),
+          body || i18n.t("notifications.ndrrmc.body"),
           smsBody || undefined,
         );
       } catch (e) {

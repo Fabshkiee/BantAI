@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Pressable, Text, View } from "react-native";
 
 interface NotificationCardProps {
@@ -9,6 +10,7 @@ interface NotificationCardProps {
   isOpened?: boolean;
   onPress: () => void;
   onLongPress?: () => void;
+  accessibilityLabel?: string;
 }
 
 export default function NotificationCard({
@@ -19,17 +21,26 @@ export default function NotificationCard({
   isOpened = false,
   onPress,
   onLongPress,
+  accessibilityLabel,
 }: NotificationCardProps) {
+  const { t } = useTranslation();
+
   return (
     <Pressable
       onPress={onPress}
       onLongPress={onLongPress}
+      accessibilityLabel={accessibilityLabel}
+      accessibilityRole="button"
+      accessibilityHint={isOpened ? "" : t("card.unread_status")}
       className="flex-row items-center pb-5 w-full mb-3 bg-surface-default border-b border-border-secondary active:scale-95 active:opacity-75 transition-all"
     >
       {/* Unread Indicator Container */}
       <View className="items-center justify-center">
         {!isOpened && (
-          <View className="w-3 h-3 rounded-full bg-surface-primary mr-2" />
+          <View
+            className="w-3 h-3 rounded-full bg-surface-primary mr-2"
+            accessibilityLabel={t("card.unread_status")}
+          />
         )}
       </View>
 
