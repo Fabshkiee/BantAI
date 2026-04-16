@@ -1,4 +1,6 @@
 import ArrowIcon from "@/assets/icons/ArrowIcon";
+import FlashIcon from "@/assets/icons/FlashIcon";
+import FlashOffIcon from "@/assets/icons/FlashOffIcon";
 import Button from "@/components/Button";
 import { useTFLite } from "@/hooks/useTFLite";
 import i18n from "@/languages/i18n";
@@ -29,6 +31,7 @@ export default function CameraScreen() {
   const device = useCameraDevice("back");
   const [showNotification, setShowNotification] = useState(true);
   const [isCapturing, setIsCapturing] = useState(false);
+  const [flashMode, setFlashMode] = useState<"on" | "off">("off");
   const cameraRef = useRef<Camera>(null);
   const { modelLoaded, error: modelError } = useTFLite();
   const { t } = useTranslation();
@@ -81,7 +84,7 @@ export default function CameraScreen() {
       setIsCapturing(true);
 
       const photo = await cameraRef.current.takePhoto({
-        flash: "off",
+        flash: flashMode,
         enableShutterSound: false,
       });
 
@@ -189,6 +192,22 @@ export default function CameraScreen() {
         isActive={true}
         photo={true}
       />
+
+      {/* Flash Toggle Button */}
+      {device.hasFlash && (
+        <View className="absolute top-4 left-4 z-50">
+          <TouchableOpacity
+            onPress={() => setFlashMode((prev) => (prev === "off" ? "on" : "off"))}
+            className="w-12 h-12 bg-black/40 rounded-full items-center justify-center border border-white/20 active:scale-95 transition-transform"
+          >
+            {flashMode === "on" ? (
+              <FlashIcon color="white" size={24} />
+            ) : (
+              <FlashOffIcon color="white" size={24} />
+            )}
+          </TouchableOpacity>
+        </View>
+      )}
 
       {/* Language Toggle Button */}
       <View className="absolute top-4 right-4 z-50">
