@@ -63,11 +63,20 @@ export default function PhotoInstructionsScreen() {
 
   return (
     <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
-      <View className="bg-surface-default px-8 pt-24">
-        <View className="absolute top-0 left-0 right-0 px-6 pt-8 flex-row justify-between">
+      <View className="bg-surface-default px-8 pt-24 mt-14">
+        <View className="absolute top-0 left-0 right-0 px-6 pt-1 flex-row justify-between">
+          <Button
+            label={t("common.return")}
+            variant="return"
+            icon={<ArrowLeftIcon color="black" size={18} />}
+            iconPosition="left"
+            onPress={() => {
+              router.back();
+            }}
+          />
         </View>
         <View className="items-center w-full">
-          <Text className="text-h2 font-display font-bold text-center mb-3 leading-tight">
+          <Text className="text-h2 font-display font-bold text-center mb-3 mt-14 pt-10 leading-tight">
             {t("photo_instructions_screen.title")}
           </Text>
           <Text className="text-lg text-center font-text leading-7 mb-4">
