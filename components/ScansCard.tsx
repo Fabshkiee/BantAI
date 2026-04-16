@@ -6,7 +6,8 @@ import MascotReporter, { type RiskVariant } from "./MascotReporter";
 
 type ScansCardProps = {
   id: number;
-  title: string;
+  title?: string;
+  roomName?: string | null;
   scannedAt: number;
   roomScore: number | null;
   riskVariant: RiskVariant | null;
@@ -26,6 +27,7 @@ const formatScanDate = (timestamp: number) =>
 export default function ScansCard({
   id,
   title,
+  roomName,
   scannedAt,
   roomScore,
   riskVariant,
@@ -37,6 +39,7 @@ export default function ScansCard({
   const { t } = useTranslation();
   const score = roomScore ?? 0;
   const displayVariant = riskVariant ?? "critical";
+  const displayTitle = roomName || title || t("history_card.scan_title", { id });
   const imageSource = photoPath
     ? { uri: photoPath }
     : require("@/assets/images/room.png");
@@ -72,7 +75,7 @@ export default function ScansCard({
         />
 
         <View className="flex-1 justify-center">
-          <Text className="text-2xl font-semibold">{title}</Text>
+          <Text className="text-2xl font-semibold">{displayTitle}</Text>
           <Text className="text-md text-text-subtle mt-1">
             {formatScanDate(scannedAt)}
           </Text>

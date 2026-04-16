@@ -105,7 +105,7 @@ export default function ScansScreen() {
                 <ScansCard
                   key={session.id}
                   id={session.id}
-                  title={t("history_card.scan_title", { id: session.id })}
+                  roomName={session.roomName}
                   scannedAt={session.scannedAt}
                   roomScore={session.roomScore}
                   riskVariant={session.riskVariant}

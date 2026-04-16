@@ -1,11 +1,13 @@
 import ArrowLeftIcon from "@/assets/icons/ArrowLeftIcon";
+import EditIcon from "@/assets/icons/EditIcon";
 import PlusIcon from "@/assets/icons/PlusIcon";
 import RefreshIcon from "@/assets/icons/RefreshIcon";
 import Button from "@/components/Button";
 import HazardCard, { HazardData } from "@/components/HazardCard";
 import HazardSortingButtons from "@/components/HazardSortingButons";
 import MascotReporter, { getRiskVariant } from "@/components/MascotReporter";
-import { getScanSessionDetails, type ScanSessionDetails } from "@/db/db";
+import NameScanModal from "@/components/NameScanModal";
+import { getScanSessionDetails, updateScanSessionName, type ScanSessionDetails } from "@/db/db";
 import { HAZARD_TYPES, type DisasterType } from "@/db/hazards";
 import { hazardDictionary } from "@/hazardDictionary";
 import i18n from "@/languages/i18n";
@@ -14,7 +16,7 @@ import * as ImagePicker from "expo-image-picker";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ActivityIndicator, Alert, Animated, Image, Text, View } from "react-native";
+import { ActivityIndicator, Alert, Animated, Image, Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const SEVERITY_PRIORITY: Record<string, number> = {
@@ -73,6 +75,9 @@ export default function SafetyReport() {
   const [oldBoostScore, setOldBoostScore] = useState(0);
   const [boostMessage, setBoostMessage] = useState("");
   const boostAnim = useRef(new Animated.Value(0)).current;
+
+  const [isNamingModalVisible, setIsNamingModalVisible] = useState(false);
+  const [hasPromptedForName, setHasPromptedForName] = useState(false);
 
   const BOOST_MESSAGES = t("boost_messages.messages", {
     returnObjects: true,
@@ -143,6 +148,24 @@ export default function SafetyReport() {
   useEffect(() => {
     loadSession();
   }, [loadSession]);
+
+  // Prompt for name if it's a new session and hasn't been named yet
+  useEffect(() => {
+    if (session && session.roomName === null && !hasPromptedForName && !isLoadingSession) {
+      const timer = setTimeout(() => {
+        setIsNamingModalVisible(true);
+        setHasPromptedForName(true);
+      }, 1500); // Wait for mascot animation to finish
+      return () => clearTimeout(timer);
+    }
+  }, [session, hasPromptedForName, isLoadingSession]);
+
+  const handleUpdateName = async (newName: string) => {
+    if (sessionId) {
+      await updateScanSessionName(sessionId, newName);
+      loadSession(true); // Quietly refresh
+    }
+  };
 
   const mappedHazards: HazardData[] = [];
   for (let i = 0; i < detections.length; i++) {
@@ -346,7 +369,7 @@ export default function SafetyReport() {
     }
 
     router.push({
-      pathname: "/scanReport",
+      pathname: "/scanReport" as any,
       params: { sessionId: String(sessionId) },
     });
   }, [hasSession, router, sessionId]);
@@ -364,14 +387,25 @@ export default function SafetyReport() {
         <View className="flex-row items-center">
           <View>
             <Button
-              label="Safety Report"
-              variant="returnLg"
-              icon={<ArrowLeftIcon color="black" size={18} />}
-              iconPosition="left"
+              label=""
+              variant="return"
+              className="w-12 h-12 rounded-full p-0 flex items-center justify-center pt-1"
+              icon={<ArrowLeftIcon color="black" size={24} />}
               onPress={() => router.push("/scans" as any)}
             />
           </View>
 
+          <Pressable 
+            onPress={() => setIsNamingModalVisible(true)}
+            className="flex-1 active:opacity-70 flex-row items-baseline ml-1"
+          >
+            <Text className="text-h3 font-bold text-text-default" numberOfLines={1}>
+              {session?.roomName || t("safety_report.title", "Safety Report")}
+            </Text>
+            <View className="ml-2 mb-1 opacity-30">
+              <EditIcon color="black" size={16} />
+            </View>
+          </Pressable>
 
           <View className="ml-auto flex-row gap-2 items-center">
             {hasSession ? (
@@ -580,6 +614,13 @@ export default function SafetyReport() {
           </Animated.View>
         </Animated.View>
       )}
+
+      <NameScanModal
+        isVisible={isNamingModalVisible}
+        onClose={() => setIsNamingModalVisible(false)}
+        onSave={handleUpdateName}
+        defaultName={session?.roomName || ""}
+      />
     </View>
   );
 }
