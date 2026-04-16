@@ -1,22 +1,22 @@
 import ArrowLeftIcon from "@/assets/icons/ArrowLeftIcon";
 import Button from "@/components/Button";
 import {
-    getScanReportBySession,
-    type ScanReportDetails,
-    type ScanReportItem,
+  getScanReportBySession,
+  type ScanReportDetails,
+  type ScanReportItem,
 } from "@/db/db";
 import * as FileSystem from "expo-file-system/legacy";
 import * as Print from "expo-print";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Platform,
-    ScrollView,
-    Text,
-    ToastAndroid,
-    View,
+  ActivityIndicator,
+  Alert,
+  Platform,
+  ScrollView,
+  Text,
+  ToastAndroid,
+  View,
 } from "react-native";
 
 function formatDate(timestampSeconds: number): string {

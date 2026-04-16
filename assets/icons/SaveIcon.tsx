@@ -6,7 +6,10 @@ type SaveIconProps = {
   size?: number;
 };
 
-export default function SaveIcon({ color = "white", size = 16 }: SaveIconProps) {
+export default function SaveIcon({
+  color = "white",
+  size = 16,
+}: SaveIconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path

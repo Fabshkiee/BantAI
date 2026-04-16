@@ -1,6 +1,6 @@
+import SaveIcon from "@/assets/icons/SaveIcon";
 import * as React from "react";
 import { ActivityIndicator, Pressable, Text, View } from "react-native";
-import SaveIcon from "@/assets/icons/SaveIcon";
 
 type ButtonProps = {
   label: string;
