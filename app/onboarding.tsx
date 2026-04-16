@@ -41,27 +41,30 @@ const LANGUAGE_SCREEN_STYLES = {
 };
 
 const SLIDE_1_STYLES = {
-  container: "flex-1 items-center mt-8",
+  container: "flex-1 items-center mt-8 relative",
   image: "w-[283.97px] h-[304.02px] mt-14",
-  title: "text-h2 leading-[52px] text-center font-bold text-text-default mt-5",
+  title: "text-h2 text-center font-bold text-text-default mt-5",
   description: "text-md text-center text-text-default mt-5 px-2",
-  dotsContainer: "flex-row items-center justify-center gap-3 mt-20",
+  dotsContainer:
+    "absolute bottom-10 left-0 right-0 flex-row items-center justify-center gap-3",
 };
 
 const SLIDE_2_STYLES = {
-  container: "flex-1 items-center mt-8",
+  container: "flex-1 items-center mt-8 relative",
   image: "w-[280px] h-[280px] mt-6",
-  title: "text-h2 leading-[52px] text-center font-bold text-text-default mt-5",
+  title: "text-h2 text-center font-bold text-text-default mt-5",
   description: "text-md text-center text-text-default mt-5 px-2",
-  dotsContainer: "flex-row items-center justify-center gap-3 mt-28",
+  dotsContainer:
+    "absolute bottom-10 left-0 right-0 flex-row items-center justify-center gap-3",
 };
 
 const SLIDE_3_STYLES = {
-  container: "flex-1 items-center mt-8",
+  container: "flex-1 items-center mt-8 relative",
   image: "w-[280px] h-[280px] mt-6",
-  title: "text-h2 leading-[52px] text-center font-bold text-text-default mt-5",
+  title: "text-h2 text-center font-bold text-text-default mt-5",
   description: "text-md text-center text-text-default mt-5 px-2",
-  dotsContainer: "flex-row items-center justify-center gap-3 mt-24",
+  dotsContainer:
+    "absolute bottom-10 left-0 right-0 flex-row items-center justify-center gap-3",
 };
 
 const getSlideStyles = (index: number) => {
@@ -196,7 +199,6 @@ export default function OnboardingScreen() {
   return (
     <View className="flex-1 bg-[#eef1f5] px-7 pt-10 pb-8">
       {stepIndex === 0 ? (
-
         <View className={LANGUAGE_SCREEN_STYLES.container}>
           <Image
             source={require("@/assets/mascot/MascotWave.png")}
@@ -257,7 +259,6 @@ export default function OnboardingScreen() {
           </View>
         </View>
       ) : (
-
         <View className={getSlideStyles(stepIndex).container}>
           <Image
             source={activeSlide?.image}
