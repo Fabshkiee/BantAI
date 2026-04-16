@@ -1,4 +1,3 @@
-import { resetOnboardingState } from "@/lib/onboardingStorage";
 import { router } from "expo-router";
 import * as ScreenOrientation from "expo-screen-orientation";
 import React, { useEffect, useState } from "react";
@@ -6,7 +5,6 @@ import {
     Image,
     ImageSourcePropType,
     Pressable,
-    Text,
     useWindowDimensions,
     View,
 } from "react-native";
@@ -58,11 +56,6 @@ export default function MockScreen() {
     setActiveStep((currentStep) => currentStep + 1);
   };
 
-  const handleRestartOnboarding = async () => {
-    await resetOnboardingState();
-    router.replace("/onboarding");
-  };
-
   return (
     <View className="flex-1 bg-black">
       <Pressable className="flex-1" onPress={handlePress}>
@@ -86,17 +79,6 @@ export default function MockScreen() {
       <View className="absolute left-4 right-4 top-12 items-center">
         <View className="rounded-full bg-black/60 px-4 py-2"></View>
       </View>
-
-      <Pressable
-        onPress={() => {
-          void handleRestartOnboarding();
-        }}
-        className="absolute right-4 top-12 rounded-full bg-white/95 px-4 py-2"
-      >
-        <Text className="text-sm font-semibold text-black">
-          Restart Onboarding
-        </Text>
-      </Pressable>
     </View>
   );
 }
