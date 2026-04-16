@@ -48,7 +48,7 @@ export default function Button({
     secondary: "text-lg",
     cancel: "text-lg",
     return: "text-lg",
-    returnLg: "text-h3",
+    returnLg: "text-h3 -mt-1",
     save: "text-lg",
   };
 

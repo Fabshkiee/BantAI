@@ -359,32 +359,21 @@ export default function SafetyReport() {
           paddingTop: insets.top + 12,
           height: headerTotalHeight,
         }}
-        className="absolute top-0 left-0 right-0 z-20 bg-surface-default px-6"
+        className="absolute top-0 left-0 right-0 z-20 bg-surface-default px-6 justify-center"
       >
         <View className="flex-row items-center">
           <View>
             <Button
-              label={t("common.return")}
-              variant="return"
+              label="Safety Report"
+              variant="returnLg"
               icon={<ArrowLeftIcon color="black" size={18} />}
               iconPosition="left"
               onPress={() => router.push("/scans" as any)}
             />
           </View>
 
-          <Text className="text-h3 font-bold leading-8 ml-2">
-            Safety Report
-          </Text>
 
           <View className="ml-auto flex-row gap-2 items-center">
-            <Button
-              label={currentLanguage === "en" ? "TL" : "EN"}
-              variant="secondary"
-              className="w-16"
-              onPress={() => {
-                i18n.changeLanguage(currentLanguage === "en" ? "tl" : "en");
-              }}
-            />
             {hasSession ? (
               <Button
                 label="Save"
@@ -412,9 +401,6 @@ export default function SafetyReport() {
         <Animated.View style={{ flex: 2 }}>
           <View className="mx-7 gap-7">
             <View className="flex-1 justify-center items-center gap-4">
-              <Text className="text-h2 font-bold text-center mt-14">
-                {t("safety_report.title")}
-              </Text>
               <View className="relative">
                 <MascotReporter
                   score={finalRiskVariant}
