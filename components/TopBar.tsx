@@ -1,11 +1,10 @@
+import DropDownIcon from "@/assets/icons/DropDownIcon";
+import PHFlagIcon from "@/assets/icons/PHFlagIcon";
+import USFlagIcon from "@/assets/icons/USFlagIcon";
 import i18n from "@/languages/i18n";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Image, Pressable, Text, View } from "react-native";
-
-import DropDownIcon from "@/assets/icons/DropDownIcon";
-import PHFlagIcon from "@/assets/icons/PHFlagIcon";
-import USFlagIcon from "@/assets/icons/USFlagIcon";
 
 export default function TopNavBar() {
   const { t } = useTranslation();
@@ -92,6 +91,24 @@ export default function TopNavBar() {
               <PHFlagIcon size={24} />
               <Text className="font-extrabold text-lg text-text-default">
                 {t("common.tagalog")}
+              </Text>
+            </Pressable>
+
+            <View className="h-[1px] w-full bg-border-secondary" />
+
+            {/* Hiligaynon Option */}
+            <Pressable
+              className={`flex-row items-center gap-3 px-4 py-3 active:opacity-70 ${
+                currentLanguage === "hil" ? "bg-surface-primary/10" : ""
+              }`}
+              onPress={() => {
+                i18n.changeLanguage("hil");
+                setIsLangMenuOpen(false);
+              }}
+            >
+              <PHFlagIcon size={24} />
+              <Text className="font-extrabold text-lg text-text-default">
+                {t("common.hiligaynon")}
               </Text>
             </Pressable>
           </View>

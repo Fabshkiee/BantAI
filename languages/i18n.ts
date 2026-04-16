@@ -4,6 +4,7 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import en from "./en.json";
+import hil from "./hiligaynon.json";
 import tl from "./tagalog.json";
 
 i18n.use(initReactI18next).init({
@@ -16,6 +17,9 @@ i18n.use(initReactI18next).init({
     },
     tl: {
       translation: tl,
+    },
+    hil: {
+      translation: hil,
     },
   },
   interpolation: {
