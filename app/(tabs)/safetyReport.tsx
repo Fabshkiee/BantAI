@@ -38,8 +38,11 @@ const BOOST_MESSAGES = [
   "Well done!",
 ];
 
+const HEADER_CONTENT_HEIGHT = 68;
+
 export default function SafetyReport() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const {
     imageUri,
     detections: detectionsJson,
@@ -64,7 +67,6 @@ export default function SafetyReport() {
     DisasterType | "all"
   >("all");
 
-  // Boost Animation State
   const [showBoost, setShowBoost] = useState(false);
   const [boostScore, setBoostScore] = useState(0);
   const [oldBoostScore, setOldBoostScore] = useState(0);
@@ -93,13 +95,14 @@ export default function SafetyReport() {
         }).start(() => {
           setShowBoost(false);
         });
-      }, 2500); // Dwell time for the score climb and message
+      }, 2500);
     });
   };
 
   const executeDatabaseSearch = (_sqlCommand: string, filterId: string) => {
     setActiveDisasterTab(filterId as DisasterType | "all");
   };
+
   const loadSession = useCallback(
     async (quiet = false) => {
       if (!hasSession || sessionId === null) {
@@ -136,7 +139,6 @@ export default function SafetyReport() {
     loadSession();
   }, [loadSession]);
 
-  // 1. Map and Enrich Hazards using the Dictionary (Fallback if NO session)
   const mappedHazards: HazardData[] = [];
   for (let i = 0; i < detections.length; i++) {
     const d = detections[i];
@@ -156,7 +158,6 @@ export default function SafetyReport() {
       | "medium"
       | "high"
       | "critical";
-    const variant = baseVariant;
 
     const disasterTypes = Array.from(
       new Set<DisasterType>([
@@ -168,8 +169,8 @@ export default function SafetyReport() {
 
     mappedHazards.push({
       id: i.toString(),
-      title: title,
-      variant: variant as "low" | "medium" | "high" | "critical",
+      title,
+      variant: baseVariant,
       reason:
         seed?.description ||
         entry?.description ||
@@ -191,7 +192,6 @@ export default function SafetyReport() {
     });
   }
 
-  // 2. Sort by urgency (Priority)
   mappedHazards.sort(
     (a, b) =>
       (SEVERITY_PRIORITY[b.variant] || 0) - (SEVERITY_PRIORITY[a.variant] || 0),
@@ -203,7 +203,6 @@ export default function SafetyReport() {
     spatialInsights: rawInsights,
   } = calculateRoomRisk(detections);
 
-  // Derive current session risk state (for spatial insights)
   const sessionDetections: Detection[] = (session?.hazards ?? [])
     .filter((h) => !h.isAssessed)
     .map((h) => ({
@@ -215,8 +214,10 @@ export default function SafetyReport() {
   const { spatialInsights: sessionInsights } =
     calculateRoomRisk(sessionDetections);
 
-  const insets = useSafeAreaInsets();
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const headerTotalHeight = insets.top + HEADER_CONTENT_HEIGHT;
+  const scrollYClamped = Animated.diffClamp(scrollY, 0, headerTotalHeight);
 
   useFocusEffect(
     useCallback(() => {
@@ -228,6 +229,11 @@ export default function SafetyReport() {
       }).start();
     }, [fadeAnim]),
   );
+
+  const translateY = scrollYClamped.interpolate({
+    inputRange: [0, headerTotalHeight],
+    outputRange: [0, -headerTotalHeight],
+  });
 
   const finalRoomScore = session?.roomScore ?? rawScore ?? 15;
   const finalRiskVariant = hasSession
@@ -245,7 +251,7 @@ export default function SafetyReport() {
     finalHazards
       ? activeDisasterTab === "all"
         ? finalHazards
-        : (finalHazards as HazardData[]).filter((h) =>
+        : finalHazards.filter((h) =>
             h.disasterTypes?.includes(activeDisasterTab),
           )
       : []
@@ -324,16 +330,33 @@ export default function SafetyReport() {
     );
   }, [router]);
 
+  const handleViewReport = useCallback(() => {
+    if (!hasSession || sessionId === null) {
+      Alert.alert(
+        "Report unavailable",
+        "This scan does not have a saved session report yet.",
+      );
+      return;
+    }
+
+    router.push({
+      pathname: "/scanReport",
+      params: { sessionId: String(sessionId) },
+    });
+  }, [hasSession, router, sessionId]);
+
   return (
-    <View style={{ flex: 1 }}>
-      <Animated.ScrollView
-        className="flex-1 mt-9 pb-56 mb-8 bg-surface-default"
-        showsVerticalScrollIndicator={false}
-        contentContainerClassName="pb-14"
-        style={{ opacity: fadeAnim }}
+    <View className="flex-1 bg-surface-default">
+      <Animated.View
+        style={{
+          transform: [{ translateY }],
+          paddingTop: insets.top + 12,
+          height: headerTotalHeight,
+        }}
+        className="absolute top-0 left-0 right-0 z-20 bg-surface-default px-6"
       >
-        <Animated.View style={{ flex: 1 }}>
-          <View className="flex flex-row items-center ml-6">
+        <View className="flex-row items-center">
+          <View>
             <Button
               label=""
               variant="return"
@@ -341,12 +364,39 @@ export default function SafetyReport() {
               iconPosition="left"
               onPress={() => router.push("/scans")}
             />
-            <Text className="text-h3 font-bold text-center -ml-2">
-              Safety Report
-            </Text>
           </View>
 
-          <View className="mx-7 mt-7 gap-7">
+          <Text className="text-h3 font-bold leading-8 ml-2">
+            Safety Report
+          </Text>
+
+          {hasSession ? (
+            <View className="ml-auto">
+              <Button
+                label="Save"
+                variant="save"
+                size="compact"
+                onPress={handleViewReport}
+              />
+            </View>
+          ) : null}
+        </View>
+      </Animated.View>
+
+      <Animated.ScrollView
+        className="flex-1 mt-9 pb-56 mb-8 bg-surface-default"
+        showsVerticalScrollIndicator={false}
+        contentContainerClassName="pb-14"
+        contentContainerStyle={{ paddingTop: headerTotalHeight + 12 }}
+        style={{ opacity: fadeAnim }}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: true },
+        )}
+        scrollEventThrottle={16}
+      >
+        <Animated.View style={{ flex: 2 }}>
+          <View className="mx-7 gap-7">
             <View className="flex-1 justify-center items-center gap-4">
               <View className="relative">
                 <MascotReporter
@@ -390,7 +440,6 @@ export default function SafetyReport() {
                 className="w-full rounded-lg"
                 style={{ overflow: "hidden", aspectRatio: 4 / 3 }}
               >
-                {/* Change to the uploaded image in the db*/}
                 <Image
                   source={require("@/assets/images/room.png")}
                   style={{ width: "100%", height: "100%" }}
@@ -405,7 +454,7 @@ export default function SafetyReport() {
               </Text>
               <Text className="text-lg">
                 After assessing each hazard, apply the recommended solution, and
-                press the 'Mark as Resolved' button once finished.
+                press the Mark as Resolved button once finished.
               </Text>
             </View>
 
@@ -417,7 +466,7 @@ export default function SafetyReport() {
                 />
               </View>
 
-              <View className=" rounded-lg bg-surface-default px-5 py-3 border border-border-secondary">
+              <View className="rounded-lg bg-surface-default px-5 py-3 border border-border-secondary">
                 <Text className="text-md font-semibold text-text-default">
                   Reason & Solution Context:{" "}
                   {activeContextLabel[activeDisasterTab]}
