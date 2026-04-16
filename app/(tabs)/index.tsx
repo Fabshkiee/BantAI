@@ -3,16 +3,22 @@ import ArticleCard from "@/components/ArticleCard";
 import Button from "@/components/Button";
 import TopNavBar from "@/components/TopBar";
 import { useCoachmarks } from "@/context/CoachmarkContext";
+import { resetOnboardingState } from "@/lib/onboardingStorage";
 import { useFocusEffect, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { Image, ScrollView, Text, View } from "react-native";
+import { Image, Pressable, ScrollView, Text, View } from "react-native";
 
 export default function HomeScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const { startHomeTour, homeStep, setHomeScanButtonRect } = useCoachmarks();
   const scanButtonWrapperRef = useRef<any>(null);
+
+  const restartOnboarding = async () => {
+    await resetOnboardingState();
+    router.replace("/onboarding");
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -80,6 +86,19 @@ export default function HomeScreen() {
                   className="w-full"
                 />
               </View>
+
+              {__DEV__ ? (
+                <Pressable
+                  onPress={() => {
+                    void restartOnboarding();
+                  }}
+                  className="mt-3 rounded-full border border-dashed border-border-primary px-5 py-3"
+                >
+                  <Text className="text-text-primary font-semibold text-base">
+                    Restart onboarding
+                  </Text>
+                </Pressable>
+              ) : null}
             </View>
 
             {/* Articles */}
