@@ -32,6 +32,55 @@ const ONBOARDING_SLIDES = [
 
 const LANGUAGES: LanguageOption[] = ["English", "Tagalog", "Hiligaynon"];
 
+
+const LANGUAGE_SCREEN_STYLES = {
+  container: "flex-1 items-center mt-6",
+  image: "w-[280px] h-[280px] mt-14",
+  title: "text-h2 text-center font-bold text-text-default mt-2",
+  subtitle: "text-md text-center text-text-default mt-4 mb-8",
+  languageListContainer: "w-full gap-3",
+};
+
+const SLIDE_1_STYLES = {
+  container: "flex-1 items-center mt-8",
+  image: "w-[280px] h-[280px] mt-14",
+  title:
+    "text-h2 leading-[52px] text-center font-bold text-text-default mt-5",
+  description: "text-md text-center text-text-default mt-5 px-2",
+  dotsContainer: "flex-row items-center justify-center gap-3 mt-28",
+};
+
+const SLIDE_2_STYLES = {
+  container: "flex-1 items-center mt-8",
+  image: "w-[280px] h-[280px] mt-6",
+  title:
+    "text-h2 leading-[52px] text-center font-bold text-text-default mt-5",
+  description: "text-md text-center text-text-default mt-5 px-2",
+  dotsContainer: "flex-row items-center justify-center gap-3 mt-14",
+};
+
+const SLIDE_3_STYLES = {
+  container: "flex-1 items-center mt-8",
+  image: "w-[280px] h-[280px] mt-6",
+  title:
+    "text-h2 leading-[52px] text-center font-bold text-text-default mt-5",
+  description: "text-md text-center text-text-default mt-5 px-2",
+  dotsContainer: "flex-row items-center justify-center gap-3 mt-14",
+};
+
+const getSlideStyles = (index: number) => {
+  switch (index) {
+    case 1:
+      return SLIDE_1_STYLES;
+    case 2:
+      return SLIDE_2_STYLES;
+    case 3:
+      return SLIDE_3_STYLES;
+    default:
+      return SLIDE_1_STYLES;
+  }
+};
+
 export default function OnboardingScreen() {
   const [stepIndex, setStepIndex] = useState(0);
   const [selectedLanguage, setSelectedLanguage] =
@@ -95,96 +144,102 @@ export default function OnboardingScreen() {
 
   return (
     <View className="flex-1 bg-[#eef1f5] px-7 pt-10 pb-8">
-      <View className="flex-1 items-center">
-        <Image
-          source={
-            stepIndex === 0
-              ? require("@/assets/mascot/MascotWave.png")
-              : activeSlide?.image
-          }
-          className="w-[280px] h-[280px] mt-6"
-          resizeMode="contain"
-        />
+      {stepIndex === 0 ? (
+        // ═══════════════════════════════════════════════════════════
+        // LANGUAGE SELECTION SCREEN
+        // ═══════════════════════════════════════════════════════════
+        <View className={LANGUAGE_SCREEN_STYLES.container}>
+          <Image
+            source={require("@/assets/mascot/MascotWave.png")}
+            className={LANGUAGE_SCREEN_STYLES.image}
+            resizeMode="contain"
+          />
 
-        {stepIndex === 0 ? (
-          <>
-            <Text className="text-[50px] leading-[52px] text-center font-bold text-text-default mt-2">
-              Choose Your{"\n"}Language
-            </Text>
-            <Text className="text-lg text-center text-text-default mt-4 mb-8">
-              Piliin ang iyong wika / Pili-a ang imo lenggwahe.
-            </Text>
+          <Text className={LANGUAGE_SCREEN_STYLES.title}>
+            Choose Your{"\n"}Language
+          </Text>
+          <Text className={LANGUAGE_SCREEN_STYLES.subtitle}>
+            Piliin ang iyong wika / Pili-a ang imo lenggwahe.
+          </Text>
 
-            <View className="w-full gap-3">
-              {LANGUAGES.map((language) => {
-                const isSelected = language === selectedLanguage;
+          <View className={LANGUAGE_SCREEN_STYLES.languageListContainer}>
+            {LANGUAGES.map((language) => {
+              const isSelected = language === selectedLanguage;
 
-                return (
-                  <Pressable
-                    key={language}
-                    onPress={() => setSelectedLanguage(language)}
-                    className={`w-full rounded-2xl border px-5 py-4 flex-row items-center justify-between ${
-                      isSelected
-                        ? "border-border-primary bg-surface-light"
-                        : "border-border-secondary bg-surface-default"
-                    }`}
-                  >
-                    <View className="flex-row items-center gap-3">
-                      <View className="w-9 h-9 rounded-full bg-[#d7e9f8] items-center justify-center">
-                        <Text className="text-xs font-semibold text-text-default">
-                          {language === "English" ? "US" : "PH"}
-                        </Text>
-                      </View>
-                      <Text
-                        className={`text-xl ${
-                          isSelected ? "text-text-primary" : "text-text-default"
-                        }`}
-                      >
-                        {language}
+              return (
+                <Pressable
+                  key={language}
+                  onPress={() => setSelectedLanguage(language)}
+                  className={`w-full rounded-2xl border px-5 py-4 flex-row items-center justify-between ${
+                    isSelected
+                      ? "border-border-primary bg-surface-light"
+                      : "border-border-secondary bg-surface-default"
+                  }`}
+                >
+                  <View className="flex-row items-center gap-3">
+                    <View className="w-9 h-9 rounded-full bg-[#d7e9f8] items-center justify-center">
+                      <Text className="text-xs font-semibold text-text-default">
+                        {language === "English" ? "US" : "PH"}
                       </Text>
                     </View>
-
-                    <View
-                      className={`w-7 h-7 rounded-full border-2 items-center justify-center ${
-                        isSelected
-                          ? "border-border-primary"
-                          : "border-border-secondary"
+                    <Text
+                      className={`text-xl ${
+                        isSelected ? "text-text-primary" : "text-text-default"
                       }`}
                     >
-                      {isSelected ? (
-                        <View className="w-4 h-4 rounded-full bg-surface-primary" />
-                      ) : null}
-                    </View>
-                  </Pressable>
-                );
-              })}
-            </View>
-          </>
-        ) : (
-          <>
-            <Text className="text-[50px] leading-[52px] text-center font-bold text-text-default mt-5">
-              {activeSlide?.title}
-            </Text>
-            <Text className="text-xl text-center text-text-default mt-5 px-2">
-              {activeSlide?.description}
-            </Text>
+                      {language}
+                    </Text>
+                  </View>
 
-            <View className="flex-row items-center justify-center gap-3 mt-14">
-              {ONBOARDING_SLIDES.map((_, index) => {
-                const isActive = index + 1 === stepIndex;
-                return (
                   <View
-                    key={index}
-                    className={`w-4 h-4 rounded-full ${
-                      isActive ? "bg-surface-primary" : "bg-border-secondary"
+                    className={`w-7 h-7 rounded-full border-2 items-center justify-center ${
+                      isSelected
+                        ? "border-border-primary"
+                        : "border-border-secondary"
                     }`}
-                  />
-                );
-              })}
-            </View>
-          </>
-        )}
-      </View>
+                  >
+                    {isSelected ? (
+                      <View className="w-4 h-4 rounded-full bg-surface-primary" />
+                    ) : null}
+                  </View>
+                </Pressable>
+              );
+            })}
+          </View>
+        </View>
+      ) : (
+        // ═══════════════════════════════════════════════════════════
+        // ONBOARDING SLIDES (1, 2, 3)
+        // ═══════════════════════════════════════════════════════════
+        <View className={getSlideStyles(stepIndex).container}>
+          <Image
+            source={activeSlide?.image}
+            className={getSlideStyles(stepIndex).image}
+            resizeMode="contain"
+          />
+
+          <Text className={getSlideStyles(stepIndex).title}>
+            {activeSlide?.title}
+          </Text>
+          <Text className={getSlideStyles(stepIndex).description}>
+            {activeSlide?.description}
+          </Text>
+
+          <View className={getSlideStyles(stepIndex).dotsContainer}>
+            {ONBOARDING_SLIDES.map((_, index) => {
+              const isActive = index + 1 === stepIndex;
+              return (
+                <View
+                  key={index}
+                  className={`w-4 h-4 rounded-full ${
+                    isActive ? "bg-surface-primary" : "bg-border-secondary"
+                  }`}
+                />
+              );
+            })}
+          </View>
+        </View>
+      )}
 
       <View className="w-full gap-5">
         <Pressable
