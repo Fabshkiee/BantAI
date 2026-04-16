@@ -230,7 +230,7 @@ export default function OnboardingScreen() {
                 <Pressable
                   key={language}
                   onPress={() => setSelectedLanguage(language)}
-                  className={`w-full rounded-2xl border px-5 py-4 flex-row items-center justify-between ${
+                  className={`w-full rounded-2xl border px-5 py-4 flex-row items-center justify-between active:opacity-80 active:scale-95 ${
                     isSelected
                       ? "border-border-primary bg-surface-light"
                       : "border-border-secondary bg-surface-default"
