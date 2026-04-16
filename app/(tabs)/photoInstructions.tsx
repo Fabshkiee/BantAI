@@ -63,46 +63,29 @@ export default function PhotoInstructionsScreen() {
 
   return (
     <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
-      <View className="bg-surface-default px-8 pt-36">
+      <View className="bg-surface-default px-8 pt-24">
         <View className="absolute top-0 left-0 right-0 px-6 pt-8 flex-row justify-between">
-          <Button
-            label={t("common.return")}
-            variant="return"
-            icon={<ArrowLeftIcon color="black" size={18} />}
-            iconPosition="left"
-            onPress={() => {
-              router.back();
-            }}
-          />
-          <Button
-            label={currentLanguage === "en" ? "TL" : "EN"}
-            variant="secondary"
-            className="w-16"
-            onPress={() => {
-              i18n.changeLanguage(currentLanguage === "en" ? "tl" : "en");
-            }}
-          />
         </View>
         <View className="items-center w-full">
           <Text className="text-h2 font-display font-bold text-center mb-3 leading-tight">
             {t("photo_instructions_screen.title")}
           </Text>
-          <Text className="text-lg text-center font-text leading-7 mb-9">
+          <Text className="text-lg text-center font-text leading-7 mb-4">
             Position your phone in the area where you can see most of the room
             to ensure a complete scan of all sections.
           </Text>
 
           {/* Video Instruction */}
           <View
-            className="w-full rounded-2xl mb-9 bg-surface-default"
+            className="w-full rounded-2xl mb-9 bg-surface-default items-center justify-center overflow-hidden"
             style={{ overflow: "hidden", aspectRatio: 9 / 12 }}
           >
             <VideoView
               style={{
-                width: "100%",
-                height: "100%",
-                borderRadius: 16,
-                backgroundColor: "#f5faff",
+                width: "58%",
+                height: "90%",
+                borderRadius: 20,
+                backgroundColor: "bg-surface-default",
               }}
               player={player}
               contentFit="contain"

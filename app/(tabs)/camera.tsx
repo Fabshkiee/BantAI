@@ -194,18 +194,6 @@ export default function CameraScreen() {
         photo={true}
       />
 
-      {/* Language Toggle Button */}
-      <View className="absolute top-4 right-4 z-50">
-        <Button
-          label={currentLanguage === "en" ? "TL" : "EN"}
-          variant="secondary"
-          className="w-16"
-          onPress={() => {
-            i18n.changeLanguage(currentLanguage === "en" ? "tl" : "en");
-          }}
-        />
-      </View>
-
       {/* Feedback Notification Popup */}
       {showNotification && (
         <View
