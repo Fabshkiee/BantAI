@@ -2,6 +2,7 @@ import ScanIcon from "@/assets/icons/ScanIcon";
 import ArticleCard from "@/components/ArticleCard";
 import Button from "@/components/Button";
 import TopNavBar from "@/components/TopBar";
+import { resetOnboardingState } from "@/lib/onboardingStorage";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { Image, ScrollView, Text, View } from "react-native";
@@ -9,6 +10,11 @@ import { Image, ScrollView, Text, View } from "react-native";
 export default function HomeScreen() {
   const router = useRouter();
   const { t } = useTranslation();
+
+  const handleRestartOnboarding = async () => {
+    await resetOnboardingState();
+    router.replace("/onboarding");
+  };
 
   return (
     <ScrollView
@@ -37,6 +43,14 @@ export default function HomeScreen() {
               iconPosition="left"
               onPress={() => {
                 router.push("/photoInstructions");
+              }}
+              className="w-full"
+            />
+            <Button
+              label="Restart Onboarding"
+              variant="secondary"
+              onPress={() => {
+                void handleRestartOnboarding();
               }}
               className="w-full"
             />

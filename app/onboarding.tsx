@@ -281,13 +281,13 @@ export default function OnboardingScreen() {
     };
   }, [copy.slides, stepIndex]);
 
-  const completeOnboarding = async () => {
+  const completeOnboarding = async (destination = "/(tabs)") => {
     if (isSaving) return;
 
     setIsSaving(true);
     try {
       await markOnboardingCompleted();
-      router.replace("/(tabs)");
+      router.replace(destination as any);
     } finally {
       setIsSaving(false);
     }
@@ -304,7 +304,7 @@ export default function OnboardingScreen() {
       return;
     }
 
-    await completeOnboarding();
+    await completeOnboarding("/mockScreens");
   };
 
   const ctaLabel =
