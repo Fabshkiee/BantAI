@@ -70,6 +70,7 @@ export type ScanStatus = "pending" | "processing" | "completed" | "failed";
 export type ScanSessionSummary = {
   id: number;
   photoPath: string;
+  roomName: string | null;
   roomScore: number | null;
   riskVariant: HazardData["variant"] | null;
   status: ScanStatus;
@@ -118,6 +119,7 @@ type HazardRow = {
 type ScanSessionRow = {
   id: number;
   photo_path: string;
+  room_name: string | null;
   room_score: number | null;
   risk_variant: HazardData["variant"] | null;
   status: ScanStatus;
@@ -342,12 +344,24 @@ export async function initDatabase(): Promise<void> {
       CREATE TABLE IF NOT EXISTS scan_sessions (
           id              INTEGER PRIMARY KEY AUTOINCREMENT,
           photo_path      TEXT NOT NULL,
+          room_name       TEXT,
           room_score      INTEGER,
           risk_variant    TEXT CHECK (risk_variant IN ('low', 'medium', 'high', 'critical')),
           status          TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'completed', 'failed')),
           scanned_at      INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
           completed_at    INTEGER
       );
+
+
+    `);
+
+    try {
+      await db.execAsync("ALTER TABLE scan_sessions ADD COLUMN room_name TEXT;");
+    } catch (e) {
+      // Column probably already exists
+    }
+
+    await db.execAsync(`
 
       CREATE TABLE IF NOT EXISTS hazard_types (
           id               INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -490,6 +504,19 @@ export async function createScanSession(photoPath: string): Promise<number> {
   return Number(result.lastInsertRowId);
 }
 
+export async function updateScanSessionName(
+  sessionId: number,
+  name: string,
+): Promise<void> {
+  await initDatabase();
+  const db = await dbPromise;
+  await db.runAsync(
+    "UPDATE scan_sessions SET room_name = ? WHERE id = ?",
+    name,
+    sessionId,
+  );
+}
+
 export async function getRecentScanSessions(
   limit = 10,
 ): Promise<ScanSessionSummary[]> {
@@ -500,6 +527,7 @@ export async function getRecentScanSessions(
       SELECT
         s.id,
         s.photo_path,
+        s.room_name,
         s.room_score,
         s.risk_variant,
         s.status,
@@ -519,6 +547,7 @@ export async function getRecentScanSessions(
   return rows.map((row) => ({
     id: row.id,
     photoPath: row.photo_path,
+    roomName: row.room_name,
     roomScore: row.room_score,
     riskVariant: row.risk_variant,
     status: row.status,
@@ -540,6 +569,7 @@ export async function getScanSessionDetails(
       SELECT
         s.id,
         s.photo_path,
+        s.room_name,
         s.room_score,
         s.risk_variant,
         s.status,
@@ -585,6 +615,7 @@ export async function getScanSessionDetails(
   return {
     id: session.id,
     photoPath: session.photo_path,
+    roomName: session.room_name,
     roomScore: session.room_score,
     riskVariant: session.risk_variant,
     status: session.status,
