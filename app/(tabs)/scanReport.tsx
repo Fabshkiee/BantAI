@@ -229,19 +229,18 @@ export default function ScanReportScreen() {
 
   return (
     <ScrollView
-      className="flex-1 px-7 mt-9 bg-surface-default"
+      className="flex-1 px-7 mt-14 pt-1 bg-surface-default"
       contentContainerClassName="pb-32"
       showsVerticalScrollIndicator={false}
     >
       <View className="flex-row items-center">
         <Button
-          label=""
-          variant="return"
+          label="Scan Report"
+          variant="returnLg"
           icon={<ArrowLeftIcon color="black" size={18} />}
           iconPosition="left"
           onPress={handleBackToSafetyReport}
         />
-        <Text className="text-h3 font-bold text-center -ml-2">Scan Report</Text>
       </View>
 
       {isLoading ? (

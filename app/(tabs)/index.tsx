@@ -2,29 +2,13 @@ import ScanIcon from "@/assets/icons/ScanIcon";
 import ArticleCard from "@/components/ArticleCard";
 import Button from "@/components/Button";
 import TopNavBar from "@/components/TopBar";
-import i18n from "@/languages/i18n";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Image, ScrollView, Text, View } from "react-native";
 
 export default function HomeScreen() {
   const router = useRouter();
   const { t } = useTranslation();
-  const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
-  const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
-
-  useEffect(() => {
-    const handleLanguageChanged = () => {
-      setCurrentLanguage(i18n.language);
-    };
-
-    i18n.on("languageChanged", handleLanguageChanged);
-
-    return () => {
-      i18n.off("languageChanged", handleLanguageChanged);
-    };
-  }, []);
 
   return (
     <ScrollView
@@ -33,10 +17,9 @@ export default function HomeScreen() {
       showsVerticalScrollIndicator={false}
     >
       <View className="gap-7">
-        <TopNavBar></TopNavBar>
+        <TopNavBar />
 
         {/* Container to seperate nav bar and the actual content */}
-
         <View className="px-7">
           {/* Hero Section */}
           <View className="justify-center items-center gap-4">
@@ -50,12 +33,12 @@ export default function HomeScreen() {
             </Text>
             <Button
               label={t("home_screen.scan_room")}
-              icon={<ScanIcon size={24} />}
+              icon={<ScanIcon color="white" size={24} />}
               iconPosition="left"
               onPress={() => {
                 router.push("/photoInstructions");
               }}
-              className="w-full "
+              className="w-full"
             />
           </View>
 
