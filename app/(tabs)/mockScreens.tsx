@@ -1,4 +1,5 @@
 import { router } from "expo-router";
+import { useFocusEffect } from "@react-navigation/native";
 import * as ScreenOrientation from "expo-screen-orientation";
 import React, { useEffect, useState } from "react";
 import {
@@ -23,6 +24,12 @@ const SAMPLE_IMAGES = new Map<number, ImageSourcePropType>([
 export default function MockScreen() {
   const { width, height } = useWindowDimensions();
   const [activeStep, setActiveStep] = useState(1);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      setActiveStep(1);
+    }, []),
+  );
 
   useEffect(() => {
     const applyOrientation = async () => {
