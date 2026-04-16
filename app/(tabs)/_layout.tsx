@@ -47,6 +47,7 @@ const HIDDEN_SCREENS = [
   "articles/typhoonArticle",
   "articles/fireArticle",
   "notifications",
+  "mockScreens",
 ];
 
 const CameraActionModal = ({
@@ -291,7 +292,10 @@ export default function TabLayout() {
           description="Read these quick guides anytime to learn how to mitigate risks and handle emergencies."
           ctaLabel="Got It!"
           ctaIcon={null}
-          onNext={nextHomeStep}
+          onNext={() => {
+            router.push("/mockScreens");
+            dismissHomeTour();
+          }}
           onSkip={dismissHomeTour}
           pointerSide="bottom"
           pointerOffset={44}

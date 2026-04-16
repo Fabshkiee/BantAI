@@ -243,7 +243,7 @@ export default function CameraScreen() {
         </TouchableOpacity>
       </View>
 
-      {scanStep === 1 && (
+      {/* {scanStep === 1 && (
         <CoachmarkOverlay
           title="Frame the Hazards"
           stepText="1 of 5"
@@ -255,7 +255,7 @@ export default function CameraScreen() {
           pointerOffset={42}
           positionStyle={{ right: 172, top: 154, width: 360 }}
         />
-      )}
+      )} */}
     </View>
   );
 }
