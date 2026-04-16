@@ -38,7 +38,7 @@ const BOOST_MESSAGES = [
   "Well done!",
 ];
 
-const HEADER_CONTENT_HEIGHT = 56;
+const HEADER_CONTENT_HEIGHT = 68;
 
 export default function SafetyReport() {
   const router = useRouter();
@@ -350,10 +350,10 @@ export default function SafetyReport() {
       <Animated.View
         style={{
           transform: [{ translateY }],
-          paddingTop: insets.top + 8,
+          paddingTop: insets.top + 12,
           height: headerTotalHeight,
         }}
-        className="absolute top-0 left-0 right-0 z-20 bg-surface-default border-b border-border-secondary px-6"
+        className="absolute top-0 left-0 right-0 z-20 bg-surface-default px-6"
       >
         <View className="flex-row items-center">
           <View>
@@ -396,7 +396,7 @@ export default function SafetyReport() {
         scrollEventThrottle={16}
       >
         <Animated.View style={{ flex: 2 }}>
-          <View className="mx-7 mt-7 gap-7">
+          <View className="mx-7 gap-7">
             <View className="flex-1 justify-center items-center gap-4">
               <View className="relative">
                 <MascotReporter
