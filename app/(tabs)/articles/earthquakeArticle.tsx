@@ -1,6 +1,7 @@
 import ArrowIcon from "@/assets/icons/ArrowIcon";
 import ArrowLeftIcon from "@/assets/icons/ArrowLeftIcon";
 import Button from "@/components/Button";
+import LanguageSelector from "@/components/LanguageSelector";
 import i18n from "@/languages/i18n";
 import { router, useFocusEffect } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -63,16 +64,8 @@ export default function earthquakeArticle() {
             }}
           />
         </View>
-        <View className="rounded-full overflow-hidden shadow-sm">
-          <Button
-            label={currentLanguage === "en" ? "TL" : "EN"}
-            variant="secondary"
-            className="w-16"
-            onPress={() => {
-              i18n.changeLanguage(currentLanguage === "en" ? "tl" : "en");
-            }}
-          />
-        </View>
+
+        <LanguageSelector />
       </Animated.View>
 
       {/* Main Scrolling Content */}
