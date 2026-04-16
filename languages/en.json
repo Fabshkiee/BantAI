@@ -13,7 +13,90 @@
     "hiligaynon": "Hiligaynon",
     "could_not_process_image": "We could not process that image. Please try again.",
     "image_courtesy": "Image Courtesy: {{source}}",
-    "mascot_status": "Status: {{risk}} Risk"
+    "mascot_status": "Status: {{risk}} Risk",
+    "allow": "Allow",
+    "deny": "Deny"
+  },
+  "date": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "this_week": "This Week",
+    "older": "Older"
+  },
+
+  "notifications": {
+    "monthly": {
+      "title": "Time for a Safety Check!",
+      "body": "It is a new month! Take a quick scan of your home to make sure everything is safe."
+    },
+    "seasonal_summer": {
+      "title": "Summer Safety Reminder",
+      "body": "Summer heat can increase fire risks. Check your electrical connections and keep flammable items away from heat sources."
+    },
+    "seasonal_typhoon": {
+      "title": "Typhoon Season Prep",
+      "body": "Ber months are here, typhoon season! Scan your home for loose items, check for cracks, and secure your windows."
+    },
+    "ndrrmc": {
+      "title": "Disaster Alert Received",
+      "body": "An NDRRMC alert was detected. Open BantAI for a quick home safety check."
+    },
+    "scan_overdue": {
+      "title": "Your Home Needs a Check up",
+      "body": "It has been over 30 days since your last safety scan. Your space might have changed, run a quick check today."
+    },
+    "sms_permission": {
+      "title": "SMS Alert Permission",
+      "message": "BantAI needs to listen for NDRRMC disaster alerts so it can remind you to check your home safety. BantAI only reads messages starting with NDRRMC and ignores all other messages.",
+      "allow": "Allow",
+      "deny": "Deny"
+    },
+    "screen": {
+      "title": "Notifications",
+      "empty_title": "No notifications yet",
+      "empty_message": "You will see safety reminders and disaster alerts here.",
+      "options_title": "Notification Options",
+      "options_desc": "Manage your notification history",
+      "delete_all": "Delete All Notifications",
+      "delete_modal_title": "Delete Notification",
+      "delete_modal_desc": "Remove \"{{title}}\"?",
+      "delete_modal_desc_fallback": "What would you like to delete?",
+      "delete_this": "Delete This Notification",
+      "cancel": "Cancel"
+    },
+    "button": {
+      "accessibility_label_unread": "Notifications, {{count}} unread items",
+      "accessibility_label_empty": "Notifications, no unread items",
+      "gallery_permission_message": "We need gallery permission to select a photo.",
+
+      "error_no_uri": "Selected image does not include a URI.",
+      "error_import_failed": "Failed to import image:"
+    }
+  },
+  "layout": {
+    "init_failed": "App initialization failed:"
+  },
+  "card": {
+    "accessibility_label": "Notification: {{title}}",
+    "unread_status": "Unread"
+  },
+  "permissions": {
+    "sms": {
+      "title": "SMS Alert Permission",
+      "message": "BantAI needs to listen for NDRRMC disaster alerts so it can remind you to check your home's safety when a disaster warning is issued. BantAI only reads messages starting with 'NDRRMC' and ignores all other messages."
+    }
+  },
+  "native_alerts": {
+    "earthquake": "Earthquake",
+    "rainfall": "Rainfall",
+    "typhoon": "Typhoon",
+    "disaster": "Disaster",
+    "incoming": "incoming",
+    "coming": "coming",
+    "detected": "detected",
+    "title": "BantAI: {{detail}}{{hazard}} Alert ⚠️",
+    "body": "BantAI detected NDRRMC notification: {{detail}}{{hazard}} {{action}} at {{location}} at {{time}}.",
+    "footer": "Open BantAI for a quick safety scan of your home."
   },
   "hazard_titles": {
     "overloaded_socket": "Overloaded Socket",
@@ -72,7 +155,9 @@
     "loading_model": "Loading AI Model...",
     "capture_ready": "Perfect, you can now take a photo.",
     "capture_failed_title": "Capture Failed",
-    "capture_failed_message": "We could not capture the image. Please try again."
+    "capture_failed_message": "We could not capture the image. Please try again.",
+    "error_no_uri": "Selected image does not include a URI.",
+    "error_import_failed": "Failed to import image:"
   },
   "photo_instructions_screen": {
     "title": "How to Take a Photo",

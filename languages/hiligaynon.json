@@ -12,7 +12,88 @@
     "hiligaynon": "Hiligaynon",
     "import_failed": "Wala Na import",
     "mascot_status": "Status: {{risk}} ang Risgo",
-    "could_not_process_image": "Indi namon ma process ina nga picture. Tistingi liwat."
+    "could_not_process_image": "Indi namon ma process ina nga picture. Tistingi liwat.",
+    "allow": "Sugtan",
+    "deny": "Indi Sugtan"
+  },
+  "date": {
+    "today": "Subong",
+    "yesterday": "Kahapon",
+    "this_week": "Sini nga Semana",
+    "older": "Daan"
+  },
+  "notifications": {
+    "monthly": {
+      "title": "Tion na para sa Safety Check!",
+      "body": "Bag-o na nga bulan! Mag-scan sang kadasig sa imo balay para masiguro nga hilway ang tanan."
+    },
+    "seasonal_summer": {
+      "title": "Pahanumdom para sa Kaliswasan sa Tig-ilinit",
+      "body": "Ang init sang panyempo mahimo magpataas sang risgo sa sunog. Diperensyaha ang imo mga koneksyon sa kuryente kag ilayo ang mga madali masunog nga gamit sa ginasuguran sang init."
+    },
+    "seasonal_typhoon": {
+      "title": "Pagpanghanda sa Tig-ululan",
+      "body": "Ber months na, tig-bagyo na! I-scan ang imo balay para sa mga gamit nga mahimo maglupad, i-check ang mga guba, kag siguraduhon nga sirado ang mga bintana."
+    },
+    "ndrrmc": {
+      "title": "May Nabaton nga Disaster Alert",
+      "body": "May na-detect nga NDRRMC alert. Buksan ang BantAI para sa madasig nga safety check sang balay."
+    },
+    "scan_overdue": {
+      "title": "Kinahanglan sang Check-up sang imo Balay",
+      "body": "Sobra na 30 ka adlaw halin sang ulihi mo nga safety scan. Mahimo may nagbag-o na sa imo palibot, mag-check sang kadasig subong."
+    },
+    "sms_permission": {
+      "title": "Permiso para sa SMS Alert",
+      "message": "Kinahanglan sang BantAI nga mamati sa mga NDRRMC disaster alert para mapahanumdom ka sa pag-check sang kaliswasan sang imo balay. Ang BantAI nagabasa lang sang mga mensahe nga naga-umpisa sa 'NDRRMC' kag wala ginasapak ang iban pa nga mga mensahe.",
+      "allow": "Sugtan",
+      "deny": "Indi Sugtan"
+    },
+    "screen": {
+      "title": "Mga Notipikasyon",
+      "empty_title": "Wala pa sang mga notipikasyon",
+      "empty_message": "Makita mo diri ang mga pahanumdom sa kaliswasan kag mga disaster alert.",
+      "options_title": "Mga Pilian sa Notipikasyon",
+      "options_desc": "Dumalahon ang kasaysayan sang imo mga notipikasyon",
+      "delete_all": "Panason Tanan nga Notipikasyon",
+      "delete_modal_title": "Panason ang Notipikasyon",
+      "delete_modal_desc": "Panason ang \"{{title}}\"?",
+      "delete_modal_desc_fallback": "Ano ang gusto mo panason?",
+      "delete_this": "Panason Ini nga Notipikasyon",
+      "cancel": "Kanselahon"
+    },
+    "button": {
+      "accessibility_label_unread": "Mga Notipikasyon, {{count}} ka wala pa nabasa",
+      "accessibility_label_empty": "Mga Notipikasyon, wala sang wala pa nabasa",
+      "gallery_permission_message": "Kinahanglan namon sang permiso sa gallery para makapili sang litrato.",
+      "error_no_uri": "Ang napili nga litrato wala sang URI.",
+      "error_import_failed": "Napakyas sa pag-import sang litrato:"
+    }
+  },
+  "layout": {
+    "init_failed": "Napakyas ang pag-umpisa sang App:"
+  },
+  "card": {
+    "accessibility_label": "Notipikasyon: {{title}}",
+    "unread_status": "Wala pa nabasa"
+  },
+  "permissions": {
+    "sms": {
+      "title": "Permiso para sa SMS Alert",
+      "message": "Kinahanglan sang BantAI nga mamati sa mga NDRRMC disaster alert para mapahanumdom ka sa pag-check sang kaliswasan sang imo balay kon may pahanumdom sa kalamidad. Ang BantAI nagabasa lang sang mga mensahe nga naga-umpisa sa 'NDRRMC' kag wala ginasapak ang iban pa nga mga mensahe."
+    }
+  },
+  "native_alerts": {
+    "earthquake": "Linog",
+    "rainfall": "Ulan",
+    "typhoon": "Bagyo",
+    "disaster": "Kalamidad",
+    "incoming": "naga-abot",
+    "coming": "padulong",
+    "detected": "na-detect",
+    "title": "BantAI: {{detail}}{{hazard}} Alert ⚠️",
+    "body": "May na-detect ang BantAI nga NDRRMC notipikasyon: {{detail}}{{hazard}} {{action}} sa {{location}} sang {{time}}.",
+    "footer": "Buksan ang BantAI para sa madasig nga safety scan sang imo balay."
   },
   "hazard_titles": {
     "overloaded_socket": "Sobra nga Karga sang Saksakan",
@@ -54,6 +135,94 @@
         "Indi pag ipikit sing todo ang PC tower sa pader para may lugar ini nga makasingaw ang init.",
         "I plug ang rice cooker direkta sa wall outlet, indi sa extension cord.",
         "I check ang mga wire sang fan, indi lang pagputson sang electrical tape ang guba nga parte."
+      ]
+    },
+    "window_security_bar": {
+      "general_reason": "Ang mga grills ukon security bars sa bintana mahimo mag-upang sa dalan guwa kon may emerhensya.",
+      "general_fixes": [
+        "Magbutang sang quick-release mechanism sa bisan isa lang ka grills sa bintana sa kada kwarto.",
+        "Siguraduhon nga ang tanan sa panimalay nakahibalo kon paano gamiton ang emergency release."
+      ],
+      "earthquake_reason": "Sa tion sang linog, mahimo mag-stock ang mga pirtahan, gani bintana na lang ang mabilin nga lutsan, pero na-upangan ini sang mga permanenteng grills.",
+      "earthquake_fixes": [
+        "Magbutang sang quick-release mechanism sa bisan isa lang ka grills sa bintana sa kada kwarto.",
+        "Siguraduhon nga ang tanan sa panimalay nakahibalo kon paano gamiton ang emergency release."
+      ],
+      "typhoon_reason": "Kon madasig ang pagsaka sang baha, ang mga grills sa bintana nagapugong sa mga tawo nga makasaka sa atop ukon sa mas mataas nga lugar.",
+      "typhoon_fixes": [
+        "Magbutang sang mabug-at nga bagay malapit sa bintana para pang-wasak sa mga emergency exit kon hinali nga magsaka ang tubig.",
+        "I-upgrade ang mga naga-welda nga grills pakadto sa padlock kag lyabe nga sistema, kag isab-it ang lyabe sa malapit."
+      ],
+      "fire_reason": "Sa madasig nga sunog, ang mga permanenteng grills sa bintana nagatrap sa mga tawo sa sulod sang nagasigabong nga kwarto, kag nagapugong sa pagsalbar halin sa guwa.",
+      "fire_fixes": [
+        "Magpakonsulta sa panday sang salsalon para himuon nga mahimo mabuksan ang isa ka bintana sa kada kwarto bilang fire exit.",
+        "Indi gid pag-upangan ang mga emergency release lever sang mabug-at nga muwebles ukon mga dekorasyon."
+      ]
+    },
+    "curtain": {
+      "general_reason": "Ang mga kurtina nga malapit sa init ukon kalayo mahimo madasig nga masunog.",
+      "general_fixes": [
+        "Ihigot sing maayo ang mga kurtina kon adlaw ukon maggamit sang pabug-at sa kurtina para indi ini mag-waswas.",
+        "I-isol ang mga kandila ukon suga sing maskin isa ka metro ang kalayuon sa bintana."
+      ],
+      "earthquake_reason": "Ang pag-uyog mahimo magdala sang kurtina pakadto sa mga natumba nga kandila ukon sa mga guba nga kuryente nga nagapirig-pirig.",
+      "earthquake_fixes": [
+        "Ihigot sing maayo ang mga kurtina kon adlaw ukon maggamit sang pabug-at sa kurtina para indi ini mag-waswas.",
+        "I-isol ang mga kandila, suga, ukon bisan ano nga ginahalinan sang kalayo sing maskin isa ka metro ang kalayuon sa bintana."
+      ],
+      "typhoon_reason": "Ang mabaskog nga hangin mahimo magpalid sang mamag-an nga kurtina pakadto sa nagasiga nga kalan ukon kalayo.",
+      "typhoon_fixes": [
+        "I-likit kag itago ang malaba nga mga kurtina kon nagagamit sang kandila ukon gasera kon brownout.",
+        "Likawan ang paggamit sang manipis kag madali masunog nga tela sa kusina."
+      ],
+      "fire_reason": "Ang kurtina madasig masunog kag nagaserbi nga hagdanan sang kalayo pakadto sa kisame.",
+      "fire_fixes": [
+        "Magbutang sang tie-back sa kurtina para masiguro nga malayo ang tela sa mga saksakan sang kuryente kag lulutoan.",
+        "Magpili sang mas mabug-at kag natural nga tela pareho sang cotton imbes nga mga synthetic nga tela."
+      ]
+    },
+    "water_damage": {
+      "general_reason": "May mga marka sang guba bangud sa tubig, nga mahimo magpahuyang sang balay ukon magtuga sang peligro sa kuryente.",
+      "general_fixes": [
+        "Magpatawag sang panday para usisaon ang mga de-tubig nga sagumay ukon kisame.",
+        "Pangitaa kon diin nagahalin ang tulo sa atop ukon tubo kag kay-uha ini."
+      ],
+      "earthquake_reason": "Ang mga agup-upon ukon de-tubig nga mga kahoy nga suporta ukon kisame mahuyang na kag madali mag-collapse kon may linog.",
+      "earthquake_fixes": [
+        "Magpatawag sang panday para usisaon ang mga de-tubig nga sagumay ukon kisame para masiguro nga makabato pa ini sa linog.",
+        "Isli ang mga dunot na nga tabla antes pa mag-abot ang panahon sang linog."
+      ],
+      "typhoon_reason": "Ang sige-sige nga tulo kon tingulan nagapadali sang pagkadunot sang kahoy, nga nagapahuyang sang istruktura batok sa mabaskog nga hangin.",
+      "typhoon_fixes": [
+        "Pangitaa kon diin nagahalin ang tulo sa atop ukon tubo kag kay-uha ini antes pa maglala ang tingulan.",
+        "Butangan sang waterproof sealant ang mga apektado nga pader para indi na magsulod ang kaging."
+      ],
+      "fire_reason": "Ang tulo sang tubig malapit sa kuryente nagatuga sang short circuit nga mahimo magpa-umpisa sang sunog sa sulod sang dingding.",
+      "fire_fixes": [
+        "Patyon ang kuryente sa mga pader ukon kisame nga may bag-o nga tulo.",
+        "Magtawag dayon sang electrician kon makakita sang agi sang tubig malapit sa mga saksakan ukon sa breaker box."
+      ]
+    },
+    "gas_tank": {
+      "general_reason": "Ang tangke sang gas wala natago sing maayo ukon wala na-secure, nga mahimo tunaan sang sunog ukon paglupok.",
+      "general_fixes": [
+        "I-kadena ukon ihigot ang imo tangke sang LPG sa mabakod nga pader.",
+        "Pirme patyon ang main regulator valve sang gas kon wala nagagamit sang kalan."
+      ],
+      "earthquake_reason": "Ang mga tangke sang LPG nga wala na-secure mahimo matumba sa tion sang linog, nga magaresulta sa pagkapihak sang hose kag dako nga leak sang gas.",
+      "earthquake_fixes": [
+        "I-kadena ukon ihigot ang imo tangke sang LPG sa mabakod nga pader para indi ini matumba kon may linog.",
+        "Pirme patyon ang main regulator valve sang gas kon wala nagagamit sang kalan."
+      ],
+      "typhoon_reason": "Ang tubig-baha mahimo magpalutaw kag magpatumba sa mga tangke sang LPG, nga nagaguba sang mga koneksyon kag nagatuga sang peligro sang paglupok.",
+      "typhoon_fixes": [
+        "Isaylo ang mga tangke sang gas sa mataas kag uga nga lugar kon ang inyo kusina masami ginabaha.",
+        "Pirme i-check ang goma nga hose sang gas kon bala may mga guba ukon litik."
+      ],
+      "fire_reason": "Ang nagatagas nga tangke sang gas malapit sa kalayo mahimo magtuga sang dako nga paglupok kag sunog nga indi na mapunggan.",
+      "fire_fixes": [
+        "Itago ang tangke sang LPG sa lugar nga may maayo nga sirkulasyon sang hangin.",
+        "Maggamit sang sinabon nga tubig sa mga koneksyon sang hose para i-check ang mga gas leak."
       ]
     },
     "elevated_breakables": {

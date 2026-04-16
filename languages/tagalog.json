@@ -12,7 +12,88 @@
     "hiligaynon": "Hiligaynon",
     "import_failed": "Hindi Na-import",
     "mascot_status": "Katayuan: {{risk}} ang Panganib",
-    "could_not_process_image": "Hindi namin maproseso ang larawang iyon. Subukan muli."
+    "could_not_process_image": "Hindi namin maproseso ang larawang iyon. Subukan muli.",
+    "allow": "Payagan",
+    "deny": "Huwag Payagan"
+  },
+  "date": {
+    "today": "Ngayon",
+    "yesterday": "Kahapon",
+    "this_week": "Ngayong Linggo",
+    "older": "Luma"
+  },
+  "notifications": {
+    "monthly": {
+      "title": "Oras na para sa Safety Check!",
+      "body": "Bagong buwan na! Magsagawa ng mabilis na scan sa iyong bahay para masiguradong ligtas ang lahat."
+    },
+    "seasonal_summer": {
+      "title": "Paalala para sa Kaligtasan sa Tag-init",
+      "body": "Ang tindi ng init ay maaaring magpataas ng panganib sa sunog. Suriin ang iyong mga koneksyon sa kuryente at ilayo ang mga gamit na madaling masunog sa mga pinagmumulan ng init."
+    },
+    "seasonal_typhoon": {
+      "title": "Paghahanda para sa Panahon ng Bagyo",
+      "body": "Ber months na, panahon na ng bagyo! I-scan ang iyong bahay para sa mga maluwag na kagamitan, suriin kung may mga lamat, at isara nang maigi ang mga bintana."
+    },
+    "ndrrmc": {
+      "title": "May Natanggap na Disaster Alert",
+      "body": "May na-detect na NDRRMC alert. Buksan ang BantAI para sa mabilis na safety check ng bahay."
+    },
+    "scan_overdue": {
+      "title": "Kailangan ng Check-up ng iyong Bahay",
+      "body": "Lampas 30 araw na mula noong huling safety scan mo. Maaaring may nagbago na sa iyong paligid, mag-check na ngayon."
+    },
+    "sms_permission": {
+      "title": "Permiso para sa SMS Alert",
+      "message": "Kailangang makinig ng BantAI sa mga NDRRMC disaster alert upang mapaalahanan ka na suriin ang kaligtasan ng iyong bahay. Ang BantAI ay nagbabasa lamang ng mga mensaheng nagsisimula sa 'NDRRMC' at binabalewala ang lahat ng iba pang mensahe.",
+      "allow": "Payagan",
+      "deny": "Huwag Payagan"
+    },
+    "screen": {
+      "title": "Mga Notipikasyon",
+      "empty_title": "Wala pang mga notipikasyon",
+      "empty_message": "Makikita mo rito ang mga paalala sa kaligtasan at mga disaster alert.",
+      "options_title": "Mga Opsyon sa Notipikasyon",
+      "options_desc": "Pamahalaan ang kasaysayan ng iyong mga notipikasyon",
+      "delete_all": "Burahin Lahat ng Notipikasyon",
+      "delete_modal_title": "Burahin ang Notipikasyon",
+      "delete_modal_desc": "Burahin ang \"{{title}}\"?",
+      "delete_modal_desc_fallback": "Ano ang gusto mong burahin?",
+      "delete_this": "Burahin Itong Notipikasyon",
+      "cancel": "Kanselahin"
+    },
+    "button": {
+      "accessibility_label_unread": "Mga Notipikasyon, {{count}} na hindi pa nababasa",
+      "accessibility_label_empty": "Mga Notipikasyon, walang hindi pa nababasa",
+      "gallery_permission_message": "Kailangan namin ng permiso sa gallery upang makapili ng larawan.",
+      "error_no_uri": "Ang napiling larawan ay walang URI.",
+      "error_import_failed": "Bigo sa pag-import ng larawan:"
+    }
+  },
+  "layout": {
+    "init_failed": "Bigo ang pag-umpisa ng App:"
+  },
+  "card": {
+    "accessibility_label": "Notipikasyon: {{title}}",
+    "unread_status": "Hindi pa nababasa"
+  },
+  "permissions": {
+    "sms": {
+      "title": "Permiso para sa SMS Alert",
+      "message": "Kailangang makinig ng BantAI sa mga NDRRMC disaster alert upang mapaalahanan ka na suriin ang kaligtasan ng iyong bahay kapag may babala ng sakuna. Ang BantAI ay nagbabasa lamang ng mga mensaheng nagsisimula sa 'NDRRMC' at binabalewala ang lahat ng iba pang mensahe."
+    }
+  },
+  "native_alerts": {
+    "earthquake": "Lindol",
+    "rainfall": "Ulan",
+    "typhoon": "Bagyo",
+    "disaster": "Sakuna",
+    "incoming": "paparating",
+    "coming": "darating",
+    "detected": "na-detect",
+    "title": "BantAI: {{detail}}{{hazard}} Alert ⚠️",
+    "body": "May na-detect ang BantAI na NDRRMC notipikasyon: {{detail}}{{hazard}} {{action}} sa {{location}} ng {{time}}.",
+    "footer": "Buksan ang BantAI para sa mabilis na safety scan ng iyong bahay."
   },
   "hazard_titles": {
     "overloaded_socket": "Overloaded na Saksakan",
@@ -80,6 +161,94 @@
         "Alisin ang mga glass vase sa mga pasilyo para ligtas ang dadaanan kahit sa dilim.",
         "Palitan ng plastik ang mga glass picture frame sa hagdan.",
         "Ilayo ang mga bote ng mantika sa mataas na istante na nasa itaas ng kalan."
+      ]
+    },
+    "window_security_bar": {
+      "general_reason": "Ang mga security bar o grills sa bintana ay maaaring makaharang sa mga dinadaanan palabas sakaling may emergency.",
+      "general_fixes": [
+        "Maglagay ng quick-release mechanism sa kahit isang grill sa bintana sa bawat kwarto.",
+        "Siguraduhin na ang lahat sa tahanan ay marunong gumamit ng emergency release."
+      ],
+      "earthquake_reason": "Sa panahon ng lindol, maaaring mag-stock ang mga pinto, kaya ang mga bintana na lamang ang tanging labasan na maaaring maharangan ng mga permanenteng grills.",
+      "earthquake_fixes": [
+        "Maglagay ng quick-release mechanism sa kahit isang grill sa bintana sa bawat kwarto.",
+        "Siguraduhin na ang lahat sa tahanan ay marunong gumamit ng emergency release."
+      ],
+      "typhoon_reason": "Kung mabilis ang pagtaas ng baha, ang mga grills sa bintana ay humahadlang sa mga residenteng makaakyat sa bubong o sa mas mataas na lugar.",
+      "typhoon_fixes": [
+        "Magtabi ng mabigat na bagay malapit sa bintana na magagamit pang-wasak sa mga emergency exit kung sakaling mabilis na tumaas ang tubig.",
+        "I-upgrade ang mga naka-welda na grills patungo sa padlock at susi na sistema."
+      ],
+      "fire_reason": "Sa mabilis na sunog, ang mga permanenteng grills sa bintana ay nagkukulong sa mga tao sa loob ng nasusunog na kwarto, at humahadlang sa pagliligtas mula sa labas.",
+      "fire_fixes": [
+        "Kumonsulta sa welder upang gawing de-bisagra ang kahit isang bintana bawat kwarto bilang fire exit.",
+        "Huwag harangan ang mga emergency release lever ng mabibigat na muwebles."
+      ]
+    },
+    "curtain": {
+      "general_reason": "Ang mga kurtinang masyadong malapit sa init o apoy ay madaling magliyab.",
+      "general_fixes": [
+        "Italing mabuti ang mga kurtina tuwing umaga o gumamit ng pabigat sa kurtina.",
+        "Ilayo ang mga kandila o lampara nang hindi bababa sa isang metro mula sa bintana."
+      ],
+      "earthquake_reason": "Ang pagyanig ay maaaring magdulot sa mga kurtina na sumagi sa mga natumbang kandila o sa mga sirang kuryenteng nagdidiklap.",
+      "earthquake_fixes": [
+        "Italing mabuti ang mga kurtina tuwing umaga o gumamit ng pabigat sa kurtina upang hindi ito mawayway.",
+        "Ilayo ang mga kandila, lampara, o anumang pinagmumulan ng apoy mula sa bintana."
+      ],
+      "typhoon_reason": "Ang malakas na hangin ay maaaring magtangay sa magagaan na kurtina patungo sa nakasinding kalan o apoy.",
+      "typhoon_fixes": [
+        "I-rolyo at itago ang mahahabang kurtina kapag gumagamit ng kandila o gasera tuwing may blackout.",
+        "Iwasan ang paggamit ng maninipis at madaling masunog na tela sa kusina."
+      ],
+      "fire_reason": "Ang mga kurtina ay madaling masunog at nagsisilbing hagdanan ng apoy patungo sa kisame.",
+      "fire_fixes": [
+        "Maglagay ng tie-back sa kurtina upang masiguradong malayo ang tela sa mga saksakan ng kuryente.",
+        "Pumili ng mas mabigat at natural na tela tulad ng cotton sa halip na mga synthetic."
+      ]
+    },
+    "water_damage": {
+      "general_reason": "May mga bakas ng pinsala mula sa tubig, na maaaring magpahina sa istruktura o magdulot ng panganib sa kuryente.",
+      "general_fixes": [
+        "Magpatawag ng karpintero upang suriin ang mga kisame o poste na may pinsala ng tubig.",
+        "Hanapin ang pinagmumulan ng tulo sa bubong o tubo at kumpunihin ito."
+      ],
+      "earthquake_reason": "Ang mga inagnas o nabubulok na kahoy na suporta o kisame ay mahina na at madaling gumuho kapag may lindol.",
+      "earthquake_fixes": [
+        "Magpatawag ng karpintero upang suriin ang mga kisame o poste na may pinsala ng tubig.",
+        "Palitan ang mga bulok na tabla bago pa dumating ang panahon ng mga lindol."
+      ],
+      "typhoon_reason": "Ang patuloy na tulo tuwing tag-ulan ay nagpapabilis sa pagbulok ng kahoy, na nagpapahina sa istruktura laban sa malakas na hangin.",
+      "typhoon_fixes": [
+        "Hanapin ang pinagmumulan ng tulo sa bubong o tubo at kumpunihin ito bago pa lumala ang tag-ulan.",
+        "Lagyan ng waterproof sealant ang mga apektadong pader."
+      ],
+      "fire_reason": "Ang tulo ng tubig malapit sa kable ng kuryente ay nagdudulot ng short circuit na madaling magpa-umpisa ng sunog sa loob ng dingding.",
+      "fire_fixes": [
+        "Patayin ang kuryente sa mga bahagi ng dingding o kisame na may bagong tulo.",
+        "Tumawag agad ng electrician kung may makitang agos ng tubig malapit sa mga saksakan."
+      ]
+    },
+    "gas_tank": {
+      "general_reason": "Ang tangke ng gas ay hindi maayos na nakaimbak o hindi naka-secure, na nagdudulot ng panganib ng sunog o pagsabog.",
+      "general_fixes": [
+        "I-kadena o italing mabuti ang iyong tangke ng LPG sa matibay na dingding.",
+        "Laging patayin ang main regulator valve ng gas kapag hindi ginagamit."
+      ],
+      "earthquake_reason": "Ang mga tangke ng LPG na hindi naka-secure ay maaaring matumba sa panahon ng lindol, na magreresulta sa pagkapunit ng hose at malaking leak ng gas.",
+      "earthquake_fixes": [
+        "I-kadena o italing mabuti ang iyong tangke ng LPG sa matibay na dingding upang hindi ito matumba kapag may lindol.",
+        "Laging patayin ang main regulator valve ng gas kapag hindi ginagamit."
+      ],
+      "typhoon_reason": "Maaaring palamlutangin at patumbahin ng baha ang mga tangke ng LPG, na sumisira sa mga koneksyon at nagdudulot ng panganib ng pagsabog.",
+      "typhoon_fixes": [
+        "Ilipat ang mga tangke ng gas sa mataas at tuyong lugar kung ang inyong kusina ay madalas bahain.",
+        "Laging suriin ang goma ng hose ng gas kung ito ay may mga bitak."
+      ],
+      "fire_reason": "Ang tumatagas na tangke ng gas malapit sa apoy ay maaaring magdulot ng malaking pagsabog at sunog na hindi na makokontrol.",
+      "fire_fixes": [
+        "Iimbak ang tangke ng LPG sa lugar na may maayos na bentilasyon.",
+        "Gumamit ng pinaghalong sabon at tubig sa mga koneksyon ng hose upang suriin kung may gas leak."
       ]
     },
     "exposed_breaker": {

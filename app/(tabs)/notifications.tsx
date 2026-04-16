@@ -12,8 +12,11 @@ import {
   type GroupedNotifications,
   type NotificationRow,
 } from "@/db/db";
+import i18n from "@/languages/i18n";
+import { syncPendingNdrrmcAlerts } from "@/lib/notificationService";
 import { useFocusEffect, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Animated,
   DeviceEventEmitter,
@@ -23,10 +26,9 @@ import {
   Text,
   View,
 } from "react-native";
-import { syncPendingNdrrmcAlerts } from "@/lib/notificationService";
 
 // ──────────────────────────────────────────────────
-// Delete Confirmation Modal (bottom sheet)
+// Delete Confirmation Modal (Single Item)
 // ──────────────────────────────────────────────────
 
 const DeleteModal = ({
@@ -40,6 +42,7 @@ const DeleteModal = ({
   onDeleteOne: () => void;
   selectedTitle: string;
 }) => {
+  const { t } = useTranslation();
   const slideAnim = useRef(new Animated.Value(400)).current;
 
   useEffect(() => {
@@ -81,28 +84,28 @@ const DeleteModal = ({
             onPress={(e) => e.stopPropagation()}
           >
             <Text className="text-2xl font-bold text-center mb-2">
-              Delete Notification
+              {t("notifications.screen.delete_modal_title")}
             </Text>
             <Text className="text-md text-text-subtle text-center mb-4 font-text">
               {selectedTitle
-                ? `Remove "${selectedTitle}"?`
-                : "What would you like to delete?"}
+                ? t("notifications.screen.delete_modal_desc", {
+                    title: selectedTitle,
+                  })
+                : t("notifications.screen.delete_modal_desc_fallback")}
             </Text>
 
-            {/* Delete this notification */}
             <Button
-              label="Delete This Notification"
+              label={t("notifications.screen.delete_this")}
               variant="cancel"
               onPress={() => handleClose(onDeleteOne)}
             />
 
-            {/* Cancel */}
             <Pressable
               className="bg-gray-100 p-4 rounded-full items-center mt-2 active:opacity-80 active:scale-95 transition-all"
               onPress={() => handleClose()}
             >
               <Text className="text-text-subtle font-semibold text-lg">
-                Cancel
+                {t("notifications.screen.cancel")}
               </Text>
             </Pressable>
           </Pressable>
@@ -113,7 +116,7 @@ const DeleteModal = ({
 };
 
 // ──────────────────────────────────────────────────
-// Global Actions Modal (top right menu)
+// Global Actions Modal (Options Menu)
 // ──────────────────────────────────────────────────
 
 const GlobalActionsModal = ({
@@ -125,6 +128,7 @@ const GlobalActionsModal = ({
   onClose: () => void;
   onDeleteAll: () => void;
 }) => {
+  const { t } = useTranslation();
   const slideAnim = useRef(new Animated.Value(400)).current;
 
   useEffect(() => {
@@ -166,14 +170,14 @@ const GlobalActionsModal = ({
             onPress={(e) => e.stopPropagation()}
           >
             <Text className="text-2xl font-bold text-center mb-2">
-              Notification Options
+              {t("notifications.screen.options_title")}
             </Text>
             <Text className="text-md text-text-subtle text-center mb-4 font-text">
-              Manage your notification history
+              {t("notifications.screen.options_desc")}
             </Text>
 
             <Button
-              label="Delete All Notifications"
+              label={t("notifications.screen.delete_all")}
               variant="cancel"
               onPress={() => handleClose(onDeleteAll)}
             />
@@ -183,7 +187,7 @@ const GlobalActionsModal = ({
               onPress={() => handleClose()}
             >
               <Text className="text-text-subtle font-semibold text-lg">
-                Cancel
+                {t("notifications.screen.cancel")}
               </Text>
             </Pressable>
           </Pressable>
@@ -198,6 +202,7 @@ const GlobalActionsModal = ({
 // ──────────────────────────────────────────────────
 
 export default function NotificationsScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const [groups, setGroups] = useState<GroupedNotifications[]>([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -205,8 +210,84 @@ export default function NotificationsScreen() {
   const [selectedNotif, setSelectedNotif] = useState<NotificationRow | null>(
     null,
   );
+  const [, setLanguage] = useState<string>(i18n.language);
 
-  // Refresh notifications from SQLite whenever the screen is focused
+  // ──────────────────────────────────────────────────
+  // Helper: Live Translation for Group Dates
+  // ──────────────────────────────────────────────────
+  const getLocalizedGroupTitle = (title: string) => {
+    if (title === "Today") return t("date.today");
+    if (title === "Yesterday") return t("date.yesterday");
+    if (title === "This Week") return t("date.this_week");
+    if (title === "Older") return t("date.older");
+    return title;
+  };
+
+  // ──────────────────────────────────────────────────
+  // Helper: Live Translation for Old DB Entries
+  // ──────────────────────────────────────────────────
+  const getLocalizedNotification = (title: string, body: string) => {
+    // 1. Monthly Reminder
+    if (
+      title.includes("Time for a Safety Check") ||
+      title.includes("Tion na para") ||
+      title.includes("Oras na para")
+    ) {
+      return {
+        locTitle: t("notifications.monthly.title"),
+        locBody: t("notifications.monthly.body"),
+      };
+    }
+    // 2. Summer Reminder
+    if (
+      title.includes("Summer Safety") ||
+      title.includes("Tig-ilinit") ||
+      title.includes("Tag-init")
+    ) {
+      return {
+        locTitle: t("notifications.seasonal_summer.title"),
+        locBody: t("notifications.seasonal_summer.body"),
+      };
+    }
+    // 3. Typhoon Reminder
+    if (
+      title.includes("Typhoon Season") ||
+      title.includes("Tig-ululan") ||
+      title.includes("Panahon ng Bagyo")
+    ) {
+      return {
+        locTitle: t("notifications.seasonal_typhoon.title"),
+        locBody: t("notifications.seasonal_typhoon.body"),
+      };
+    }
+    // 4. Overdue Reminder
+    if (
+      title.includes("Check-up") ||
+      title.includes("Check up") ||
+      title.includes("Kinahanglan sang Check-up") ||
+      title.includes("Kailangan ng Check-up")
+    ) {
+      return {
+        locTitle: t("notifications.scan_overdue.title"),
+        locBody: t("notifications.scan_overdue.body"),
+      };
+    }
+    // 5. Generic NDRRMC (Static)
+    if (
+      title.includes("Disaster Alert Received") ||
+      title.includes("May Nabaton nga Disaster Alert") ||
+      title.includes("May Natanggap na Disaster Alert")
+    ) {
+      return {
+        locTitle: t("notifications.ndrrmc.title"),
+        locBody: t("notifications.ndrrmc.body"),
+      };
+    }
+
+    // 6. Dynamic NDRRMC Alerts (Leave as is since the body contains dynamic SMS data)
+    return { locTitle: title, locBody: body };
+  };
+
   useFocusEffect(
     useCallback(() => {
       loadNotifications();
@@ -222,7 +303,6 @@ export default function NotificationsScreen() {
     }
   };
 
-  // Tap → mark as read + navigate
   const handleNotificationPress = async (notif: NotificationRow) => {
     try {
       await markNotificationRead(notif.id);
@@ -230,18 +310,14 @@ export default function NotificationsScreen() {
     } catch (e) {
       console.warn("Failed to mark notification as read:", e);
     }
-
-    // All notification clicks lead to the scanning instructions/camera
     router.push("/landscapeOrientation" as any);
   };
 
-  // Long-press → open delete modal
   const handleLongPress = (notif: NotificationRow) => {
     setSelectedNotif(notif);
     setIsDeleteModalOpen(true);
   };
 
-  // Delete single notification
   const handleDeleteOne = async () => {
     if (!selectedNotif) return;
     try {
@@ -253,7 +329,6 @@ export default function NotificationsScreen() {
     setSelectedNotif(null);
   };
 
-  // Delete all notifications
   const handleDeleteAll = async () => {
     try {
       await deleteAllNotifications();
@@ -271,17 +346,26 @@ export default function NotificationsScreen() {
     return <SafetyIcon size={28} />;
   };
 
-  // 2. Live Update Listener: Refresh list automatically when a native alert arrives
   useEffect(() => {
     const subscription = DeviceEventEmitter.addListener(
       "onNewNDRRMCAlert",
       async () => {
-        console.log("BantAI: Live Update Triggered!");
         await syncPendingNdrrmcAlerts();
         await loadNotifications();
       },
     );
     return () => subscription.remove();
+  }, []);
+
+  useEffect(() => {
+    const handleLanguageChange = () => {
+      setLanguage(i18n.language);
+    };
+
+    i18n.on("languageChanged", handleLanguageChange);
+    return () => {
+      i18n.off("languageChanged", handleLanguageChange);
+    };
   }, []);
 
   const formatTime = (timestamp: number) => {
@@ -303,7 +387,7 @@ export default function NotificationsScreen() {
           <View className="flex-row items-center justify-between mb-3 -ml-4 -mr-2">
             <Button
               variant="returnLg"
-              label="Notifications"
+              label={t("notifications.screen.title")}
               iconPosition="left"
               icon={<ArrowLeftIcon />}
               onPress={() => {
@@ -321,50 +405,60 @@ export default function NotificationsScreen() {
           {groups.length === 0 && (
             <View className="items-center justify-center mt-20">
               <Text className="text-lg text-text-subtle font-text">
-                No notifications yet
+                {t("notifications.screen.empty_title")}
               </Text>
               <Text className="text-md text-text-subtle font-text mt-2 text-center">
-                You'll see safety reminders and disaster alerts here.
+                {t("notifications.screen.empty_message")}
               </Text>
             </View>
           )}
 
-          {/* Render notification groups from SQLite */}
           {groups.map((group) => (
             <View key={group.title} className="mb-6">
-              {/* Section Header */}
               <Text className="text-lg font-bold text-text-default mb-6">
-                {group.title}
+                {getLocalizedGroupTitle(group.title)}
               </Text>
 
-              {/* Notification cards */}
-              {group.data.map((notif) => (
-                <View key={notif.id}>
-                  <NotificationCard
-                    icon={getIcon(notif.type)}
-                    title={notif.title}
-                    desc={notif.body}
-                    time={formatTime(notif.created_at)}
-                    isOpened={!!notif.is_read}
-                    onPress={() => handleNotificationPress(notif)}
-                    onLongPress={() => handleLongPress(notif)}
-                  />
-                </View>
-              ))}
+              {group.data.map((notif) => {
+                const { locTitle, locBody } = getLocalizedNotification(
+                  notif.title,
+                  notif.body,
+                );
+
+                return (
+                  <View key={notif.id}>
+                    <NotificationCard
+                      accessibilityLabel={t("card.accessibility_label", {
+                        title: locTitle,
+                      })}
+                      icon={getIcon(notif.type)}
+                      title={locTitle}
+                      desc={locBody}
+                      time={formatTime(notif.created_at)}
+                      isOpened={!!notif.is_read}
+                      onPress={() => handleNotificationPress(notif)}
+                      onLongPress={() => handleLongPress(notif)}
+                    />
+                  </View>
+                );
+              })}
             </View>
           ))}
         </View>
       </ScrollView>
 
-      {/* Delete Modal (for single items) */}
       <DeleteModal
         isVisible={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onDeleteOne={handleDeleteOne}
-        selectedTitle={selectedNotif?.title ?? ""}
+        selectedTitle={
+          selectedNotif
+            ? getLocalizedNotification(selectedNotif.title, selectedNotif.body)
+                .locTitle
+            : ""
+        }
       />
 
-      {/* Global Actions Modal (for triple dot) */}
       <GlobalActionsModal
         isVisible={isGlobalModalOpen}
         onClose={() => setIsGlobalModalOpen(false)}
