@@ -5,7 +5,14 @@ import {
 } from "@/lib/onboardingStorage";
 import { router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, Image, Pressable, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Animated,
+  Image,
+  Pressable,
+  Text,
+  View,
+} from "react-native";
 
 type LanguageOption = "English" | "Tagalog" | "Hiligaynon";
 
@@ -148,6 +155,7 @@ export default function OnboardingScreen() {
   const [selectedLanguage, setSelectedLanguage] =
     useState<LanguageOption>("English");
   const [isSaving, setIsSaving] = useState(false);
+  const slideAnimValue = useMemo(() => new Animated.Value(0), []);
 
   useEffect(() => {
     let isMounted = true;
@@ -165,6 +173,15 @@ export default function OnboardingScreen() {
       isMounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    slideAnimValue.setValue(0);
+    Animated.timing(slideAnimValue, {
+      toValue: 1,
+      duration: 600,
+      useNativeDriver: true,
+    }).start();
+  }, [stepIndex, slideAnimValue]);
 
   const activeSlide = useMemo(() => {
     if (stepIndex === 0) return null;
@@ -206,8 +223,17 @@ export default function OnboardingScreen() {
 
   return (
     <View className="flex-1 bg-[#eef1f5] px-7 pt-10 pb-8">
-      {stepIndex === 0 ? (
-        <View className={LANGUAGE_SCREEN_STYLES.container}>
+      <Animated.View
+        style={{
+          flex: 1,
+          opacity: slideAnimValue.interpolate({
+            inputRange: [0, 1],
+            outputRange: [0, 1],
+          }),
+        }}
+      >
+        {stepIndex === 0 ? (
+          <View className={LANGUAGE_SCREEN_STYLES.container}>
           <Image
             source={require("@/assets/mascot/MascotWave.png")}
             className={LANGUAGE_SCREEN_STYLES.image}
@@ -333,6 +359,7 @@ export default function OnboardingScreen() {
           <View className={getButtonStyles(stepIndex).spacer} />
         )}
       </View>
+      </Animated.View>
     </View>
   );
 }
