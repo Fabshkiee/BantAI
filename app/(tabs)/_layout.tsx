@@ -40,9 +40,11 @@ const HIDDEN_SCREENS = [
   "camera",
   "loadingScreen",
   "safetyReport",
+  "scanReport",
   "articles/earthquakeArticle",
   "articles/typhoonArticle",
   "articles/fireArticle",
+  "notifications",
 ];
 
 const CameraActionModal = ({

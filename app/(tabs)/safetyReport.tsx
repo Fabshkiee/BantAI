@@ -14,7 +14,7 @@ import * as ImagePicker from "expo-image-picker";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ActivityIndicator, Alert, Animated, Text, View } from "react-native";
+import { ActivityIndicator, Alert, Animated, Image, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const SEVERITY_PRIORITY: Record<string, number> = {
@@ -24,8 +24,11 @@ const SEVERITY_PRIORITY: Record<string, number> = {
   low: 1,
 };
 
+const HEADER_CONTENT_HEIGHT = 68;
+
 export default function SafetyReport() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
 
@@ -104,6 +107,7 @@ export default function SafetyReport() {
   const executeDatabaseSearch = (_sqlCommand: string, filterId: string) => {
     setActiveDisasterTab(filterId as DisasterType | "all");
   };
+
   const loadSession = useCallback(
     async (quiet = false) => {
       if (!hasSession || sessionId === null) {
@@ -159,7 +163,6 @@ export default function SafetyReport() {
       | "medium"
       | "high"
       | "critical";
-    const variant = baseVariant;
 
     const disasterTypes = Array.from(
       new Set<DisasterType>([
@@ -171,9 +174,9 @@ export default function SafetyReport() {
 
     mappedHazards.push({
       id: i.toString(),
-      title: title,
+      title,
       internalName: d.class,
-      variant: variant as "low" | "medium" | "high" | "critical",
+      variant: baseVariant,
       reason:
         seed?.description ||
         entry?.description ||
@@ -219,8 +222,10 @@ export default function SafetyReport() {
   const { spatialInsights: sessionInsights } =
     calculateRoomRisk(sessionDetections);
 
-  const insets = useSafeAreaInsets();
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const headerTotalHeight = insets.top + HEADER_CONTENT_HEIGHT;
+  const scrollYClamped = Animated.diffClamp(scrollY, 0, headerTotalHeight);
 
   useFocusEffect(
     useCallback(() => {
@@ -232,6 +237,11 @@ export default function SafetyReport() {
       }).start();
     }, [fadeAnim]),
   );
+
+  const translateY = scrollYClamped.interpolate({
+    inputRange: [0, headerTotalHeight],
+    outputRange: [0, -headerTotalHeight],
+  });
 
   const finalRoomScore = session?.roomScore ?? rawScore ?? 15;
   const finalRiskVariant = hasSession
@@ -249,7 +259,7 @@ export default function SafetyReport() {
     finalHazards
       ? activeDisasterTab === "all"
         ? finalHazards
-        : (finalHazards as HazardData[]).filter((h) =>
+        : finalHazards.filter((h) =>
             h.disasterTypes?.includes(activeDisasterTab),
           )
       : []
@@ -326,23 +336,47 @@ export default function SafetyReport() {
     );
   }, [router, t]);
 
+  const handleViewReport = useCallback(() => {
+    if (!hasSession || sessionId === null) {
+      Alert.alert(
+        "Report unavailable",
+        "This scan does not have a saved session report yet.",
+      );
+      return;
+    }
+
+    router.push({
+      pathname: "/scanReport",
+      params: { sessionId: String(sessionId) },
+    });
+  }, [hasSession, router, sessionId]);
+
   return (
-    <View style={{ flex: 1 }}>
-      <Animated.ScrollView
-        className="flex-1 mt-9 pb-56 mb-8 bg-surface-default"
-        showsVerticalScrollIndicator={false}
-        contentContainerClassName="pb-14"
-        style={{ opacity: fadeAnim }}
+    <View className="flex-1 bg-surface-default">
+      <Animated.View
+        style={{
+          transform: [{ translateY }],
+          paddingTop: insets.top + 12,
+          height: headerTotalHeight,
+        }}
+        className="absolute top-0 left-0 right-0 z-20 bg-surface-default px-6"
       >
-        <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
-          <View className="absolute -top-9 left-0 right-0 px-6 pt-8 z-10 flex-row justify-between">
+        <View className="flex-row items-center">
+          <View>
             <Button
               label={t("common.return")}
               variant="return"
               icon={<ArrowLeftIcon color="black" size={18} />}
               iconPosition="left"
-              onPress={() => router.push("/history")}
+              onPress={() => router.push("/scans" as any)}
             />
+          </View>
+
+          <Text className="text-h3 font-bold leading-8 ml-2">
+            Safety Report
+          </Text>
+
+          <View className="ml-auto flex-row gap-2 items-center">
             <Button
               label={currentLanguage === "en" ? "TL" : "EN"}
               variant="secondary"
@@ -351,9 +385,32 @@ export default function SafetyReport() {
                 i18n.changeLanguage(currentLanguage === "en" ? "tl" : "en");
               }}
             />
+            {hasSession ? (
+              <Button
+                label="Save"
+                variant="save"
+                size="compact"
+                onPress={handleViewReport}
+              />
+            ) : null}
           </View>
+        </View>
+      </Animated.View>
 
-          <View className="mx-7 mt-7 gap-7">
+      <Animated.ScrollView
+        className="flex-1 mt-9 pb-56 mb-8 bg-surface-default"
+        showsVerticalScrollIndicator={false}
+        contentContainerClassName="pb-14"
+        contentContainerStyle={{ paddingTop: headerTotalHeight + 12 }}
+        style={{ opacity: fadeAnim }}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: true },
+        )}
+        scrollEventThrottle={16}
+      >
+        <Animated.View style={{ flex: 2 }}>
+          <View className="mx-7 gap-7">
             <View className="flex-1 justify-center items-center gap-4">
               <Text className="text-h2 font-bold text-center mt-14">
                 {t("safety_report.title")}
@@ -393,6 +450,26 @@ export default function SafetyReport() {
             )}
 
             <View>
+              <Text className="text-2xl font-bold mt-10 mb-5">
+                Captured Image
+              </Text>
+              <View
+                className="w-full rounded-lg bg-black"
+                style={{ overflow: "hidden", height: 280 }}
+              >
+                <Image
+                  source={
+                    finalImageUri
+                      ? { uri: finalImageUri as string }
+                      : require("@/assets/images/room.png")
+                  }
+                  style={{ width: "100%", height: "100%" }}
+                  resizeMode="contain"
+                />
+              </View>
+            </View>
+
+            <View className="mb-5">
               <Text className="text-2xl font-bold mt-10 mb-1">
                 {t("safety_report.identified_hazards", {
                   count: finalHazardCount,
@@ -403,13 +480,16 @@ export default function SafetyReport() {
               </Text>
             </View>
 
-            <View>
-              <HazardSortingButtons
-                tableName="test"
-                onSortQueryChange={executeDatabaseSearch}
-              />
-              <View className="mt-3 rounded-xl bg-surface-light px-4 py-3 border border-border-light">
-                <Text className="text-sm font-semibold text-text-default">
+            <View className="-mt-6">
+              <View className="mb-5">
+                <HazardSortingButtons
+                  tableName="test"
+                  onSortQueryChange={executeDatabaseSearch}
+                />
+              </View>
+
+              <View className="rounded-lg bg-surface-default px-5 py-3 border border-border-secondary">
+                <Text className="text-md font-semibold text-text-default">
                   {t("safety_report.reason_context_label", {
                     context: activeContextLabel[activeDisasterTab],
                   })}
