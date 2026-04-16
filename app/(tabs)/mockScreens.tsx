@@ -1,13 +1,14 @@
-import React, { useMemo, useState } from "react";
-import { router } from "expo-router";
 import { resetOnboardingState } from "@/lib/onboardingStorage";
+import * as ScreenOrientation from "expo-screen-orientation";
+import { router } from "expo-router";
+import React, { useEffect, useMemo, useState } from "react";
 import {
     Image,
     ImageSourcePropType,
     Pressable,
-  Text,
+    Text,
     useWindowDimensions,
-    View
+    View,
 } from "react-native";
 
 const SAMPLE_IMAGES = new Map<number, ImageSourcePropType>([
@@ -24,6 +25,29 @@ const SAMPLE_IMAGES = new Map<number, ImageSourcePropType>([
 export default function MockScreen() {
   const { width, height } = useWindowDimensions();
   const [activeStep, setActiveStep] = useState(1);
+
+  useEffect(() => {
+    const applyOrientation = async () => {
+      if (activeStep === 3) {
+        await ScreenOrientation.lockAsync(
+          ScreenOrientation.OrientationLock.LANDSCAPE_RIGHT,
+        );
+        return;
+      }
+
+      await ScreenOrientation.lockAsync(
+        ScreenOrientation.OrientationLock.PORTRAIT_UP,
+      );
+    };
+
+    void applyOrientation();
+
+    return () => {
+      void ScreenOrientation.lockAsync(
+        ScreenOrientation.OrientationLock.PORTRAIT_UP,
+      );
+    };
+  }, [activeStep]);
 
   const activeImage = useMemo(() => {
     return SAMPLE_IMAGES.get(activeStep) ?? SAMPLE_IMAGES.get(1)!;
@@ -64,7 +88,9 @@ export default function MockScreen() {
         }}
         className="absolute right-4 top-12 rounded-full bg-white/95 px-4 py-2"
       >
-        <Text className="text-sm font-semibold text-black">Restart Onboarding</Text>
+        <Text className="text-sm font-semibold text-black">
+          Restart Onboarding
+        </Text>
       </Pressable>
     </View>
   );
