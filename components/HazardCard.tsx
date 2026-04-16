@@ -5,19 +5,20 @@ import HighRiskIcon from "@/assets/icons/HighRiskIcon";
 import LowRiskIcon from "@/assets/icons/LowRiskIcon";
 import MediumRiskIcon from "@/assets/icons/MediumRiskIcon";
 import {
-    fetchDataFromDB,
-    markHazardAsAssessed,
-    markHazardAsUnassessed,
-    type ScanSessionDetails,
+  fetchDataFromDB,
+  markHazardAsAssessed,
+  markHazardAsUnassessed,
+  type ScanSessionDetails,
 } from "@/db/db";
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ActivityIndicator, Image, Pressable, Text, View } from "react-native";
 import Animated, {
-    FadeInUp,
-    FadeOutUp,
-    LinearTransition,
-    useSharedValue,
-    withSpring,
+  FadeInUp,
+  FadeOutUp,
+  LinearTransition,
+  useSharedValue,
+  withSpring,
 } from "react-native-reanimated";
 import Button from "./Button";
 import RiskStatus from "./RiskStatus";
@@ -34,7 +35,6 @@ export type HazardData = {
   isAssessed?: boolean;
   internalName?: string;
   disasterTypes?: string[];
-  // Disaster specific fields from the dictionary
   earthquake_reason?: string;
   earthquake_fixes?: string[];
   fire_reason?: string;
@@ -78,6 +78,7 @@ function HazardCardDesign({
   activeDisasterTab?: "all" | "earthquake" | "typhoon" | "fire";
   onResolved?: (updatedSession?: ScanSessionDetails | null) => void;
 }) {
+  const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
   const [isResolved, setIsResolved] = useState(data.isAssessed || false);
   const [isTogglingResolution, setIsTogglingResolution] = useState(false);
@@ -87,32 +88,66 @@ function HazardCardDesign({
     setIsResolved(data.isAssessed || false);
   }, [data.isAssessed]);
 
-  // Use generic class-level guidance on "All" and disaster-specific guidance on selected tabs.
-  const selectedReason =
-    activeDisasterTab !== "all"
-      ? (data[`${activeDisasterTab}_reason` as keyof HazardData] as string)
-      : undefined;
-  const selectedFixes =
-    activeDisasterTab !== "all"
-      ? (data[`${activeDisasterTab}_fixes` as keyof HazardData] as string[])
-      : undefined;
+  const internalKey = data.internalName?.toLowerCase() || "unknown";
+  const capitalizedDisaster =
+    activeDisasterTab.charAt(0).toUpperCase() + activeDisasterTab.slice(1);
 
-  const reason =
-    selectedReason ||
-    `${activeDisasterTab[0].toUpperCase()}${activeDisasterTab.slice(1)}-specific reason is currently unavailable for this hazard.`;
-  const fixes =
-    activeDisasterTab === "all"
-      ? data.general_fixes && data.general_fixes.length > 0
+  // --- DYNAMIC TRANSLATION LOGIC FOR REASON ---
+  let displayedReason = "";
+  if (activeDisasterTab === "all") {
+    displayedReason = t(`hazard_content.${internalKey}.general_reason`, {
+      defaultValue: data.general_reason || data.reason,
+    });
+  } else {
+    const fallbackReason =
+      (data[`${activeDisasterTab}_reason` as keyof HazardData] as string) || "";
+    const specificReason = t(
+      `hazard_content.${internalKey}.${activeDisasterTab}_reason`,
+      { defaultValue: fallbackReason },
+    );
+    displayedReason =
+      specificReason ||
+      t("hazard_card.reason_unavailable", { disaster: capitalizedDisaster });
+  }
+
+  // --- DYNAMIC TRANSLATION LOGIC FOR FIXES (ARRAYS) ---
+  let fixes: string[] = [];
+  if (activeDisasterTab === "all") {
+    const defaultGeneralFixes =
+      data.general_fixes && data.general_fixes.length > 0
         ? data.general_fixes
-        : [data.suggestedFix]
-      : selectedFixes && selectedFixes.length > 0
-        ? selectedFixes
-        : [
-            `${activeDisasterTab[0].toUpperCase()}${activeDisasterTab.slice(1)}-specific fix is currently unavailable. Secure the area first and request a manual safety check.`,
-          ];
+        : [data.suggestedFix];
 
-  const displayedReason =
-    activeDisasterTab === "all" ? data.general_reason || data.reason : reason;
+    const transGeneralFixes = t(`hazard_content.${internalKey}.general_fixes`, {
+      returnObjects: true,
+      defaultValue: defaultGeneralFixes,
+    }) as string | string[];
+
+    fixes = Array.isArray(transGeneralFixes)
+      ? transGeneralFixes
+      : [transGeneralFixes];
+  } else {
+    const defaultSpecificFixes =
+      (data[`${activeDisasterTab}_fixes` as keyof HazardData] as string[]) ||
+      [];
+
+    const transSpecificFixes = t(
+      `hazard_content.${internalKey}.${activeDisasterTab}_fixes`,
+      {
+        returnObjects: true,
+        defaultValue: defaultSpecificFixes,
+      },
+    ) as string | string[];
+
+    const parsedFixes = Array.isArray(transSpecificFixes)
+      ? transSpecificFixes
+      : [transSpecificFixes];
+
+    fixes =
+      parsedFixes.length > 0 && parsedFixes[0] !== ""
+        ? parsedFixes
+        : [t("hazard_card.fix_unavailable", { disaster: capitalizedDisaster })];
+  }
 
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
@@ -125,7 +160,7 @@ function HazardCardDesign({
   return (
     <Animated.View
       layout={LinearTransition.damping(18).stiffness(120)}
-      className="bg-surface-light rounded-2xl flex-col shadow-sm border border-border-secondary p-4 overflow-hidden"
+      className="bg-surface-light rounded-lg flex-col shadow-sm border border-border-secondary p-4 overflow-hidden"
     >
       <Pressable className="flex-row items-center gap-4" onPress={toggleExpand}>
         {riskIcons[data.variant]}
@@ -133,7 +168,7 @@ function HazardCardDesign({
           className="text-2xl leading-7 font-semibold flex-1 pr-2"
           numberOfLines={2}
         >
-          {data.title}
+          {t(`hazard_titles.${internalKey}`, { defaultValue: data.title })}
         </Text>
 
         <View className="flex-row items-center gap-3">
@@ -152,7 +187,6 @@ function HazardCardDesign({
           exiting={FadeOutUp.duration(200)}
           className="flex-col gap-7 mt-4"
         >
-          {/* Image & Bbox Logic */}
           <View className="relative w-full h-64 mt-2 rounded-2xl overflow-hidden bg-gray-100 border border-border-secondary">
             {(() => {
               const hasBbox = data.bbox && data.bbox.length === 4;
@@ -203,19 +237,19 @@ function HazardCardDesign({
                         data.variant.slice(1);
                       const bboxW = (data.bbox![2] - data.bbox![0]) * 100;
                       const bboxH = (data.bbox![3] - data.bbox![1]) * 100;
-                      // Scale font relative to box size, clamped between 7-14px
                       const fontSize = Math.max(
                         7,
                         Math.min(14, Math.min(bboxW, bboxH) * 0.3),
                       );
                       return (
                         <>
-                          {/* Severity label — top-left, above the border */}
                           <View
                             style={{
                               position: "absolute",
                               left: `${data.bbox![0] * 100}%`,
-                              top: `${data.bbox![1] * 100 - (fontSize + 6) / 2.56}%`,
+                              top: `${
+                                data.bbox![1] * 100 - (fontSize + 6) / 2.56
+                              }%`,
                               backgroundColor: bboxColor,
                               paddingHorizontal: 4,
                               paddingVertical: 1,
@@ -233,7 +267,6 @@ function HazardCardDesign({
                               {severityLabel}
                             </Text>
                           </View>
-                          {/* Bounding box */}
                           <View
                             className="absolute border-[2.5px]"
                             style={{
@@ -253,20 +286,18 @@ function HazardCardDesign({
             })()}
           </View>
 
-          {/* Dynamic Reason based on Tab */}
           <View>
             <Text className="text-xl font-semibold mb-2 text-text-default">
-              Reason:
+              {t("hazard_card.reason_label")}
             </Text>
             <Text className="text-lg leading-6 text-text-default">
               {displayedReason}
             </Text>
           </View>
 
-          {/* Dynamic Fixes based on Tab */}
           <View>
             <Text className="text-xl font-semibold mb-2 text-text-default">
-              Suggested Fixes:
+              {t("hazard_card.fixes_label")}
             </Text>
             {fixes.map((fix, index) => (
               <View key={index} className="flex-row gap-2 mb-2">
@@ -281,7 +312,11 @@ function HazardCardDesign({
           {showResolutionAction && (
             <View>
               <Button
-                label={isResolved ? "Unmark as Resolved" : "Mark as Resolved"}
+                label={
+                  isResolved
+                    ? t("hazard_card.unmark_resolved")
+                    : t("hazard_card.mark_resolved")
+                }
                 variant={isResolved ? "cancel" : "primary"}
                 icon={
                   <CheckIcon
@@ -322,6 +357,7 @@ const HazardCard = ({
   activeDisasterTab = "all",
   onResolved,
 }: HazardCardProps) => {
+  const { t } = useTranslation();
   const [loadedHazards, setLoadedHazards] = useState<HazardData[]>([]);
   const [isLoading, setIsLoading] = useState(hazards === undefined);
 
@@ -349,19 +385,21 @@ const HazardCard = ({
     return (
       <View className="items-center justify-center py-10">
         <ActivityIndicator size="small" color="#0f172a" />
-        <Text className="text-text-subtle mt-2">Loading hazards...</Text>
+        <Text className="text-text-subtle mt-2">
+          {t("hazard_card.loading")}
+        </Text>
       </View>
     );
   }
 
   if (loadedHazards.length === 0) {
     return (
-      <View className="bg-surface-light rounded-2xl p-8 items-center border-2 border-dashed border-border-secondary">
+      <View className="bg-surface-light rounded-lg p-8 items-center border-2 border-dashed border-border-secondary">
         <Text className="text-xl font-semibold text-gray-500 text-center">
-          No Hazards Detected
+          {t("hazard_card.no_hazards_title")}
         </Text>
         <Text className="text-base text-gray-400 text-center mt-2">
-          This area appears to be safe based on the current scan.
+          {t("hazard_card.no_hazards_message")}
         </Text>
       </View>
     );

@@ -688,6 +688,110 @@ const RAW_HAZARD_DICTIONARY: HazardDictionaryEntry[] = [
       "Be very careful near 'yero' or tin roofs that have been in a fire. The heat makes the metal sheets loose and they can slide off and fall like sharp blades even after the fire is gone.",
     ],
   },
+  {
+    id: "HAZARD_LABELS.WINDOW_SECURITY_BAR",
+    title: "Window Bars",
+    category: "fire",
+    default_severity: "high",
+    description:
+      "Window security bars or grills may block escape routes in case of an emergency.",
+    earthquake_reason:
+      "During an earthquake, doors may jam, making windows the only viable escape route, which is blocked by permanent bars.",
+    typhoon_reason:
+      "If floodwaters rise rapidly, barred windows prevent trapped occupants from escaping to the roof or higher ground.",
+    fire_reason:
+      "In a rapid fire, permanent window bars trap occupants inside a burning room, preventing emergency exit or rescue from outside.",
+    earthquake_fixes: [
+      "Install a quick-release mechanism on at least one window grill in every room.",
+      "Ensure everyone in the household knows how to operate the emergency release.",
+    ],
+    typhoon_fixes: [
+      "Keep a heavy object nearby to assist in forcing open jammed emergency exits if water rises quickly.",
+      "Upgrade permanently welded bars to a padlock and key system, keeping the key hanging nearby.",
+    ],
+    fire_fixes: [
+      "Consult a local ironwood worker to modify at least one window per room into a hinged fire exit.",
+      "Never block emergency release levers with heavy furniture or decorative items.",
+    ],
+  },
+  {
+    id: "HAZARD_LABELS.CURTAIN",
+    title: "Curtain",
+    category: "fire",
+    default_severity: "medium",
+    description:
+      "Curtains placed too close to heat sources or open flames can easily catch fire.",
+    earthquake_reason:
+      "Shaking can cause curtains to swing into toppled candles or spark-emitting damaged wires.",
+    typhoon_reason:
+      "Strong winds can blow lightweight curtains directly onto lit gas stoves or open flames.",
+    fire_reason:
+      "Curtains are highly flammable fuel sources that act as vertical ladders, spreading floor fires rapidly to the ceiling.",
+    earthquake_fixes: [
+      "Tie back curtains tightly during the day or use clip-on curtain weights to prevent swinging.",
+      "Move all candles, lamps, or possible fire sources at least one meter away from the window.",
+    ],
+    typhoon_fixes: [
+      "Roll up and secure long curtains when using temporary lighting like candles or gasera during power outages.",
+      "Avoid using thin, easily flammable synthetic fabrics in the kitchen.",
+    ],
+    fire_fixes: [
+      "Install curtain tie-backs to ensure the fabric stays clear of electrical outlets and cooking areas.",
+      "Choose heavier, natural fabrics like cotton instead of cheap synthetic materials that melt and catch fire easily.",
+    ],
+  },
+  {
+    id: "HAZARD_LABELS.WATER_DAMAGE",
+    title: "Water Damage",
+    category: "structural",
+    default_severity: "high",
+    description:
+      "Signs of water damage are visible, which may weaken the structure or cause electrical hazards.",
+    earthquake_reason:
+      "Water-damaged wooden supports or ceilings are weakened and are more likely to collapse during a tremor.",
+    typhoon_reason:
+      "Persistent leaks during heavy rains accelerate wood rot, weakening the structure against strong winds.",
+    fire_reason:
+      "Water leaks near electrical wiring create highly dangerous short circuits that easily ignite dry materials inside the wall.",
+    earthquake_fixes: [
+      "Have a carpenter inspect water-damaged beams or ceilings to ensure they can still withstand heavy shaking.",
+      "Replace any deeply rotted wooden panels before the next earthquake season.",
+    ],
+    typhoon_fixes: [
+      "Trace the source of the leak to your roof or plumbing and seal it before the rainy season worsens.",
+      "Apply waterproof sealant to affected concrete walls to prevent further moisture penetration.",
+    ],
+    fire_fixes: [
+      "Turn off power to any wall or ceiling area showing signs of new water damage.",
+      "Call an electrician immediately if you see water streaks near outlets or the breaker box.",
+    ],
+  },
+  {
+    id: "HAZARD_LABELS.GAS_TANK",
+    title: "Gas Tank",
+    category: "fire",
+    default_severity: "critical",
+    description:
+      "A gas tank is improperly stored or unsecured, posing a significant fire or explosion risk.",
+    earthquake_reason:
+      "Unsecured LPG tanks can tip over during an earthquake, tearing the hose and causing a massive gas leak.",
+    typhoon_reason:
+      "Floodwaters can float and overturn LPG tanks, breaking connections and creating an invisible explosion hazard.",
+    fire_reason:
+      "A leaking gas tank near an ignition source can cause a catastrophic explosion and uncontrollable fire.",
+    earthquake_fixes: [
+      "Chain or strap your LPG tank securely to a solid wall to prevent it from falling over during an earthquake.",
+      "Always turn off the main gas regulator valve when the stove is not in use.",
+    ],
+    typhoon_fixes: [
+      "Move gas tanks to higher, dry ground if your dirty kitchen frequently floods.",
+      "Regularly check the rubber gas hose for cracks that worsen with changing weather.",
+    ],
+    fire_fixes: [
+      "Store the LPG tank in a well-ventilated area so escaping gas can quickly dissipate outside.",
+      "Use a mixture of soap and water on the hose connections to check for bubbling gas leaks.",
+    ],
+  },
 ];
 
 export const hazardDictionary: HazardDictionaryEntry[] =

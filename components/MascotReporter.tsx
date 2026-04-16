@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Image, Text, View } from "react-native";
 import * as Progress from "react-native-progress";
 
@@ -26,13 +27,6 @@ const colors = {
   critical: "#b40000",
 };
 
-const statusDesc = {
-  low: "Low",
-  medium: "Medium",
-  high: "High",
-  critical: "Critical",
-};
-
 const statusTextColors = {
   low: "text-text-low",
   medium: "text-text-medium",
@@ -47,6 +41,7 @@ export default function MascotReporter({
   hideStatus = false,
   scale = 1,
 }: MascotReportProps) {
+  const { t } = useTranslation();
   const [displayValue, setDisplayValue] = React.useState(initialValue ?? value);
 
   React.useEffect(() => {
@@ -106,7 +101,7 @@ export default function MascotReporter({
           <Text
             className={`text-center text-lg font-semibold ${statusTextColors[score]}`}
           >
-            Status: {statusDesc[score]} Risk{" "}
+            {t("common.mascot_status", { risk: t(`risk_status.${score}`) })}
           </Text>
         </View>
       )}

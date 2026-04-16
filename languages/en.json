@@ -10,6 +10,7 @@
     "import_failed": "Import Failed",
     "english": "English",
     "tagalog": "Tagalog",
+    "hiligaynon": "Hiligaynon",
     "could_not_process_image": "We could not process that image. Please try again.",
     "image_courtesy": "Image Courtesy: {{source}}",
     "mascot_status": "Status: {{risk}} Risk"
