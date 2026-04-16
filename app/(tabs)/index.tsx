@@ -2,29 +2,19 @@ import ScanIcon from "@/assets/icons/ScanIcon";
 import ArticleCard from "@/components/ArticleCard";
 import Button from "@/components/Button";
 import TopNavBar from "@/components/TopBar";
-import i18n from "@/languages/i18n";
+import { resetOnboardingState } from "@/lib/onboardingStorage";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Image, ScrollView, Text, View } from "react-native";
+import { Image, Pressable, ScrollView, Text, View } from "react-native";
 
 export default function HomeScreen() {
   const router = useRouter();
   const { t } = useTranslation();
-  const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
-  const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
 
-  useEffect(() => {
-    const handleLanguageChanged = () => {
-      setCurrentLanguage(i18n.language);
-    };
-
-    i18n.on("languageChanged", handleLanguageChanged);
-
-    return () => {
-      i18n.off("languageChanged", handleLanguageChanged);
-    };
-  }, []);
+  const restartOnboarding = async () => {
+    await resetOnboardingState();
+    router.replace("/onboarding");
+  };
 
   return (
     <ScrollView
@@ -33,10 +23,9 @@ export default function HomeScreen() {
       showsVerticalScrollIndicator={false}
     >
       <View className="gap-7">
-        <TopNavBar></TopNavBar>
+        <TopNavBar />
 
         {/* Container to seperate nav bar and the actual content */}
-
         <View className="px-7">
           {/* Hero Section */}
           <View className="justify-center items-center gap-4">
@@ -57,6 +46,19 @@ export default function HomeScreen() {
               }}
               className="w-full "
             />
+
+            {__DEV__ ? (
+              <Pressable
+                onPress={() => {
+                  void restartOnboarding();
+                }}
+                className="mt-3 rounded-full border border-dashed border-border-primary px-5 py-3"
+              >
+                <Text className="text-text-primary font-semibold text-base">
+                  Restart onboarding
+                </Text>
+              </Pressable>
+            ) : null}
           </View>
 
           {/* Articles */}

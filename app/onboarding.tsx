@@ -1,6 +1,7 @@
+import ArrowIcon from "@/assets/icons/ArrowIcon";
 import {
-    hasCompletedOnboarding,
-    markOnboardingCompleted,
+  hasCompletedOnboarding,
+  markOnboardingCompleted,
 } from "@/lib/onboardingStorage";
 import { router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
@@ -13,7 +14,7 @@ const ONBOARDING_SLIDES = [
     title: "Say Hello to BantAI",
     description:
       "Your smart companion for spotting hazards and creating a safer environment in seconds.",
-    image: require("@/assets/mascot/MascotSmile.png"),
+    image: require("@/assets/mascot/MascotWave.png"),
   },
   {
     title: "Scan & Prepare",
@@ -196,9 +197,12 @@ export default function OnboardingScreen() {
           {isSaving ? (
             <ActivityIndicator size="small" color="#f5faff" />
           ) : (
-            <Text className="text-text-inverse text-2xl font-bold">
-              {ctaLabel}
-            </Text>
+            <View className="flex-row items-center justify-center gap-3">
+              <Text className="text-text-inverse text-2xl font-bold">
+                {ctaLabel}
+              </Text>
+              <ArrowIcon color="#f5faff" size={22} />
+            </View>
           )}
         </Pressable>
 
