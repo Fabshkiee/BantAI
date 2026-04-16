@@ -5,6 +5,7 @@ import {
 } from "@/lib/onboardingStorage";
 import { router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
   Animated,
@@ -18,26 +19,106 @@ type LanguageOption = "English" | "Tagalog" | "Hiligaynon";
 
 const ONBOARDING_SLIDES = [
   {
-    title: "Say Hello to BantAI",
-    description:
-      "Your smart companion for spotting hazards and creating a safer environment in seconds.",
     image: require("@/assets/mascot/MascotWave.png"),
   },
   {
-    title: "Scan & Prepare",
-    description:
-      "Instantly scan your surroundings for risks, and access easy-to-follow disaster reduction guides to help you secure your space.",
     image: require("@/assets/mascot/MascotSearch.png"),
   },
   {
-    title: "Ready to Scan Your Room?",
-    description:
-      "Secure your space in seconds. Let us do your first safety check!",
     image: require("@/assets/mascot/MascotPhone.png"),
   },
 ] as const;
 
 const LANGUAGES: LanguageOption[] = ["English", "Tagalog", "Hiligaynon"];
+
+const ONBOARDING_COPY: Record<
+  LanguageOption,
+  {
+    languageTitle: string;
+    languageSubtitle: string;
+    ctaStart: string;
+    ctaNext: string;
+    ctaGetStarted: string;
+    skip: string;
+    slides: Array<{ title: string; description: string }>;
+  }
+> = {
+  English: {
+    languageTitle: "Choose Your\nLanguage",
+    languageSubtitle: "Piliin ang iyong wika / Pili-a ang imo lenggwahe.",
+    ctaStart: "Hello, Let's Get Started",
+    ctaNext: "Next",
+    ctaGetStarted: "Get Started",
+    skip: "Skip",
+    slides: [
+      {
+        title: "Say Hello to BantAI",
+        description:
+          "Your smart companion for spotting hazards and creating a safer environment in seconds.",
+      },
+      {
+        title: "Scan & Prepare",
+        description:
+          "Instantly scan your surroundings for risks, and access easy-to-follow disaster reduction guides to help you secure your space.",
+      },
+      {
+        title: "Ready to Scan Your Room?",
+        description:
+          "Secure your space in seconds. Let us do your first safety check!",
+      },
+    ],
+  },
+  Tagalog: {
+    languageTitle: "Pumili ng\nWika",
+    languageSubtitle: "Piliin ang iyong wika / Pili-a ang imo lenggwahe.",
+    ctaStart: "Hello, Magsimula Tayo",
+    ctaNext: "Susunod",
+    ctaGetStarted: "Magsimula",
+    skip: "Laktawan",
+    slides: [
+      {
+        title: "Kilalanin si BantAI",
+        description:
+          "Ang iyong matalinong kasama sa pagtukoy ng mga panganib at paggawa ng mas ligtas na kapaligiran sa loob ng ilang segundo.",
+      },
+      {
+        title: "Mag-scan at Maghanda",
+        description:
+          "Agad na i-scan ang iyong paligid para sa mga panganib, at ma-access ang madaling sundang mga gabay sa pagbawas ng sakuna para maprotektahan ang iyong espasyo.",
+      },
+      {
+        title: "Handa Ka Na Bang I-scan ang Iyong Kwarto?",
+        description:
+          "Gawing mas ligtas ang iyong espasyo sa loob ng ilang segundo. Simulan na natin ang una mong safety check!",
+      },
+    ],
+  },
+  Hiligaynon: {
+    languageTitle: "Pili-a ang Imo\nLenggwahe",
+    languageSubtitle: "Piliin ang iyong wika / Pili-a ang imo lenggwahe.",
+    ctaStart: "Hello, Magsugod Kita",
+    ctaNext: "Sunod",
+    ctaGetStarted: "Magsugod",
+    skip: "Laktawan",
+    slides: [
+      {
+        title: "Kilalaha si BantAI",
+        description:
+          "Ang imo mautok nga kaupod sa pagtukib sang mga peligro kag paghimo sang mas luwas nga palibot sa sulod sang pila ka segundo.",
+      },
+      {
+        title: "Mag-scan kag Magpreparar",
+        description:
+          "Dasig nga i-scan ang imo palibot para sa mga risgo kag mabasa ang madali sundon nga mga giya sa pagpakunhod sang kalamidad para maprotektahan ang imo espasyo.",
+      },
+      {
+        title: "Handa Ka Na Bala Mag-scan sang Imo Kwarto?",
+        description:
+          "Siguruhon ang imo espasyo sa pila ka segundo. Sugdan naton ang imo una nga safety check!",
+      },
+    ],
+  },
+};
 
 const LANGUAGE_SCREEN_STYLES = {
   container: "flex-1 items-center mt-6",
@@ -151,11 +232,13 @@ const getButtonStyles = (index: number) => {
 };
 
 export default function OnboardingScreen() {
+  const { i18n } = useTranslation();
   const [stepIndex, setStepIndex] = useState(0);
   const [selectedLanguage, setSelectedLanguage] =
     useState<LanguageOption>("English");
   const [isSaving, setIsSaving] = useState(false);
   const slideAnimValue = useMemo(() => new Animated.Value(0), []);
+  const copy = ONBOARDING_COPY[selectedLanguage];
 
   useEffect(() => {
     let isMounted = true;
@@ -185,8 +268,11 @@ export default function OnboardingScreen() {
 
   const activeSlide = useMemo(() => {
     if (stepIndex === 0) return null;
-    return ONBOARDING_SLIDES[stepIndex - 1];
-  }, [stepIndex]);
+    return {
+      ...ONBOARDING_SLIDES[stepIndex - 1],
+      ...copy.slides[stepIndex - 1],
+    };
+  }, [copy.slides, stepIndex]);
 
   const completeOnboarding = async () => {
     if (isSaving) return;
@@ -216,10 +302,10 @@ export default function OnboardingScreen() {
 
   const ctaLabel =
     stepIndex === 0
-      ? "Hello, Let's Get Started"
+      ? copy.ctaStart
       : stepIndex === ONBOARDING_SLIDES.length
-        ? "Get Started"
-        : "Next";
+        ? copy.ctaGetStarted
+        : copy.ctaNext;
 
   return (
     <View className="flex-1 bg-[#eef1f5] px-7 pt-10 pb-8">
@@ -242,10 +328,10 @@ export default function OnboardingScreen() {
             />
 
             <Text className={LANGUAGE_SCREEN_STYLES.title}>
-              Choose Your{"\n"}Language
+              {copy.languageTitle}
             </Text>
             <Text className={LANGUAGE_SCREEN_STYLES.subtitle}>
-              Piliin ang iyong wika / Pili-a ang imo lenggwahe.
+              {copy.languageSubtitle}
             </Text>
 
             <View className={LANGUAGE_SCREEN_STYLES.languageListContainer}>
@@ -255,7 +341,12 @@ export default function OnboardingScreen() {
                 return (
                   <Pressable
                     key={language}
-                    onPress={() => setSelectedLanguage(language)}
+                    onPress={() => {
+                      setSelectedLanguage(language);
+                      void i18n.changeLanguage(
+                        language === "Tagalog" ? "tl" : "en",
+                      );
+                    }}
                     className={`w-full rounded-2xl border px-5 py-4 flex-row items-center justify-between active:opacity-80 active:scale-95 ${
                       isSelected
                         ? "border-border-primary bg-surface-light"
@@ -353,7 +444,9 @@ export default function OnboardingScreen() {
               className={getButtonStyles(stepIndex).skipButton}
               disabled={isSaving}
             >
-              <Text className={getButtonStyles(stepIndex).skipText}>Skip</Text>
+              <Text className={getButtonStyles(stepIndex).skipText}>
+                {copy.skip}
+              </Text>
             </Pressable>
           ) : (
             <View className={getButtonStyles(stepIndex).spacer} />
