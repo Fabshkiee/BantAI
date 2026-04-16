@@ -1,6 +1,12 @@
-import { getLastScanTimestamp, insertNotification, NotificationType } from "@/db/db";
+import {
+  getLastScanTimestamp,
+  insertNotification,
+  NotificationType,
+} from "@/db/db";
 import * as Notifications from "expo-notifications";
-import { PermissionsAndroid, Platform } from "react-native";
+import { NativeModules, PermissionsAndroid, Platform } from "react-native";
+
+const { SmsSyncModule } = NativeModules;
 
 // ──────────────────────────────────────────────────
 // Notification handler — controls foreground behavior
@@ -71,6 +77,9 @@ export async function initializeNotifications(): Promise<void> {
 
   // 6. Check if a scan is overdue and notify the user
   await checkScanReminder();
+
+  // 7. Sync any alerts received by the native listener while app was closed
+  await syncPendingNdrrmcAlerts();
 
   console.log("Notifications initialized successfully");
 }
@@ -234,8 +243,7 @@ async function checkScanReminder(): Promise<void> {
     const lastScan = await getLastScanTimestamp();
     const now = Math.floor(Date.now() / 1000);
 
-    const isOverdue =
-      lastScan === null || now - lastScan > THIRTY_DAYS_SECONDS;
+    const isOverdue = lastScan === null || now - lastScan > THIRTY_DAYS_SECONDS;
 
     if (isOverdue) {
       // Fire an immediate notification
@@ -257,5 +265,56 @@ async function checkScanReminder(): Promise<void> {
     }
   } catch (e) {
     console.warn("Failed to check scan reminder:", e);
+  }
+}
+
+// ──────────────────────────────────────────────────
+// Sync NDRRMC alerts from Native (SharedPreferences) to JS (SQLite)
+// ──────────────────────────────────────────────────
+
+export async function syncPendingNdrrmcAlerts(): Promise<void> {
+  const { SmsSyncModule } = NativeModules;
+  if (Platform.OS !== "android") return;
+
+  if (!SmsSyncModule) {
+    console.error(
+      "SmsSyncModule is NOT defined in NativeModules. Native bridge may have failed to register.",
+    );
+    return;
+  }
+
+  try {
+    const pending: string[] = await SmsSyncModule.getPendingAlerts();
+    if (!pending || pending.length === 0) {
+      console.log("No pending NDRRMC alerts found in native queue.");
+      return;
+    }
+
+    console.log(
+      `BantAI: Syncing ${pending.length} pending NDRRMC alerts to DB...`,
+    );
+
+    for (const alertJson of pending) {
+      try {
+        const alert = JSON.parse(alertJson);
+        const { title, body, smsBody } = alert;
+
+        // Force 'ndrrmc' type to satisfy DB check constraint
+        await insertNotification(
+          "ndrrmc",
+          title || "NDRRMC Alert",
+          body || "New disaster alert received.",
+          smsBody || undefined,
+        );
+      } catch (e) {
+        console.error(
+          "BantAI: Failed to parse or insert synced notification:",
+          e,
+        );
+      }
+    }
+    console.log("BantAI: NDRRMC synchronization complete.");
+  } catch (e) {
+    console.error("BantAI: Failed to sync pending NDRRMC alerts:", e);
   }
 }
