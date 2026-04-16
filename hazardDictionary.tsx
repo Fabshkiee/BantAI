@@ -343,7 +343,7 @@ const RAW_HAZARD_DICTIONARY: HazardDictionaryEntry[] = [
     id: "HAZARD_LABELS.ELEVATED_BREAKABLES",
     title: "Elevated Breakables",
     category: "interior",
-    default_severity: "medium",
+    default_severity: "low",
     description:
       "Fragile items like glass vases, heavy bottles, or ceramic decor placed on high shelves or open plateras. These free standing objects rely entirely on gravity to stay in place and lack protective barriers.",
     earthquake_reason:
@@ -605,7 +605,7 @@ const RAW_HAZARD_DICTIONARY: HazardDictionaryEntry[] = [
     id: "HAZARD_LABELS.MINOR_CRACK",
     title: "Minor Crack",
     category: "structural",
-    default_severity: "medium",
+    default_severity: "low",
     description:
       "Thin hairline cracks in your paint or plaster that are smaller than a strand of hair. These are usually just on the surface and do not mean your wall is about to fall down.",
     earthquake_reason:
@@ -718,7 +718,7 @@ const RAW_HAZARD_DICTIONARY: HazardDictionaryEntry[] = [
     id: "HAZARD_LABELS.CURTAIN",
     title: "Curtain",
     category: "fire",
-    default_severity: "medium",
+    default_severity: "low",
     description:
       "Curtains placed too close to heat sources or open flames can easily catch fire.",
     earthquake_reason:
