@@ -36,3 +36,12 @@ export async function markOnboardingCompleted(): Promise<void> {
     JSON.stringify(payload),
   );
 }
+
+export async function resetOnboardingState(): Promise<void> {
+  const fileInfo = await FileSystem.getInfoAsync(ONBOARDING_STATE_FILE);
+  if (!fileInfo.exists) {
+    return;
+  }
+
+  await FileSystem.deleteAsync(ONBOARDING_STATE_FILE, { idempotent: true });
+}
