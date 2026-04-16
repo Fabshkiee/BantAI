@@ -234,131 +234,131 @@ export default function OnboardingScreen() {
       >
         {stepIndex === 0 ? (
           <View className={LANGUAGE_SCREEN_STYLES.container}>
-          <Image
-            source={require("@/assets/mascot/MascotWave.png")}
-            className={LANGUAGE_SCREEN_STYLES.image}
-            style={getImageOffsetStyle(LANGUAGE_SCREEN_STYLES.imageOffset)}
-            resizeMode="contain"
-          />
+            <Image
+              source={require("@/assets/mascot/MascotWave.png")}
+              className={LANGUAGE_SCREEN_STYLES.image}
+              style={getImageOffsetStyle(LANGUAGE_SCREEN_STYLES.imageOffset)}
+              resizeMode="contain"
+            />
 
-          <Text className={LANGUAGE_SCREEN_STYLES.title}>
-            Choose Your{"\n"}Language
-          </Text>
-          <Text className={LANGUAGE_SCREEN_STYLES.subtitle}>
-            Piliin ang iyong wika / Pili-a ang imo lenggwahe.
-          </Text>
+            <Text className={LANGUAGE_SCREEN_STYLES.title}>
+              Choose Your{"\n"}Language
+            </Text>
+            <Text className={LANGUAGE_SCREEN_STYLES.subtitle}>
+              Piliin ang iyong wika / Pili-a ang imo lenggwahe.
+            </Text>
 
-          <View className={LANGUAGE_SCREEN_STYLES.languageListContainer}>
-            {LANGUAGES.map((language) => {
-              const isSelected = language === selectedLanguage;
+            <View className={LANGUAGE_SCREEN_STYLES.languageListContainer}>
+              {LANGUAGES.map((language) => {
+                const isSelected = language === selectedLanguage;
 
-              return (
-                <Pressable
-                  key={language}
-                  onPress={() => setSelectedLanguage(language)}
-                  className={`w-full rounded-2xl border px-5 py-4 flex-row items-center justify-between active:opacity-80 active:scale-95 ${
-                    isSelected
-                      ? "border-border-primary bg-surface-light"
-                      : "border-border-secondary bg-surface-default"
-                  }`}
-                >
-                  <View className="flex-row items-center gap-3">
-                    <View className="w-9 h-9 rounded-full bg-[#d7e9f8] items-center justify-center">
-                      <Text className="text-xs font-semibold text-text-default">
-                        {language === "English" ? "US" : "PH"}
-                      </Text>
-                    </View>
-                    <Text
-                      className={`text-xl ${
-                        isSelected ? "text-text-primary" : "text-text-default"
-                      }`}
-                    >
-                      {language}
-                    </Text>
-                  </View>
-
-                  <View
-                    className={`w-7 h-7 rounded-full border-2 items-center justify-center ${
+                return (
+                  <Pressable
+                    key={language}
+                    onPress={() => setSelectedLanguage(language)}
+                    className={`w-full rounded-2xl border px-5 py-4 flex-row items-center justify-between active:opacity-80 active:scale-95 ${
                       isSelected
-                        ? "border-border-primary"
-                        : "border-border-secondary"
+                        ? "border-border-primary bg-surface-light"
+                        : "border-border-secondary bg-surface-default"
                     }`}
                   >
-                    {isSelected ? (
-                      <View className="w-4 h-4 rounded-full bg-surface-primary" />
-                    ) : null}
-                  </View>
-                </Pressable>
-              );
-            })}
-          </View>
-        </View>
-      ) : (
-        <View className={getSlideStyles(stepIndex).container}>
-          <Image
-            source={activeSlide?.image}
-            className={getSlideStyles(stepIndex).image}
-            style={getImageOffsetStyle(getSlideStyles(stepIndex).imageOffset)}
-            resizeMode="contain"
-          />
+                    <View className="flex-row items-center gap-3">
+                      <View className="w-9 h-9 rounded-full bg-[#d7e9f8] items-center justify-center">
+                        <Text className="text-xs font-semibold text-text-default">
+                          {language === "English" ? "US" : "PH"}
+                        </Text>
+                      </View>
+                      <Text
+                        className={`text-xl ${
+                          isSelected ? "text-text-primary" : "text-text-default"
+                        }`}
+                      >
+                        {language}
+                      </Text>
+                    </View>
 
-          <Text className={getSlideStyles(stepIndex).title}>
-            {activeSlide?.title}
-          </Text>
-          <Text className={getSlideStyles(stepIndex).description}>
-            {activeSlide?.description}
-          </Text>
-
-          <View className={getSlideStyles(stepIndex).dotsContainer}>
-            {ONBOARDING_SLIDES.map((_, index) => {
-              const isActive = index + 1 === stepIndex;
-              return (
-                <View
-                  key={index}
-                  className={`w-3 h-3 rounded-full ${
-                    isActive ? "bg-surface-primary" : "bg-border-secondary"
-                  }`}
-                />
-              );
-            })}
-          </View>
-        </View>
-      )}
-
-      <View className={getButtonStyles(stepIndex).ctaContainer}>
-        <Pressable
-          onPress={() => {
-            void nextStep();
-          }}
-          className={getButtonStyles(stepIndex).ctaButton}
-          disabled={isSaving}
-        >
-          {isSaving ? (
-            <ActivityIndicator size="small" color="#f5faff" />
-          ) : (
-            <View className={getButtonStyles(stepIndex).ctaContent}>
-              <Text className={getButtonStyles(stepIndex).ctaText}>
-                {ctaLabel}
-              </Text>
-              <ArrowIcon color="#f5faff" size={22} />
+                    <View
+                      className={`w-7 h-7 rounded-full border-2 items-center justify-center ${
+                        isSelected
+                          ? "border-border-primary"
+                          : "border-border-secondary"
+                      }`}
+                    >
+                      {isSelected ? (
+                        <View className="w-4 h-4 rounded-full bg-surface-primary" />
+                      ) : null}
+                    </View>
+                  </Pressable>
+                );
+              })}
             </View>
-          )}
-        </Pressable>
+          </View>
+        ) : (
+          <View className={getSlideStyles(stepIndex).container}>
+            <Image
+              source={activeSlide?.image}
+              className={getSlideStyles(stepIndex).image}
+              style={getImageOffsetStyle(getSlideStyles(stepIndex).imageOffset)}
+              resizeMode="contain"
+            />
 
-        {stepIndex > 0 ? (
+            <Text className={getSlideStyles(stepIndex).title}>
+              {activeSlide?.title}
+            </Text>
+            <Text className={getSlideStyles(stepIndex).description}>
+              {activeSlide?.description}
+            </Text>
+
+            <View className={getSlideStyles(stepIndex).dotsContainer}>
+              {ONBOARDING_SLIDES.map((_, index) => {
+                const isActive = index + 1 === stepIndex;
+                return (
+                  <View
+                    key={index}
+                    className={`w-3 h-3 rounded-full ${
+                      isActive ? "bg-surface-primary" : "bg-border-secondary"
+                    }`}
+                  />
+                );
+              })}
+            </View>
+          </View>
+        )}
+
+        <View className={getButtonStyles(stepIndex).ctaContainer}>
           <Pressable
             onPress={() => {
-              void completeOnboarding();
+              void nextStep();
             }}
-            className={getButtonStyles(stepIndex).skipButton}
+            className={getButtonStyles(stepIndex).ctaButton}
             disabled={isSaving}
           >
-            <Text className={getButtonStyles(stepIndex).skipText}>Skip</Text>
+            {isSaving ? (
+              <ActivityIndicator size="small" color="#f5faff" />
+            ) : (
+              <View className={getButtonStyles(stepIndex).ctaContent}>
+                <Text className={getButtonStyles(stepIndex).ctaText}>
+                  {ctaLabel}
+                </Text>
+                <ArrowIcon color="#f5faff" size={22} />
+              </View>
+            )}
           </Pressable>
-        ) : (
-          <View className={getButtonStyles(stepIndex).spacer} />
-        )}
-      </View>
+
+          {stepIndex > 0 ? (
+            <Pressable
+              onPress={() => {
+                void completeOnboarding();
+              }}
+              className={getButtonStyles(stepIndex).skipButton}
+              disabled={isSaving}
+            >
+              <Text className={getButtonStyles(stepIndex).skipText}>Skip</Text>
+            </Pressable>
+          ) : (
+            <View className={getButtonStyles(stepIndex).spacer} />
+          )}
+        </View>
       </Animated.View>
     </View>
   );
