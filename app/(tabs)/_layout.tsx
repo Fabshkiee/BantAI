@@ -45,6 +45,7 @@ const HIDDEN_SCREENS = [
   "articles/typhoonArticle",
   "articles/fireArticle",
   "notifications",
+  "mockScreens"
 ];
 
 const CameraActionModal = ({
