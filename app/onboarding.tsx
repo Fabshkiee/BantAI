@@ -279,7 +279,7 @@ export default function OnboardingScreen() {
               return (
                 <View
                   key={index}
-                  className={`w-4 h-4 rounded-full ${
+                  className={`w-3 h-3 rounded-full ${
                     isActive ? "bg-surface-primary" : "bg-border-secondary"
                   }`}
                 />
