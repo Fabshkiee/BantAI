@@ -1,4 +1,4 @@
-import { getLastScanTimestamp, insertNotification } from "@/db/db";
+import { getLastScanTimestamp, insertNotification, NotificationType } from "@/db/db";
 import * as Notifications from "expo-notifications";
 import { PermissionsAndroid, Platform } from "react-native";
 
@@ -157,6 +157,7 @@ export async function triggerNDRRMCNotification(
 ): Promise<void> {
   try {
     // Fire an immediate local notification
+    // The listener below will handle saving this to the DB
     await Notifications.scheduleNotificationAsync({
       content: {
         title: NDRRMC_NOTIFICATION.title,
@@ -166,15 +167,7 @@ export async function triggerNDRRMCNotification(
       trigger: null, // immediate
     });
 
-    // Persist to SQLite for the notifications screen
-    await insertNotification(
-      "ndrrmc",
-      NDRRMC_NOTIFICATION.title,
-      NDRRMC_NOTIFICATION.body,
-      smsBody,
-    );
-
-    console.log("NDRRMC notification triggered and stored");
+    console.log("NDRRMC notification triggered");
   } catch (e) {
     console.warn("Failed to trigger NDRRMC notification:", e);
   }
@@ -187,21 +180,16 @@ export async function triggerNDRRMCNotification(
 export function setupNotificationReceivedListener(): Notifications.EventSubscription {
   return Notifications.addNotificationReceivedListener(async (notification) => {
     const data = notification.request.content.data;
-    const type = (data?.type as string) ?? "monthly";
+    const type = (data?.type as NotificationType) ?? "monthly";
     const title = notification.request.content.title ?? "";
     const body = notification.request.content.body ?? "";
+    const smsBody = (data?.smsBody as string) ?? undefined;
 
-    // Only store scheduled notifications (NDRRMC ones are already stored in triggerNDRRMCNotification)
-    if (type !== "ndrrmc") {
-      try {
-        await insertNotification(
-          type as "monthly" | "seasonal",
-          title,
-          body,
-        );
-      } catch (e) {
-        console.warn("Failed to store notification in DB:", e);
-      }
+    try {
+      // All notifications are now persisted here to avoid duplicates
+      await insertNotification(type, title, body, smsBody);
+    } catch (e) {
+      console.warn("Failed to store notification in DB:", e);
     }
   });
 }
@@ -251,6 +239,7 @@ async function checkScanReminder(): Promise<void> {
 
     if (isOverdue) {
       // Fire an immediate notification
+      // The listener will handle the DB insertion
       await Notifications.scheduleNotificationAsync({
         content: {
           title: SCAN_OVERDUE.title,
@@ -259,9 +248,6 @@ async function checkScanReminder(): Promise<void> {
         },
         trigger: null, // immediate
       });
-
-      // Persist to SQLite
-      await insertNotification("monthly", SCAN_OVERDUE.title, SCAN_OVERDUE.body);
 
       console.log(
         lastScan === null
