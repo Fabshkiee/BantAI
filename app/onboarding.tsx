@@ -344,7 +344,11 @@ export default function OnboardingScreen() {
                     onPress={() => {
                       setSelectedLanguage(language);
                       void i18n.changeLanguage(
-                        language === "Tagalog" ? "tl" : "en",
+                        language === "Tagalog"
+                          ? "tl"
+                          : language === "Hiligaynon"
+                            ? "hil"
+                            : "en",
                       );
                     }}
                     className={`w-full rounded-2xl border px-5 py-4 flex-row items-center justify-between active:opacity-80 active:scale-95 ${
