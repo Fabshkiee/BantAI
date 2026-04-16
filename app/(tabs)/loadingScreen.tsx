@@ -17,29 +17,7 @@ function getStatusText(progress: number, t: any): string {
   return t("loading_screen.status_complete");
 }
 
-async function getImageSize(
-  uri: string,
-): Promise<{ width: number; height: number }> {
-  return new Promise((resolve, reject) => {
-    Image.getSize(uri, (width, height) => resolve({ width, height }), reject);
-  });
-}
 
-async function normalizeCaptureForInference(uri: string): Promise<string> {
-  const { width, height } = await getImageSize(uri);
-  if (width >= height) {
-    return uri;
-  }
-
-  const rotated = await manipulateAsync(uri, [{ rotate: 90 }], {
-    format: SaveFormat.JPEG,
-    compress: 1,
-  });
-  console.log(
-    `Normalized portrait capture to landscape for inference (${width}x${height}).`,
-  );
-  return rotated.uri;
-}
 
 export default function LoadingScreen() {
   const router = useRouter();
@@ -67,15 +45,7 @@ export default function LoadingScreen() {
       try {
         if (cancelRequestedRef.current) return;
 
-        let inferenceUri = primaryUri;
-        try {
-          inferenceUri = await normalizeCaptureForInference(primaryUri);
-        } catch (normalizationError) {
-          console.warn(
-            "Image normalization failed, using original photo:",
-            normalizationError,
-          );
-        }
+        const inferenceUri = primaryUri;
 
         if (cancelRequestedRef.current) return;
 
