@@ -50,13 +50,12 @@ export default function MockScreen() {
   }, [activeStep]);
 
   const handlePress = () => {
-    setActiveStep((currentStep) => {
-      if (currentStep >= 8) {
-        router.replace("/(tabs)");
-        return currentStep;
-      }
-      return currentStep + 1;
-    });
+    if (activeStep >= 8) {
+      router.replace("/(tabs)");
+      return;
+    }
+
+    setActiveStep((currentStep) => currentStep + 1);
   };
 
   const handleRestartOnboarding = async () => {
