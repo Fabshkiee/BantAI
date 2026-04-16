@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Text, View } from "react-native";
 import * as Progress from "react-native-progress";
 import Animated, {
@@ -11,6 +12,7 @@ import Animated, {
 } from "react-native-reanimated";
 
 export default function MascotLoader() {
+  const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(true);
   const scale = useSharedValue(0);
   const spinnerOpacity = useSharedValue(0);
@@ -64,8 +66,10 @@ export default function MascotLoader() {
       ]}
       className="items-center justify-center bg-surface-default"
     >
-      <View className="items-center justify-center" style={{ width: 240, height: 240 }}>
-        
+      <View
+        className="items-center justify-center"
+        style={{ width: 240, height: 240 }}
+      >
         {/* The Fading Spinner & Text */}
         <Animated.View style={[spinnerStyle, { position: "absolute" }]}>
           <Progress.CircleSnail
@@ -88,10 +92,9 @@ export default function MascotLoader() {
       {/* The Loading Text */}
       <Animated.View style={[spinnerStyle, { marginTop: 40 }]}>
         <Text className="text-text-subtle font-medium text-lg">
-          Loading BantAI...
+          {t("common.loading")}
         </Text>
       </Animated.View>
-
     </Animated.View>
   );
 }

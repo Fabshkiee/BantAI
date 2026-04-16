@@ -4,16 +4,17 @@ import { useTFLite } from "@/hooks/useTFLite";
 import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Image, View } from "react-native";
 
 /** Maps SAHI slice progress to user-facing status messages */
-function getStatusText(progress: number): string {
-  if (progress < 0.05) return "Initializing AI engine...";
-  if (progress < 0.12) return "Running global scan...";
-  if (progress < 0.55) return "Scanning room quadrants...";
-  if (progress < 0.85) return "Analyzing hazard details...";
-  if (progress < 0.95) return "Generating safety report...";
-  return "Analysis Complete!";
+function getStatusText(progress: number, t: any): string {
+  if (progress < 0.05) return t("loading_screen.status_init");
+  if (progress < 0.15) return t("loading_screen.status_global");
+  if (progress < 0.5) return t("loading_screen.status_quadrants");
+  if (progress < 0.8) return t("loading_screen.status_details");
+  if (progress < 0.95) return t("loading_screen.status_report");
+  return t("loading_screen.status_complete");
 }
 
 
@@ -23,8 +24,8 @@ export default function LoadingScreen() {
   const { imageUri } = useLocalSearchParams();
   const { modelLoaded, runInference } = useTFLite();
   const [progress, setProgress] = useState(0);
-  const [statusText, setStatusText] = useState("Initializing AI engine...");
   const cancelRequestedRef = useRef(false);
+  const { t } = useTranslation();
 
   const handleCancelAnalysis = useCallback(() => {
     cancelRequestedRef.current = true;
@@ -48,9 +49,8 @@ export default function LoadingScreen() {
 
         if (cancelRequestedRef.current) return;
 
-        // Phase 1: Init (0% -> 5%)
+        // Phase 1: Init (0% to 5%)
         setProgress(0.05);
-        setStatusText(getStatusText(0.05));
         await new Promise((resolve) => setTimeout(resolve, 400));
 
         if (cancelRequestedRef.current) return;
@@ -60,14 +60,12 @@ export default function LoadingScreen() {
           if (cancelRequestedRef.current) return;
           const inferenceProgress = 0.05 + (step / total) * 0.8;
           setProgress(inferenceProgress);
-          setStatusText(getStatusText(inferenceProgress));
         });
 
         if (cancelRequestedRef.current) return;
 
-        // Phase 3: Saving to database (85% -> 95%)
+        // Phase 3: Saving to database (85% to 95%)
         setProgress(0.9);
-        setStatusText("Generating safety report...");
         const sessionId = await createScanSession(inferenceUri);
         await insertDetectedHazards(sessionId, detections);
 
@@ -75,7 +73,6 @@ export default function LoadingScreen() {
 
         // Phase 4: Complete (100%)
         setProgress(1);
-        setStatusText("Analysis Complete!");
         await new Promise((resolve) => setTimeout(resolve, 400));
 
         if (cancelRequestedRef.current) return;
@@ -104,6 +101,8 @@ export default function LoadingScreen() {
     };
   }, [modelLoaded, imageUri, runInference, router]);
 
+  const statusText = getStatusText(progress, t);
+
   return (
     <View className="flex-1 bg-surface-default px-8 pt-44">
       {/* Mascot image */}
@@ -115,7 +114,7 @@ export default function LoadingScreen() {
         />
       </View>
 
-      {/* Progress Bar — driven by real SAHI inference progress */}
+      {/* Progress Bar driven by real SAHI inference progress */}
       <ProgressBar
         progress={progress}
         statusText={statusText}

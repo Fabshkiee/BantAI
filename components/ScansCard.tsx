@@ -1,5 +1,6 @@
 import { router } from "expo-router";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Image, Pressable, Text, View } from "react-native";
 import MascotReporter, { type RiskVariant } from "./MascotReporter";
 
@@ -33,6 +34,7 @@ export default function ScansCard({
   assessedCount,
   status,
 }: ScansCardProps) {
+  const { t } = useTranslation();
   const score = roomScore ?? 0;
   const displayVariant = riskVariant ?? "critical";
   const imageSource = photoPath
@@ -42,10 +44,13 @@ export default function ScansCard({
   // Logic for the descriptive status label
   const getStatusLabel = () => {
     if (hazardCount === 0) {
-      return "No hazards";
+      return t("history_card.no_hazards");
     }
 
-    return `${assessedCount}/${hazardCount} Hazards Resolved`;
+    return t("history_card.hazards_resolved", {
+      assessed: assessedCount,
+      total: hazardCount,
+    });
   };
 
   return (

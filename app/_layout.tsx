@@ -1,9 +1,17 @@
 import MascotLoader from "@/components/MascotLoader";
 import { initDatabase } from "@/db/db";
+import "@/languages/i18n";
+import {
+  initializeNotifications,
+  setupNotificationReceivedListener,
+  syncPendingNdrrmcAlerts,
+} from "@/lib/notificationService";
 import { DefaultTheme, ThemeProvider } from "@react-navigation/native";
-import { Stack } from "expo-router";
+import * as Notifications from "expo-notifications";
+import { Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
+import { AppState, AppStateStatus } from "react-native";
 import {
   configureReanimatedLogger,
   ReanimatedLogLevel,
@@ -28,20 +36,50 @@ const BgTheme = {
 };
 
 export default function RootLayout() {
-  // Initialize DB and hide splash when ready
+  const router = useRouter();
+
+  // Initialize DB, notifications, and hide splash when ready
   useEffect(() => {
     async function prepare() {
       try {
         await initDatabase();
+        await initializeNotifications();
       } catch (e) {
-        console.warn("Database initialization failed:", e);
+        console.warn("App initialization failed:", e);
       } finally {
         // We're ready to show our custom React Native UI
         await SplashScreen.hideAsync();
       }
     }
     prepare();
-  }, []);
+
+    // 1. Listen for notifications the OS delivers while the app is open
+    const subscription = setupNotificationReceivedListener();
+
+    // 2. Global Tray-Click Handler: Navigate to notifications list on tap
+    const responseSubscription =
+      Notifications.addNotificationResponseReceivedListener((response) => {
+        router.push("/notifications" as any);
+      });
+
+    // 3. Real-time Sync: Check for native alerts whenever the app is foregrounded
+    const handleAppStateChange = (nextAppState: AppStateStatus) => {
+      if (nextAppState === "active") {
+        syncPendingNdrrmcAlerts();
+      }
+    };
+
+    const appStateSubscription = AppState.addEventListener(
+      "change",
+      handleAppStateChange,
+    );
+
+    return () => {
+      subscription.remove();
+      responseSubscription.remove();
+      appStateSubscription.remove();
+    };
+  }, [router]);
 
   return (
     <ThemeProvider value={BgTheme}>

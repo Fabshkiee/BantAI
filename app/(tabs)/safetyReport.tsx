@@ -8,18 +8,13 @@ import MascotReporter, { getRiskVariant } from "@/components/MascotReporter";
 import { getScanSessionDetails, type ScanSessionDetails } from "@/db/db";
 import { HAZARD_TYPES, type DisasterType } from "@/db/hazards";
 import { hazardDictionary } from "@/hazardDictionary";
+import i18n from "@/languages/i18n";
 import { calculateRoomRisk, type Detection } from "@/lib/riskEngine";
 import * as ImagePicker from "expo-image-picker";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import {
-  ActivityIndicator,
-  Alert,
-  Animated,
-  Image,
-  Text,
-  View,
-} from "react-native";
+import { useTranslation } from "react-i18next";
+import { ActivityIndicator, Alert, Animated, Image, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const SEVERITY_PRIORITY: Record<string, number> = {
@@ -29,17 +24,26 @@ const SEVERITY_PRIORITY: Record<string, number> = {
   low: 1,
 };
 
-const BOOST_MESSAGES = [
-  "Risk Mitigated!",
-  "Room Secured!",
-  "Hazard Resolved!",
-  "Safety Improved!",
-  "BantAI Approved!",
-  "Well done!",
-];
+const HEADER_CONTENT_HEIGHT = 68;
 
 export default function SafetyReport() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
+  const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
+
+  useEffect(() => {
+    const handleLanguageChanged = () => {
+      setCurrentLanguage(i18n.language);
+    };
+
+    i18n.on("languageChanged", handleLanguageChanged);
+
+    return () => {
+      i18n.off("languageChanged", handleLanguageChanged);
+    };
+  }, []);
+
   const {
     imageUri,
     detections: detectionsJson,
@@ -64,12 +68,15 @@ export default function SafetyReport() {
     DisasterType | "all"
   >("all");
 
-  // Boost Animation State
   const [showBoost, setShowBoost] = useState(false);
   const [boostScore, setBoostScore] = useState(0);
   const [oldBoostScore, setOldBoostScore] = useState(0);
   const [boostMessage, setBoostMessage] = useState("");
   const boostAnim = useRef(new Animated.Value(0)).current;
+
+  const BOOST_MESSAGES = t("boost_messages.messages", {
+    returnObjects: true,
+  }) as string[];
 
   const triggerBoost = (newScore: number, oldScore: number) => {
     setBoostScore(newScore);
@@ -93,13 +100,14 @@ export default function SafetyReport() {
         }).start(() => {
           setShowBoost(false);
         });
-      }, 2500); // Dwell time for the score climb and message
+      }, 2500);
     });
   };
 
   const executeDatabaseSearch = (_sqlCommand: string, filterId: string) => {
     setActiveDisasterTab(filterId as DisasterType | "all");
   };
+
   const loadSession = useCallback(
     async (quiet = false) => {
       if (!hasSession || sessionId === null) {
@@ -116,27 +124,26 @@ export default function SafetyReport() {
         const details = await getScanSessionDetails(sessionId);
         if (!details) {
           setSession(null);
-          setLoadError("We could not find that saved scan.");
+          setLoadError(t("safety_report.saved_scan_unavailable"));
           return;
         }
 
         setSession(details);
       } catch (error) {
         setSession(null);
-        setLoadError("We could not load the saved scan details.");
+        setLoadError(t("safety_report.loading_scan"));
         console.error("Failed to load scan session:", error);
       } finally {
         if (!quiet) setIsLoadingSession(false);
       }
     },
-    [hasSession, sessionId],
+    [hasSession, sessionId, t],
   );
 
   useEffect(() => {
     loadSession();
   }, [loadSession]);
 
-  // 1. Map and Enrich Hazards using the Dictionary (Fallback if NO session)
   const mappedHazards: HazardData[] = [];
   for (let i = 0; i < detections.length; i++) {
     const d = detections[i];
@@ -156,7 +163,6 @@ export default function SafetyReport() {
       | "medium"
       | "high"
       | "critical";
-    const variant = baseVariant;
 
     const disasterTypes = Array.from(
       new Set<DisasterType>([
@@ -168,16 +174,19 @@ export default function SafetyReport() {
 
     mappedHazards.push({
       id: i.toString(),
-      title: title,
-      variant: variant as "low" | "medium" | "high" | "critical",
+      title,
+      internalName: d.class,
+      variant: baseVariant,
       reason:
         seed?.description ||
         entry?.description ||
-        `AI detected this hazard with ${(d.confidence * 100).toFixed(1)}% confidence.`,
+        t("safety_report.fallback_reason", {
+          confidence: (d.confidence * 100).toFixed(1),
+        }),
       suggestedFix:
         seed?.recommendation ||
         entry?.fire_fixes?.[0] ||
-        "Please inspect the area and resolve the hazard to ensure safety.",
+        t("safety_report.fallback_fix"),
       disasterTypes,
       earthquake_reason: entry?.earthquake_reason,
       typhoon_reason: entry?.typhoon_reason,
@@ -191,7 +200,6 @@ export default function SafetyReport() {
     });
   }
 
-  // 2. Sort by urgency (Priority)
   mappedHazards.sort(
     (a, b) =>
       (SEVERITY_PRIORITY[b.variant] || 0) - (SEVERITY_PRIORITY[a.variant] || 0),
@@ -203,7 +211,6 @@ export default function SafetyReport() {
     spatialInsights: rawInsights,
   } = calculateRoomRisk(detections);
 
-  // Derive current session risk state (for spatial insights)
   const sessionDetections: Detection[] = (session?.hazards ?? [])
     .filter((h) => !h.isAssessed)
     .map((h) => ({
@@ -215,8 +222,10 @@ export default function SafetyReport() {
   const { spatialInsights: sessionInsights } =
     calculateRoomRisk(sessionDetections);
 
-  const insets = useSafeAreaInsets();
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const headerTotalHeight = insets.top + HEADER_CONTENT_HEIGHT;
+  const scrollYClamped = Animated.diffClamp(scrollY, 0, headerTotalHeight);
 
   useFocusEffect(
     useCallback(() => {
@@ -228,6 +237,11 @@ export default function SafetyReport() {
       }).start();
     }, [fadeAnim]),
   );
+
+  const translateY = scrollYClamped.interpolate({
+    inputRange: [0, headerTotalHeight],
+    outputRange: [0, -headerTotalHeight],
+  });
 
   const finalRoomScore = session?.roomScore ?? rawScore ?? 15;
   const finalRiskVariant = hasSession
@@ -245,7 +259,7 @@ export default function SafetyReport() {
     finalHazards
       ? activeDisasterTab === "all"
         ? finalHazards
-        : (finalHazards as HazardData[]).filter((h) =>
+        : finalHazards.filter((h) =>
             h.disasterTypes?.includes(activeDisasterTab),
           )
       : []
@@ -255,19 +269,17 @@ export default function SafetyReport() {
   );
 
   const activeContextLabel: Record<DisasterType | "all", string> = {
-    all: "All Hazards",
-    earthquake: "Earthquake",
-    typhoon: "Typhoon",
-    fire: "Fire",
+    all: t("safety_report.context_all"),
+    earthquake: t("safety_report.context_earthquake"),
+    typhoon: t("safety_report.context_typhoon"),
+    fire: t("safety_report.context_fire"),
   };
 
   const sortingContextMessage: Record<DisasterType | "all", string> = {
-    earthquake:
-      "You are viewing earthquake-focused cards. Each reason and suggested solution explains the earthquake safety context of the hazard.",
-    typhoon:
-      "You are viewing typhoon-focused cards. Each reason and suggested solution explains the typhoon safety context of the hazard.",
-    fire: "You are viewing fire-focused cards. Each reason and suggested solution explains the fire safety context of the hazard.",
-    all: "You are viewing all hazards. Reasons and suggested sollutions are based on each hazard's most critical risk evaluation.",
+    earthquake: t("safety_report.sorting_message_earthquake"),
+    typhoon: t("safety_report.sorting_message_typhoon"),
+    fire: t("safety_report.sorting_message_fire"),
+    all: t("safety_report.sorting_message_all"),
   };
 
   const handleUploadAnotherImage = useCallback(async () => {
@@ -276,8 +288,8 @@ export default function SafetyReport() {
         await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== "granted") {
         Alert.alert(
-          "Permission Needed",
-          "We need gallery permissions to select a photo.",
+          t("common.permission_needed"),
+          t("safety_report.upload_permission_message"),
         );
         return;
       }
@@ -304,49 +316,90 @@ export default function SafetyReport() {
     } catch (error) {
       console.error("Failed to import image:", error);
       Alert.alert(
-        "Import failed",
-        "We could not process that image. Please try again.",
+        t("common.import_failed"),
+        t("common.could_not_process_image"),
       );
     }
-  }, [router]);
+  }, [router, t]);
 
   const handleConfirmScanAnotherRoom = useCallback(() => {
     Alert.alert(
-      "Scan another room?",
-      "Your current report will stay in history. Continue to camera?",
+      t("safety_report.confirm_scan_title"),
+      t("safety_report.confirm_scan_message"),
       [
-        { text: "Cancel", style: "cancel" },
+        { text: t("common.cancel"), style: "cancel" },
         {
-          text: "Continue",
+          text: t("safety_report.confirm_scan_continue"),
           onPress: () => router.push("/camera"),
         },
       ],
     );
-  }, [router]);
+  }, [router, t]);
+
+  const handleViewReport = useCallback(() => {
+    if (!hasSession || sessionId === null) {
+      Alert.alert(
+        "Report unavailable",
+        "This scan does not have a saved session report yet.",
+      );
+      return;
+    }
+
+    router.push({
+      pathname: "/scanReport",
+      params: { sessionId: String(sessionId) },
+    });
+  }, [hasSession, router, sessionId]);
 
   return (
-    <View style={{ flex: 1 }}>
+    <View className="flex-1 bg-surface-default">
+      <Animated.View
+        style={{
+          transform: [{ translateY }],
+          paddingTop: insets.top + 12,
+          height: headerTotalHeight,
+        }}
+        className="absolute top-0 left-0 right-0 z-20 bg-surface-default px-6 justify-center"
+      >
+        <View className="flex-row items-center">
+          <View>
+            <Button
+              label="Safety Report"
+              variant="returnLg"
+              icon={<ArrowLeftIcon color="black" size={18} />}
+              iconPosition="left"
+              onPress={() => router.push("/scans" as any)}
+            />
+          </View>
+
+
+          <View className="ml-auto flex-row gap-2 items-center">
+            {hasSession ? (
+              <Button
+                label="Save"
+                variant="save"
+                size="compact"
+                onPress={handleViewReport}
+              />
+            ) : null}
+          </View>
+        </View>
+      </Animated.View>
+
       <Animated.ScrollView
         className="flex-1 mt-9 pb-56 mb-8 bg-surface-default"
         showsVerticalScrollIndicator={false}
         contentContainerClassName="pb-14"
+        contentContainerStyle={{ paddingTop: headerTotalHeight + 12 }}
         style={{ opacity: fadeAnim }}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: true },
+        )}
+        scrollEventThrottle={16}
       >
-        <Animated.View style={{ flex: 1 }}>
-          <View className="flex flex-row items-center ml-6">
-            <Button
-              label=""
-              variant="return"
-              icon={<ArrowLeftIcon color="black" size={18} />}
-              iconPosition="left"
-              onPress={() => router.push("/scans")}
-            />
-            <Text className="text-h3 font-bold text-center -ml-2">
-              Safety Report
-            </Text>
-          </View>
-
-          <View className="mx-7 mt-7 gap-7">
+        <Animated.View style={{ flex: 2 }}>
+          <View className="mx-7 gap-7">
             <View className="flex-1 justify-center items-center gap-4">
               <View className="relative">
                 <MascotReporter
@@ -356,15 +409,15 @@ export default function SafetyReport() {
               </View>
             </View>
 
-            <Text className="text-text-default -mt-5 text-center text-md">
-              BantAI scans provide directional and informational guidance.
-              Results are purely advisory and each must be validated by your own
-              physical inspection.
+            <Text className="text-text-subtle -mt-5 text-center text-sm">
+              {t("safety_report.disclaimer")}
             </Text>
 
             {hasSession && loadError ? (
-              <View className="rounded-lg bg-surface-light px-4 py-3">
-                <Text className="font-semibold">Saved scan unavailable</Text>
+              <View className="rounded-2xl bg-surface-light px-4 py-3">
+                <Text className="font-semibold">
+                  {t("safety_report.saved_scan_unavailable")}
+                </Text>
                 <Text className="text-text-subtle mt-1">{loadError}</Text>
               </View>
             ) : null}
@@ -372,7 +425,7 @@ export default function SafetyReport() {
             {finalSpatialInsights && finalSpatialInsights.length > 0 && (
               <View className="bg-surface-critical/10 border border-surface-critical p-4 rounded-lg gap-2">
                 <Text className="text-text-critical font-bold text-lg">
-                  ⚠️ Spatial Warnings
+                  {t("safety_report.spatial_warnings_title")}
                 </Text>
                 {finalSpatialInsights.map((insight: string, idx: number) => (
                   <Text key={idx} className="text-text-default text-base">
@@ -387,25 +440,29 @@ export default function SafetyReport() {
                 Captured Image
               </Text>
               <View
-                className="w-full rounded-lg"
-                style={{ overflow: "hidden", aspectRatio: 4 / 3 }}
+                className="w-full rounded-lg bg-black"
+                style={{ overflow: "hidden", height: 280 }}
               >
-                {/* Change to the uploaded image in the db*/}
                 <Image
-                  source={require("@/assets/images/room.png")}
+                  source={
+                    finalImageUri
+                      ? { uri: finalImageUri as string }
+                      : require("@/assets/images/room.png")
+                  }
                   style={{ width: "100%", height: "100%" }}
-                  resizeMode="cover"
+                  resizeMode="contain"
                 />
               </View>
             </View>
 
             <View className="mb-5">
-              <Text className="text-2xl font-bold mb-1">
-                Identified Hazards ({finalHazardCount})
+              <Text className="text-2xl font-bold mt-10 mb-1">
+                {t("safety_report.identified_hazards", {
+                  count: finalHazardCount,
+                })}
               </Text>
               <Text className="text-lg">
-                After assessing each hazard, apply the recommended solution, and
-                press the 'Mark as Resolved' button once finished.
+                {t("safety_report.hazards_instruction")}
               </Text>
             </View>
 
@@ -417,10 +474,11 @@ export default function SafetyReport() {
                 />
               </View>
 
-              <View className=" rounded-lg bg-surface-default px-5 py-3 border border-border-secondary">
+              <View className="rounded-lg bg-surface-default px-5 py-3 border border-border-secondary">
                 <Text className="text-md font-semibold text-text-default">
-                  Reason & Solution Context:{" "}
-                  {activeContextLabel[activeDisasterTab]}
+                  {t("safety_report.reason_context_label", {
+                    context: activeContextLabel[activeDisasterTab],
+                  })}
                 </Text>
                 <Text className="text-md text-text-subtle mt-2 leading-5">
                   {sortingContextMessage[activeDisasterTab]}
@@ -433,7 +491,7 @@ export default function SafetyReport() {
                 <View className="items-center justify-center py-10">
                   <ActivityIndicator size="large" color="#0f172a" />
                   <Text className="text-text-subtle mt-4">
-                    Loading saved scan details...
+                    {t("safety_report.loading_scan")}
                   </Text>
                 </View>
               ) : (
@@ -460,18 +518,18 @@ export default function SafetyReport() {
 
             <View className="w-full gap-3">
               <Button
-                label="Scan Another Room"
+                label={t("safety_report.scan_another_room")}
                 onPress={handleConfirmScanAnotherRoom}
                 icon={<RefreshIcon color="white" size={26} />}
               />
               <Button
-                label="Upload Another Image"
+                label={t("safety_report.upload_another_image")}
                 variant="secondary"
                 onPress={handleUploadAnotherImage}
                 icon={<PlusIcon color="#006ec2" size={24} />}
               />
               <Button
-                label="Back to Home"
+                label={t("common.back_to_home")}
                 variant="secondary"
                 onPress={() => router.push("/")}
               />
