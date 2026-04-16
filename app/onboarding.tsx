@@ -35,6 +35,7 @@ const LANGUAGES: LanguageOption[] = ["English", "Tagalog", "Hiligaynon"];
 const LANGUAGE_SCREEN_STYLES = {
   container: "flex-1 items-center mt-6",
   image: "w-[280px] h-[280px] mt-14",
+  imageOffset: { x: 0, y: 0 },
   title: "text-h2 text-center font-bold text-text-default mt-2",
   subtitle: "text-md text-center text-text-default mt-4 mb-8",
   languageListContainer: "w-full gap-3",
@@ -42,7 +43,8 @@ const LANGUAGE_SCREEN_STYLES = {
 
 const SLIDE_1_STYLES = {
   container: "flex-1 items-center mt-8 relative",
-  image: "w-[283.97px] h-[304.02px] mt-14",
+  image: "w-[280px] h-[280px] mt-14",
+  imageOffset: { x: 15, y: 0 },
   title: "text-h2 text-center font-bold text-text-default mt-5",
   description: "text-md text-center text-text-default mt-5 px-2",
   dotsContainer:
@@ -51,7 +53,8 @@ const SLIDE_1_STYLES = {
 
 const SLIDE_2_STYLES = {
   container: "flex-1 items-center mt-8 relative",
-  image: "w-[280px] h-[280px] mt-6",
+  image: "w-[280px] h-[280px] mt-14",
+  imageOffset: { x: -10, y: 0 },
   title: "text-h2 text-center font-bold text-text-default mt-5",
   description: "text-md text-center text-text-default mt-5 px-2",
   dotsContainer:
@@ -60,7 +63,8 @@ const SLIDE_2_STYLES = {
 
 const SLIDE_3_STYLES = {
   container: "flex-1 items-center mt-8 relative",
-  image: "w-[280px] h-[280px] mt-6",
+  image: "w-[280px] h-[280px] mt-14",
+  imageOffset: { x: 0, y: 0 },
   title: "text-h2 text-center font-bold text-text-default mt-5",
   description: "text-md text-center text-text-default mt-5 px-2",
   dotsContainer:
@@ -79,6 +83,10 @@ const getSlideStyles = (index: number) => {
       return SLIDE_1_STYLES;
   }
 };
+
+const getImageOffsetStyle = (offset: { x: number; y: number }) => ({
+  transform: [{ translateX: offset.x }, { translateY: offset.y }],
+});
 
 const LANGUAGE_SCREEN_BUTTON_STYLES = {
   ctaContainer: "w-full gap-5",
@@ -203,6 +211,7 @@ export default function OnboardingScreen() {
           <Image
             source={require("@/assets/mascot/MascotWave.png")}
             className={LANGUAGE_SCREEN_STYLES.image}
+            style={getImageOffsetStyle(LANGUAGE_SCREEN_STYLES.imageOffset)}
             resizeMode="contain"
           />
 
@@ -263,6 +272,7 @@ export default function OnboardingScreen() {
           <Image
             source={activeSlide?.image}
             className={getSlideStyles(stepIndex).image}
+            style={getImageOffsetStyle(getSlideStyles(stepIndex).imageOffset)}
             resizeMode="contain"
           />
 
