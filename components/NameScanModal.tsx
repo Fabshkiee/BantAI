@@ -131,7 +131,7 @@ export default function NameScanModal({
                 {t("name_scan_modal.suggestions", "Suggestions")}
               </Text>
 
-              <View className="flex-row flex-wrap gap-2 mb-8">
+              <View className="flex-row flex-wrap gap-2 mb-8 overflow-hidden">
                 {SUGGESTIONS.map((suggestion) => (
                   <Pressable
                     key={suggestion}
