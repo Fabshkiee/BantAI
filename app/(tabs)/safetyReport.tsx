@@ -389,7 +389,7 @@ export default function SafetyReport() {
             <Button
               label=""
               variant="return"
-              className="w-12 h-12 rounded-full p-0 flex items-center justify-center pt-1"
+              className="w-10 h-10 rounded-full p-0 flex items-center justify-center"
               icon={<ArrowLeftIcon color="black" size={24} />}
               onPress={() => router.push("/scans" as any)}
             />
@@ -397,9 +397,9 @@ export default function SafetyReport() {
 
           <Pressable 
             onPress={() => setIsNamingModalVisible(true)}
-            className="flex-1 active:opacity-70 flex-row items-center ml-2"
+            className="flex-1 active:opacity-70 flex-row items-center ml-1"
           >
-            <Text className="text-h3 font-bold text-text-default" numberOfLines={1}>
+            <Text className="text-h3 font-bold text-text-default leading-none" style={{ marginTop: -2 }}>
               {session?.roomName || t("safety_report.title", "Safety Report")}
             </Text>
             <View className="ml-2 opacity-30">
