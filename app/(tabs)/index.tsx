@@ -1,7 +1,6 @@
 import ScanIcon from "@/assets/icons/ScanIcon";
 import ArticleCard from "@/components/ArticleCard";
 import Button from "@/components/Button";
-import NotificationButton from "@/components/NotificationButton";
 import { useRouter } from "expo-router";
 import { Image, ScrollView, Text, View } from "react-native";
 
@@ -22,7 +21,6 @@ export default function HomeScreen() {
             className="w-52 h-14"
             resizeMode="contain"
           />
-          <NotificationButton size={48} />
         </View>
 
         {/* Hero Section */}
