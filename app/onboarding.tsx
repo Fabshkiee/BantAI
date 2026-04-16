@@ -1,4 +1,6 @@
 import ArrowIcon from "@/assets/icons/ArrowIcon";
+import PHFlagIcon from "@/assets/icons/PHFlagIcon";
+import USFlagIcon from "@/assets/icons/USFlagIcon";
 import {
   hasCompletedOnboarding,
   markOnboardingCompleted,
@@ -30,6 +32,11 @@ const ONBOARDING_SLIDES = [
 ] as const;
 
 const LANGUAGES: LanguageOption[] = ["English", "Tagalog", "Hiligaynon"];
+
+const getLanguageFlagIcon = (language: LanguageOption) => {
+  if (language === "English") return <USFlagIcon />;
+  return <PHFlagIcon />;
+};
 
 const ONBOARDING_COPY: Record<
   LanguageOption,
@@ -357,11 +364,12 @@ export default function OnboardingScreen() {
                         : "border-border-secondary bg-surface-default"
                     }`}
                   >
-                    <View className="flex-row items-center gap-3">
-                      <View className="w-9 h-9 rounded-full bg-[#d7e9f8] items-center justify-center">
-                        <Text className="text-xs font-semibold text-text-default">
-                          {language === "English" ? "US" : "PH"}
-                        </Text>
+                    <View className="flex-row items-center gap-5">
+                      <View
+                        className="items-center justify-center"
+                        style={{ transform: [{ scale: 1.15 }] }}
+                      >
+                        {getLanguageFlagIcon(language)}
                       </View>
                       <Text
                         className={`text-xl ${
