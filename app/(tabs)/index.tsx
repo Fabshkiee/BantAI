@@ -1,6 +1,7 @@
 import ScanIcon from "@/assets/icons/ScanIcon";
 import ArticleCard from "@/components/ArticleCard";
 import Button from "@/components/Button";
+import NotificationButton from "@/components/NotificationButton";
 import { useRouter } from "expo-router";
 import { Image, ScrollView, Text, View } from "react-native";
 
@@ -14,13 +15,18 @@ export default function HomeScreen() {
       showsVerticalScrollIndicator={false}
     >
       <View className="gap-14">
-        {/* Hero Section */}
-        <View className="justify-center items-center gap-4">
+        {/* Header Section */}
+        <View className="flex-row justify-between items-center mt-5">
           <Image
             source={require("@/assets/logo/horizontal.png")}
-            className="flex w-52 h-14 mt-5"
+            className="w-52 h-14"
             resizeMode="contain"
           />
+          <NotificationButton size={48} />
+        </View>
+
+        {/* Hero Section */}
+        <View className="justify-center items-center gap-4">
           <Image
             source={require("@/assets/mascot/MascotWave.png")}
             className="flex w-[250px] h-[250px] ml-5"
