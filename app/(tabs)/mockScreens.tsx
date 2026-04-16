@@ -1,7 +1,7 @@
 import { resetOnboardingState } from "@/lib/onboardingStorage";
-import * as ScreenOrientation from "expo-screen-orientation";
 import { router } from "expo-router";
-import React, { useEffect, useMemo, useState } from "react";
+import * as ScreenOrientation from "expo-screen-orientation";
+import React, { useEffect, useState } from "react";
 import {
     Image,
     ImageSourcePropType,
@@ -49,10 +49,6 @@ export default function MockScreen() {
     };
   }, [activeStep]);
 
-  const activeImage = useMemo(() => {
-    return SAMPLE_IMAGES.get(activeStep) ?? SAMPLE_IMAGES.get(1)!;
-  }, [activeStep]);
-
   const handlePress = () => {
     setActiveStep((currentStep) => {
       if (currentStep >= 8) {
@@ -71,11 +67,21 @@ export default function MockScreen() {
   return (
     <View className="flex-1 bg-black">
       <Pressable className="flex-1" onPress={handlePress}>
-        <Image
-          source={activeImage}
-          resizeMode="cover"
-          style={{ width, height }}
-        />
+        <View style={{ width, height }}>
+          {Array.from(SAMPLE_IMAGES.entries()).map(([step, source]) => (
+            <Image
+              key={step}
+              source={source}
+              resizeMode="cover"
+              style={{
+                position: "absolute",
+                width,
+                height,
+                opacity: step === activeStep ? 1 : 0,
+              }}
+            />
+          ))}
+        </View>
       </Pressable>
 
       <View className="absolute left-4 right-4 top-12 items-center">
