@@ -1,4 +1,5 @@
 import ArrowLeftIcon from "@/assets/icons/ArrowLeftIcon";
+import MoreIcon from "@/assets/icons/MoreIcon";
 import SafetyIcon from "@/assets/icons/SafetyIcon";
 import WarningIcon from "@/assets/icons/WarningIcon";
 import Button from "@/components/Button";
@@ -15,12 +16,14 @@ import { useFocusEffect, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Animated,
+  DeviceEventEmitter,
   Modal,
   Pressable,
   ScrollView,
   Text,
   View,
 } from "react-native";
+import { syncPendingNdrrmcAlerts } from "@/lib/notificationService";
 
 // ──────────────────────────────────────────────────
 // Delete Confirmation Modal (bottom sheet)
@@ -30,13 +33,11 @@ const DeleteModal = ({
   isVisible,
   onClose,
   onDeleteOne,
-  onDeleteAll,
   selectedTitle,
 }: {
   isVisible: boolean;
   onClose: () => void;
   onDeleteOne: () => void;
-  onDeleteAll: () => void;
   selectedTitle: string;
 }) => {
   const slideAnim = useRef(new Animated.Value(400)).current;
@@ -95,17 +96,88 @@ const DeleteModal = ({
               onPress={() => handleClose(onDeleteOne)}
             />
 
-            {/* Delete all notifications */}
+            {/* Cancel */}
             <Pressable
-              className="border border-border-default p-4 rounded-full flex-row justify-center items-center active:opacity-80 active:scale-95 transition-all"
-              onPress={() => handleClose(onDeleteAll)}
+              className="bg-gray-100 p-4 rounded-full items-center mt-2 active:opacity-80 active:scale-95 transition-all"
+              onPress={() => handleClose()}
             >
-              <Text className="text-text-default font-semibold text-lg">
-                Delete All Notifications
+              <Text className="text-text-subtle font-semibold text-lg">
+                Cancel
               </Text>
             </Pressable>
+          </Pressable>
+        </Animated.View>
+      </Pressable>
+    </Modal>
+  );
+};
 
-            {/* Cancel */}
+// ──────────────────────────────────────────────────
+// Global Actions Modal (top right menu)
+// ──────────────────────────────────────────────────
+
+const GlobalActionsModal = ({
+  isVisible,
+  onClose,
+  onDeleteAll,
+}: {
+  isVisible: boolean;
+  onClose: () => void;
+  onDeleteAll: () => void;
+}) => {
+  const slideAnim = useRef(new Animated.Value(400)).current;
+
+  useEffect(() => {
+    if (isVisible) {
+      slideAnim.setValue(400);
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [isVisible, slideAnim]);
+
+  const handleClose = (callback?: () => void) => {
+    Animated.timing(slideAnim, {
+      toValue: 400,
+      duration: 250,
+      useNativeDriver: true,
+    }).start(() => {
+      onClose();
+      if (callback) callback();
+    });
+  };
+
+  return (
+    <Modal
+      visible={isVisible}
+      animationType="fade"
+      transparent={true}
+      onRequestClose={() => handleClose()}
+    >
+      <Pressable
+        className="flex-1 bg-black/50 justify-end"
+        onPress={() => handleClose()}
+      >
+        <Animated.View style={{ transform: [{ translateY: slideAnim }] }}>
+          <Pressable
+            className="bg-white rounded-t-3xl p-6 pb-10 gap-3 shadow-xl border-t border-gray-200"
+            onPress={(e) => e.stopPropagation()}
+          >
+            <Text className="text-2xl font-bold text-center mb-2">
+              Notification Options
+            </Text>
+            <Text className="text-md text-text-subtle text-center mb-4 font-text">
+              Manage your notification history
+            </Text>
+
+            <Button
+              label="Delete All Notifications"
+              variant="cancel"
+              onPress={() => handleClose(onDeleteAll)}
+            />
+
             <Pressable
               className="bg-gray-100 p-4 rounded-full items-center mt-2 active:opacity-80 active:scale-95 transition-all"
               onPress={() => handleClose()}
@@ -129,6 +201,7 @@ export default function NotificationsScreen() {
   const router = useRouter();
   const [groups, setGroups] = useState<GroupedNotifications[]>([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isGlobalModalOpen, setIsGlobalModalOpen] = useState(false);
   const [selectedNotif, setSelectedNotif] = useState<NotificationRow | null>(
     null,
   );
@@ -158,13 +231,8 @@ export default function NotificationsScreen() {
       console.warn("Failed to mark notification as read:", e);
     }
 
-    if (notif.type === "ndrrmc" || notif.type === "seasonal") {
-      router.push("/lands" as any);
-    } else if (notif.type === "monthly") {
-      router.push("/photoInstructions" as any);
-    } else if (notif.type === "hazard") {
-      router.push("/scans" as any);
-    }
+    // All notification clicks lead to the scanning instructions/camera
+    router.push("/landscapeOrientation" as any);
   };
 
   // Long-press → open delete modal
@@ -203,6 +271,19 @@ export default function NotificationsScreen() {
     return <SafetyIcon size={28} />;
   };
 
+  // 2. Live Update Listener: Refresh list automatically when a native alert arrives
+  useEffect(() => {
+    const subscription = DeviceEventEmitter.addListener(
+      "onNewNDRRMCAlert",
+      async () => {
+        console.log("BantAI: Live Update Triggered!");
+        await syncPendingNdrrmcAlerts();
+        await loadNotifications();
+      },
+    );
+    return () => subscription.remove();
+  }, []);
+
   const formatTime = (timestamp: number) => {
     const date = new Date(timestamp * 1000);
     const hours = date.getHours();
@@ -219,7 +300,7 @@ export default function NotificationsScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View className="pb-20">
-          <View className="items-start -ml-4 mb-3">
+          <View className="flex-row items-center justify-between mb-3 -ml-4 -mr-2">
             <Button
               variant="returnLg"
               label="Notifications"
@@ -229,6 +310,12 @@ export default function NotificationsScreen() {
                 router.back();
               }}
             />
+            <Pressable
+              className="p-4 active:opacity-50"
+              onPress={() => setIsGlobalModalOpen(true)}
+            >
+              <MoreIcon color="#64748b" />
+            </Pressable>
           </View>
 
           {groups.length === 0 && (
@@ -269,13 +356,19 @@ export default function NotificationsScreen() {
         </View>
       </ScrollView>
 
-      {/* Delete Modal */}
+      {/* Delete Modal (for single items) */}
       <DeleteModal
         isVisible={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onDeleteOne={handleDeleteOne}
-        onDeleteAll={handleDeleteAll}
         selectedTitle={selectedNotif?.title ?? ""}
+      />
+
+      {/* Global Actions Modal (for triple dot) */}
+      <GlobalActionsModal
+        isVisible={isGlobalModalOpen}
+        onClose={() => setIsGlobalModalOpen(false)}
+        onDeleteAll={handleDeleteAll}
       />
     </>
   );
