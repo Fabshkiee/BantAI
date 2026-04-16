@@ -295,6 +295,7 @@ export default function ScanReportScreen() {
             label={
               isExporting ? "Exporting PDF..." : "Save/Export PDF to Downloads"
             }
+            variant="save"
             onPress={handleExportPdf}
             loading={isExporting}
             disabled={isExporting}

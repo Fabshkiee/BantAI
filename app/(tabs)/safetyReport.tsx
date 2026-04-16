@@ -361,12 +361,15 @@ export default function SafetyReport() {
                 Safety Report
               </Text>
             </View>
+            <View className="flex-1" />
             {hasSession ? (
-              <View className="ml-auto">
+              <View className="pl-3">
                 <Button
                   label="Save"
-                  variant="return"
+                  variant="save"
+                  size="compact"
                   iconPosition="right"
+                  className="rounded-full"
                   onPress={handleViewReport}
                 />
               </View>
